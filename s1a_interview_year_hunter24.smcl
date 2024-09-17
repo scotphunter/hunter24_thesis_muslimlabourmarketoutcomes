@@ -1,0 +1,1210 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}/Users/scothunter/Library/CloudStorage/OneDrive-UniversityofStirling/thesis/directory/syntax/prep/attachments/s1a_interview_year_hunter24.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res}17 Sep 2024, 12:59:22
+
+{com}. do "/var/folders/cj/8dv18brd2sd49mkfxtpn8j1w0000gn/T//SD09143.000000"
+{txt}
+{com}. ** ************************************************************************** **
+.         * SENSITIVITY ANALYSIS 1
+.         * 
+.         * Testing interview year versus wave of UKHLS as controls. 
+.         
+.         * Part of PhD research on assessing impact of contemporary migration 
+.         * patterns on the Muslim community in the UK. 
+.         * Last updated 15 AUG 2024 
+.         * Scot Hunter 
+. ** ************************************************************************** **
+. 
+. 
+. 
+. /*
+> 
+> When conducting analysis with pooled data, it is common practice to control for potential period effects by including controls for survey waves. Period effects account for how variations over time can lead to shifts in the social, cultural, economic, or physical environments of respondents in cross-sectional surveys (Khattab and Hussein, 2018, p. 1026).
+> 
+> In the context of the UK Household Longitudinal Study (UKHLS), researchers typically use the interview year (`intdaty_dv') in their models to control for period effects. However, there is an argument that using survey wave dummies might be more effective. These dummies can capture non-period influences, such as changes in survey delivery arrangements, although they may be less precise in measuring period effects compared to the interview year.
+> 
+> This sensitivity analysis compares the use of both survey wave dummies and interview year to check for consistency and identify any significant differences in the results.
+> 
+> */ 
+. 
+. 
+. * data prep. 
+. 
+. use $ptemp/file8.dta, clear 
+{txt}(Substantive data for responding adults (16+), incl. proxies)
+
+{com}. keep if dvage >= 16 & dvage < 66
+{txt}(102,658 observations deleted)
+
+{com}. capture drop age2
+{txt}
+{com}. gen age2 = dvage*dvage
+{txt}
+{com}. recode health 1=1 2=0
+{txt}(283,804 changes made to {bf:health})
+
+{com}. lab var dvage_ind "age"
+{txt}
+{com}. lab var health "health"
+{txt}
+{com}. clonevar relg = ff_religion
+{txt}(24,112 missing values generated)
+
+{com}. recode relg 2 = 0 
+{txt}(149,740 changes made to {bf:relg})
+
+{com}. tab relg
+
+          {txt}relg {c |}      Freq.     Percent        Cum.
+{hline 15}{c +}{hline 35}
+0. No religion {c |}{res}    316,168       84.58       84.58
+{txt}    12. Muslim {c |}{res}     31,690        8.48       93.06
+{txt}     13. Hindu {c |}{res}     10,184        2.72       95.78
+{txt}    14. Jewish {c |}{res}      1,771        0.47       96.26
+{txt}      15. Sikh {c |}{res}      3,951        1.06       97.31
+{txt}  16. Buddhist {c |}{res}      5,140        1.38       98.69
+{txt}     97. Other {c |}{res}      4,899        1.31      100.00
+{txt}{hline 15}{c +}{hline 35}
+         Total {c |}{res}    373,803      100.00
+{txt}
+{com}. tab jbnssec8_dv, m
+
+       {txt}Current job: Eight Class NS-SEC {c |}      Freq.     Percent        Cum.
+{hline 39}{c +}{hline 35}
+1. Large employers & higher management {c |}{res}     12,251        3.08        3.08
+{txt}                2. Higher professional {c |}{res}     22,900        5.75        8.83
+{txt}    3. Lower management & professional {c |}{res}     77,465       19.47       28.30
+{txt}                       4. Intermediate {c |}{res}     36,611        9.20       37.50
+{txt}      5. Small employers & own account {c |}{res}     25,972        6.53       44.03
+{txt}      6. Lower supervisory & technical {c |}{res}     19,544        4.91       48.94
+{txt}                       7. Semi-routine {c |}{res}     48,234       12.12       61.06
+{txt}                            8. Routine {c |}{res}     26,006        6.54       67.60
+{txt}                                     . {c |}{res}    128,932       32.40      100.00
+{txt}{hline 39}{c +}{hline 35}
+                                 Total {c |}{res}    397,915      100.00
+{txt}
+{com}. recode  jbnssec8_dv . = -9
+{txt}(128,932 changes made to {bf:jbnssec8_dv})
+
+{com}. capture drop topro 
+{txt}
+{com}. gen topro = jbnssec8_dv
+{txt}
+{com}. recode topro 1 2 = 1 -9 = . * = 0 
+{txt}(385,664 changes made to {bf:topro})
+
+{com}. capture drop reason
+{txt}
+{com}. gen reason = jbstat
+{txt}(66 missing values generated)
+
+{com}. recode reason 1 2 3 5 = . 4 = 1 7 = 2 6 = 3 8 = 4 8 9 10 11 12 13 97 = 5
+{txt}(397,849 changes made to {bf:reason})
+
+{com}. label define reason 1 "retired" 2 "student" 3 "looking after family or home" 4 "long term illness or disabled" 5 "other"
+{txt}
+{com}. label values reason reason 
+{txt}
+{com}. capture drop looking 
+{txt}
+{com}. gen looking=(reason==3)
+{txt}
+{com}. recode intdaty_dv -9 = . 
+{txt}(9 changes made to {bf:intdaty_dv})
+
+{com}. 
+. 
+. ** interview year (year when survey was conducted - can vary across waves)
+. su intdaty_dv, detail
+
+                {txt}Interview date: Year, derived
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res}     2009           2009
+{txt} 5%    {res}     2009           2009
+{txt}10%    {res}     2010           2009       {txt}Obs         {res}    397,906
+{txt}25%    {res}     2011           2009       {txt}Sum of wgt. {res}    397,906
+
+{txt}50%    {res}     2014                      {txt}Mean          {res} 2014.239
+                        {txt}Largest       Std. dev.     {res} 3.399559
+{txt}75%    {res}     2017           2022
+{txt}90%    {res}     2019           2022       {txt}Variance      {res}   11.557
+{txt}95%    {res}     2020           2022       {txt}Skewness      {res} .2524635
+{txt}99%    {res}     2021           2022       {txt}Kurtosis      {res} 1.933656
+{txt}
+{com}. 
+. ** survey wave (wave of survey)
+. su wave, detail 
+
+                       {txt}Wave of survey 
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res}        1              1
+{txt} 5%    {res}        1              1
+{txt}10%    {res}        1              1       {txt}Obs         {res}    397,915
+{txt}25%    {res}        3              1       {txt}Sum of wgt. {res}    397,915
+
+{txt}50%    {res}        5                      {txt}Mean          {res}  5.74482
+                        {txt}Largest       Std. dev.     {res} 3.352803
+{txt}75%    {res}        8             12
+{txt}90%    {res}       11             12       {txt}Variance      {res} 11.24129
+{txt}95%    {res}       12             12       {txt}Skewness      {res} .2679817
+{txt}99%    {res}       12             12       {txt}Kurtosis      {res} 1.910296
+{txt}
+{com}. 
+. tab intdaty_dv wave 
+
+ {txt}Interview date: {c |}                                                           Wave of survey 
+   Year, derived {c |}      1. a       2. b       3. c       4. d       5. e       6. f       7. g       8. h       9. i      10. j      11. k      12. l {c |}     Total
+{hline 17}{c +}{hline 132}{c +}{hline 10}
+            2009 {c |}{res}    21,145          0          0          0          0          0          0          0          0          0          0          0 {txt}{c |}{res}    21,145 
+{txt}            2010 {c |}{res}    19,962     25,203          0          0          0          0          0          0          0          0          0          0 {txt}{c |}{res}    45,165 
+{txt}            2011 {c |}{res}     1,516     18,613     23,122          0          0          0          0          0          0          0          0          0 {txt}{c |}{res}    43,251 
+{txt}            2012 {c |}{res}         0        899     16,236     21,465          0          0          0          0          0          0          0          0 {txt}{c |}{res}    38,600 
+{txt}            2013 {c |}{res}         0          0      1,048     15,155     19,913          0          0          0          0          0          0          0 {txt}{c |}{res}    36,116 
+{txt}            2014 {c |}{res}         0          0          0      1,402     14,637     17,924          0          0          0          0          0          0 {txt}{c |}{res}    33,963 
+{txt}            2015 {c |}{res}         0          0          0          0      1,181     15,650     16,923          0          0          0          0          0 {txt}{c |}{res}    33,754 
+{txt}            2016 {c |}{res}         0          0          0          0          0      1,834     14,855     15,894          0          0          0          0 {txt}{c |}{res}    32,583 
+{txt}            2017 {c |}{res}         0          0          0          0          0          0      1,315     12,805     14,487          0          0          0 {txt}{c |}{res}    28,607 
+{txt}            2018 {c |}{res}         0          0          0          0          0          0          0      1,583     11,317     13,776          0          0 {txt}{c |}{res}    26,676 
+{txt}            2019 {c |}{res}         0          0          0          0          0          0          0          0      1,280     10,992     12,931          0 {txt}{c |}{res}    25,203 
+{txt}            2020 {c |}{res}         0          0          0          0          0          0          0          0          0        804     10,094     12,408 {txt}{c |}{res}    23,306 
+{txt}            2021 {c |}{res}         0          0          0          0          0          0          0          0          0          0        589      8,585 {txt}{c |}{res}     9,174 
+{txt}            2022 {c |}{res}         0          0          0          0          0          0          0          0          0          0          0        363 {txt}{c |}{res}       363 
+{txt}{hline 17}{c +}{hline 132}{c +}{hline 10}
+           Total {c |}{res}    42,623     44,715     40,406     38,022     35,731     35,408     33,093     30,282     27,084     25,572     23,614     21,356 {txt}{c |}{res}   397,906 
+{txt}
+{com}. * interview year varies across wave variable. 
+. 
+. 
+. /* sensitivity analysis: conduct seperate analyses using only the interview year and only the survey wave dummies. This helps in understanding the individual impact of each control. */ 
+. 
+. 
+. 
+. *MEN TEST 1 - Interview year 
+. logit participation i.redcats i.intdaty_dv ///
+>  if fem == 0 & par_miss == 0  [pw=nwei], robust cluster(pidp)
+
+{res}{txt}Iteration 0:{space 2}Log pseudolikelihood = {res:-69190.767}  
+Iteration 1:{space 2}Log pseudolikelihood = {res: -69051.43}  
+Iteration 2:{space 2}Log pseudolikelihood = {res:-69046.016}  
+Iteration 3:{space 2}Log pseudolikelihood = {res: -69046.01}  
+{res}
+{txt}{col 1}Logistic regression{col 56}{lalign 13:Number of obs}{col 69} = {res}{ralign 7:119,861}
+{txt}{col 56}{lalign 13:Wald chi2({res:23})}{col 69} = {res}{ralign 7:136.86}
+{txt}{col 56}{lalign 13:Prob > chi2}{col 69} = {res}{ralign 7:0.0000}
+{txt}{col 1}{lalign 20:Log pseudolikelihood}{col 21} = {res}{ralign 9:-69046.01}{txt}{col 56}{lalign 13:Pseudo R2}{col 69} = {res}{ralign 7:0.0021}
+
+{txt}{ralign 87:(Std. err. adjusted for {res:18,870} clusters in {res:pidp})}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}        participation{col 23}{c |} Coefficient{col 35}  std. err.{col 47}      z{col 55}   P>|z|{col 63}     [95% con{col 76}f. interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 14}redcats {c |}
+{space 2}White Muslim Brit.  {c |}{col 23}{res}{space 2} .6425368{col 35}{space 2} .2931278{col 46}{space 1}    2.19{col 55}{space 3}0.028{col 63}{space 4} .0680167{col 76}{space 3} 1.217057
+{txt}{space 5}Muslim Indian 1  {c |}{col 23}{res}{space 2} .8355681{col 35}{space 2} .2968419{col 46}{space 1}    2.81{col 55}{space 3}0.005{col 63}{space 4} .2537687{col 76}{space 3} 1.417368
+{txt}{space 2}Muslim Pakistani 1  {c |}{col 23}{res}{space 2} .0490196{col 35}{space 2} .1373581{col 46}{space 1}    0.36{col 55}{space 3}0.721{col 63}{space 4}-.2201974{col 76}{space 3} .3182365
+{txt}Muslim Bangladeshi 1  {c |}{col 23}{res}{space 2} .4191937{col 35}{space 2} .2005968{col 46}{space 1}    2.09{col 55}{space 3}0.037{col 63}{space 4} .0260312{col 76}{space 3} .8123562
+{txt}{space 6}Muslim Black 1  {c |}{col 23}{res}{space 2} -.267809{col 35}{space 2} .2283514{col 46}{space 1}   -1.17{col 55}{space 3}0.241{col 63}{space 4}-.7153695{col 76}{space 3} .1797515
+{txt}{space 6}Muslim Other 1  {c |}{col 23}{res}{space 2}-.5603539{col 35}{space 2} .4196081{col 46}{space 1}   -1.34{col 55}{space 3}0.182{col 63}{space 4}-1.382771{col 76}{space 3} .2620628
+{txt}{space 5}Muslim Indian 2  {c |}{col 23}{res}{space 2}-.6231939{col 35}{space 2} .2173673{col 46}{space 1}   -2.87{col 55}{space 3}0.004{col 63}{space 4}-1.049226{col 76}{space 3}-.1971618
+{txt}{space 2}Muslim Pakistani 2  {c |}{col 23}{res}{space 2}-.4708998{col 35}{space 2} .1210354{col 46}{space 1}   -3.89{col 55}{space 3}0.000{col 63}{space 4}-.7081247{col 76}{space 3}-.2336749
+{txt}Muslim Bangladeshi 2  {c |}{col 23}{res}{space 2}-.7986321{col 35}{space 2} .1710317{col 46}{space 1}   -4.67{col 55}{space 3}0.000{col 63}{space 4}-1.133848{col 76}{space 3}-.4634161
+{txt}{space 6}Muslim Other 2  {c |}{col 23}{res}{space 2} -.843337{col 35}{space 2} .2102952{col 46}{space 1}   -4.01{col 55}{space 3}0.000{col 63}{space 4}-1.255508{col 76}{space 3} -.431166
+{txt}{space 21} {c |}
+{space 11}intdaty_dv {c |}
+{space 16}2010  {c |}{col 23}{res}{space 2} .0139386{col 35}{space 2} .0352711{col 46}{space 1}    0.40{col 55}{space 3}0.693{col 63}{space 4}-.0551914{col 76}{space 3} .0830687
+{txt}{space 16}2011  {c |}{col 23}{res}{space 2}-.0432319{col 35}{space 2} .0386074{col 46}{space 1}   -1.12{col 55}{space 3}0.263{col 63}{space 4} -.118901{col 76}{space 3} .0324373
+{txt}{space 16}2012  {c |}{col 23}{res}{space 2}-.0843032{col 35}{space 2} .0405915{col 46}{space 1}   -2.08{col 55}{space 3}0.038{col 63}{space 4}-.1638609{col 76}{space 3}-.0047454
+{txt}{space 16}2013  {c |}{col 23}{res}{space 2}-.0007058{col 35}{space 2} .0425758{col 46}{space 1}   -0.02{col 55}{space 3}0.987{col 63}{space 4}-.0841528{col 76}{space 3} .0827412
+{txt}{space 16}2014  {c |}{col 23}{res}{space 2} .0648929{col 35}{space 2} .0444709{col 46}{space 1}    1.46{col 55}{space 3}0.145{col 63}{space 4}-.0222686{col 76}{space 3} .1520543
+{txt}{space 16}2015  {c |}{col 23}{res}{space 2} .0909548{col 35}{space 2} .0463312{col 46}{space 1}    1.96{col 55}{space 3}0.050{col 63}{space 4} .0001474{col 76}{space 3} .1817622
+{txt}{space 16}2016  {c |}{col 23}{res}{space 2} .0652976{col 35}{space 2}  .046893{col 46}{space 1}    1.39{col 55}{space 3}0.164{col 63}{space 4} -.026611{col 76}{space 3} .1572063
+{txt}{space 16}2017  {c |}{col 23}{res}{space 2}-.0272306{col 35}{space 2}  .047941{col 46}{space 1}   -0.57{col 55}{space 3}0.570{col 63}{space 4}-.1211932{col 76}{space 3}  .066732
+{txt}{space 16}2018  {c |}{col 23}{res}{space 2}-.0407585{col 35}{space 2} .0489824{col 46}{space 1}   -0.83{col 55}{space 3}0.405{col 63}{space 4}-.1367622{col 76}{space 3} .0552451
+{txt}{space 16}2019  {c |}{col 23}{res}{space 2}-.0197974{col 35}{space 2} .0504351{col 46}{space 1}   -0.39{col 55}{space 3}0.695{col 63}{space 4}-.1186483{col 76}{space 3} .0790535
+{txt}{space 16}2020  {c |}{col 23}{res}{space 2} .0708646{col 35}{space 2} .0540985{col 46}{space 1}    1.31{col 55}{space 3}0.190{col 63}{space 4}-.0351666{col 76}{space 3} .1768958
+{txt}{space 16}2021  {c |}{col 23}{res}{space 2} .0260022{col 35}{space 2} .0769359{col 46}{space 1}    0.34{col 55}{space 3}0.735{col 63}{space 4}-.1247894{col 76}{space 3} .1767938
+{txt}{space 16}2022  {c |}{col 23}{res}{space 2} .3258055{col 35}{space 2} .3883328{col 46}{space 1}    0.84{col 55}{space 3}0.401{col 63}{space 4}-.4353128{col 76}{space 3} 1.086924
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2}  1.44335{col 35}{space 2} .0374717{col 46}{space 1}   38.52{col 55}{space 3}0.000{col 63}{space 4} 1.369906{col 76}{space 3} 1.516793
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+
+{com}. est store MT1 
+{txt}
+{com}. *WOMEN TEST 1 - Interview year 
+. logit participation i.redcats i.intdaty_dv ///
+>  if fem == 1 & par_miss == 0  [pw=nwei], robust cluster(pidp)
+
+{res}{txt}Iteration 0:{space 2}Log pseudolikelihood = {res:-90635.685}  
+Iteration 1:{space 2}Log pseudolikelihood = {res:-89877.366}  
+Iteration 2:{space 2}Log pseudolikelihood = {res:-89864.287}  
+Iteration 3:{space 2}Log pseudolikelihood = {res:-89864.278}  
+Iteration 4:{space 2}Log pseudolikelihood = {res:-89864.278}  
+{res}
+{txt}{col 1}Logistic regression{col 56}{lalign 13:Number of obs}{col 69} = {res}{ralign 7:153,119}
+{txt}{col 56}{lalign 13:Wald chi2({res:23})}{col 69} = {res}{ralign 7:515.42}
+{txt}{col 56}{lalign 13:Prob > chi2}{col 69} = {res}{ralign 7:0.0000}
+{txt}{col 1}{lalign 20:Log pseudolikelihood}{col 21} = {res}{ralign 10:-89864.278}{txt}{col 56}{lalign 13:Pseudo R2}{col 69} = {res}{ralign 7:0.0085}
+
+{txt}{ralign 87:(Std. err. adjusted for {res:22,827} clusters in {res:pidp})}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}        participation{col 23}{c |} Coefficient{col 35}  std. err.{col 47}      z{col 55}   P>|z|{col 63}     [95% con{col 76}f. interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 14}redcats {c |}
+{space 2}White Muslim Brit.  {c |}{col 23}{res}{space 2}-.0051472{col 35}{space 2} .2521184{col 46}{space 1}   -0.02{col 55}{space 3}0.984{col 63}{space 4}-.4992901{col 76}{space 3} .4889958
+{txt}{space 5}Muslim Indian 1  {c |}{col 23}{res}{space 2}-.8732707{col 35}{space 2}   .20855{col 46}{space 1}   -4.19{col 55}{space 3}0.000{col 63}{space 4}-1.282021{col 76}{space 3}-.4645201
+{txt}{space 2}Muslim Pakistani 1  {c |}{col 23}{res}{space 2}-1.449952{col 35}{space 2}  .123113{col 46}{space 1}  -11.78{col 55}{space 3}0.000{col 63}{space 4} -1.69125{col 76}{space 3}-1.208655
+{txt}Muslim Bangladeshi 1  {c |}{col 23}{res}{space 2}-1.284837{col 35}{space 2} .1593305{col 46}{space 1}   -8.06{col 55}{space 3}0.000{col 63}{space 4}-1.597119{col 76}{space 3}-.9725546
+{txt}{space 6}Muslim Black 1  {c |}{col 23}{res}{space 2}-.8022075{col 35}{space 2} .1594179{col 46}{space 1}   -5.03{col 55}{space 3}0.000{col 63}{space 4}-1.114661{col 76}{space 3} -.489754
+{txt}{space 6}Muslim Other 1  {c |}{col 23}{res}{space 2}-1.266406{col 35}{space 2} .2622119{col 46}{space 1}   -4.83{col 55}{space 3}0.000{col 63}{space 4}-1.780332{col 76}{space 3}-.7524798
+{txt}{space 5}Muslim Indian 2  {c |}{col 23}{res}{space 2}-.6565939{col 35}{space 2} .2371755{col 46}{space 1}   -2.77{col 55}{space 3}0.006{col 63}{space 4}-1.121449{col 76}{space 3}-.1917385
+{txt}{space 2}Muslim Pakistani 2  {c |}{col 23}{res}{space 2}-.8818521{col 35}{space 2} .0904843{col 46}{space 1}   -9.75{col 55}{space 3}0.000{col 63}{space 4}-1.059198{col 76}{space 3}-.7045061
+{txt}Muslim Bangladeshi 2  {c |}{col 23}{res}{space 2}-.5317453{col 35}{space 2} .1254595{col 46}{space 1}   -4.24{col 55}{space 3}0.000{col 63}{space 4}-.7776414{col 76}{space 3}-.2858493
+{txt}{space 6}Muslim Other 2  {c |}{col 23}{res}{space 2}-1.009863{col 35}{space 2} .1817054{col 46}{space 1}   -5.56{col 55}{space 3}0.000{col 63}{space 4}-1.365999{col 76}{space 3}-.6537269
+{txt}{space 21} {c |}
+{space 11}intdaty_dv {c |}
+{space 16}2010  {c |}{col 23}{res}{space 2} -.040758{col 35}{space 2} .0260516{col 46}{space 1}   -1.56{col 55}{space 3}0.118{col 63}{space 4}-.0918181{col 76}{space 3} .0103022
+{txt}{space 16}2011  {c |}{col 23}{res}{space 2}-.0172838{col 35}{space 2} .0281424{col 46}{space 1}   -0.61{col 55}{space 3}0.539{col 63}{space 4}-.0724418{col 76}{space 3} .0378743
+{txt}{space 16}2012  {c |}{col 23}{res}{space 2}-.0296836{col 35}{space 2} .0297756{col 46}{space 1}   -1.00{col 55}{space 3}0.319{col 63}{space 4}-.0880428{col 76}{space 3} .0286755
+{txt}{space 16}2013  {c |}{col 23}{res}{space 2} .0435729{col 35}{space 2} .0311923{col 46}{space 1}    1.40{col 55}{space 3}0.162{col 63}{space 4}-.0175629{col 76}{space 3} .1047087
+{txt}{space 16}2014  {c |}{col 23}{res}{space 2} .0955174{col 35}{space 2} .0329068{col 46}{space 1}    2.90{col 55}{space 3}0.004{col 63}{space 4} .0310212{col 76}{space 3} .1600136
+{txt}{space 16}2015  {c |}{col 23}{res}{space 2} .1436252{col 35}{space 2} .0342571{col 46}{space 1}    4.19{col 55}{space 3}0.000{col 63}{space 4} .0764826{col 76}{space 3} .2107679
+{txt}{space 16}2016  {c |}{col 23}{res}{space 2}   .16193{col 35}{space 2} .0349523{col 46}{space 1}    4.63{col 55}{space 3}0.000{col 63}{space 4} .0934247{col 76}{space 3} .2304353
+{txt}{space 16}2017  {c |}{col 23}{res}{space 2}  .160195{col 35}{space 2} .0362714{col 46}{space 1}    4.42{col 55}{space 3}0.000{col 63}{space 4} .0891044{col 76}{space 3} .2312856
+{txt}{space 16}2018  {c |}{col 23}{res}{space 2} .1500583{col 35}{space 2} .0372878{col 46}{space 1}    4.02{col 55}{space 3}0.000{col 63}{space 4} .0769756{col 76}{space 3}  .223141
+{txt}{space 16}2019  {c |}{col 23}{res}{space 2} .1736617{col 35}{space 2} .0383165{col 46}{space 1}    4.53{col 55}{space 3}0.000{col 63}{space 4} .0985628{col 76}{space 3} .2487606
+{txt}{space 16}2020  {c |}{col 23}{res}{space 2} .2970332{col 35}{space 2} .0405194{col 46}{space 1}    7.33{col 55}{space 3}0.000{col 63}{space 4} .2176165{col 76}{space 3} .3764498
+{txt}{space 16}2021  {c |}{col 23}{res}{space 2} .3482103{col 35}{space 2} .0594025{col 46}{space 1}    5.86{col 55}{space 3}0.000{col 63}{space 4} .2317835{col 76}{space 3} .4646372
+{txt}{space 16}2022  {c |}{col 23}{res}{space 2} .1887774{col 35}{space 2} .3072501{col 46}{space 1}    0.61{col 55}{space 3}0.539{col 63}{space 4}-.4134217{col 76}{space 3} .7909765
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2} .8459639{col 35}{space 2}  .027844{col 46}{space 1}   30.38{col 55}{space 3}0.000{col 63}{space 4} .7913908{col 76}{space 3} .9005371
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+
+{com}. est store WT1 
+{txt}
+{com}. *MEN TEST 1 - Wave
+. logit participation i.redcats i.wave ///
+>  if fem == 0 & par_miss == 0  [pw=nwei], robust cluster(pidp)
+
+{res}{txt}Iteration 0:{space 2}Log pseudolikelihood = {res:-69190.767}  
+Iteration 1:{space 2}Log pseudolikelihood = {res:-69044.604}  
+Iteration 2:{space 2}Log pseudolikelihood = {res:-69039.183}  
+Iteration 3:{space 2}Log pseudolikelihood = {res:-69039.177}  
+{res}
+{txt}{col 1}Logistic regression{col 56}{lalign 13:Number of obs}{col 69} = {res}{ralign 7:119,861}
+{txt}{col 56}{lalign 13:Wald chi2({res:21})}{col 69} = {res}{ralign 7:154.66}
+{txt}{col 56}{lalign 13:Prob > chi2}{col 69} = {res}{ralign 7:0.0000}
+{txt}{col 1}{lalign 20:Log pseudolikelihood}{col 21} = {res}{ralign 10:-69039.177}{txt}{col 56}{lalign 13:Pseudo R2}{col 69} = {res}{ralign 7:0.0022}
+
+{txt}{ralign 87:(Std. err. adjusted for {res:18,870} clusters in {res:pidp})}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}        participation{col 23}{c |} Coefficient{col 35}  std. err.{col 47}      z{col 55}   P>|z|{col 63}     [95% con{col 76}f. interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 14}redcats {c |}
+{space 2}White Muslim Brit.  {c |}{col 23}{res}{space 2} .6419155{col 35}{space 2} .2930356{col 46}{space 1}    2.19{col 55}{space 3}0.028{col 63}{space 4} .0675763{col 76}{space 3} 1.216255
+{txt}{space 5}Muslim Indian 1  {c |}{col 23}{res}{space 2} .8367959{col 35}{space 2} .2964763{col 46}{space 1}    2.82{col 55}{space 3}0.005{col 63}{space 4} .2557131{col 76}{space 3} 1.417879
+{txt}{space 2}Muslim Pakistani 1  {c |}{col 23}{res}{space 2}  .051145{col 35}{space 2} .1375376{col 46}{space 1}    0.37{col 55}{space 3}0.710{col 63}{space 4}-.2184237{col 76}{space 3} .3207137
+{txt}Muslim Bangladeshi 1  {c |}{col 23}{res}{space 2} .4232242{col 35}{space 2} .2006742{col 46}{space 1}    2.11{col 55}{space 3}0.035{col 63}{space 4} .0299099{col 76}{space 3} .8165385
+{txt}{space 6}Muslim Black 1  {c |}{col 23}{res}{space 2}-.2638572{col 35}{space 2} .2276062{col 46}{space 1}   -1.16{col 55}{space 3}0.246{col 63}{space 4}-.7099572{col 76}{space 3} .1822427
+{txt}{space 6}Muslim Other 1  {c |}{col 23}{res}{space 2}-.5601665{col 35}{space 2} .4192365{col 46}{space 1}   -1.34{col 55}{space 3}0.181{col 63}{space 4}-1.381855{col 76}{space 3}  .261522
+{txt}{space 5}Muslim Indian 2  {c |}{col 23}{res}{space 2}-.6175506{col 35}{space 2} .2170945{col 46}{space 1}   -2.84{col 55}{space 3}0.004{col 63}{space 4}-1.043048{col 76}{space 3}-.1920532
+{txt}{space 2}Muslim Pakistani 2  {c |}{col 23}{res}{space 2} -.464914{col 35}{space 2} .1212104{col 46}{space 1}   -3.84{col 55}{space 3}0.000{col 63}{space 4}-.7024819{col 76}{space 3}-.2273461
+{txt}Muslim Bangladeshi 2  {c |}{col 23}{res}{space 2}-.7913566{col 35}{space 2} .1710396{col 46}{space 1}   -4.63{col 55}{space 3}0.000{col 63}{space 4}-1.126588{col 76}{space 3}-.4561251
+{txt}{space 6}Muslim Other 2  {c |}{col 23}{res}{space 2}-.8382187{col 35}{space 2} .2103895{col 46}{space 1}   -3.98{col 55}{space 3}0.000{col 63}{space 4}-1.250575{col 76}{space 3}-.4258628
+{txt}{space 21} {c |}
+{space 17}wave {c |}
+{space 16}2. b  {c |}{col 23}{res}{space 2}-.0960303{col 35}{space 2} .0237914{col 46}{space 1}   -4.04{col 55}{space 3}0.000{col 63}{space 4}-.1426606{col 76}{space 3}   -.0494
+{txt}{space 16}3. c  {c |}{col 23}{res}{space 2}-.1306262{col 35}{space 2}  .028593{col 46}{space 1}   -4.57{col 55}{space 3}0.000{col 63}{space 4}-.1866674{col 76}{space 3}-.0745851
+{txt}{space 16}4. d  {c |}{col 23}{res}{space 2}-.1030895{col 35}{space 2} .0308746{col 46}{space 1}   -3.34{col 55}{space 3}0.001{col 63}{space 4}-.1636026{col 76}{space 3}-.0425764
+{txt}{space 16}5. e  {c |}{col 23}{res}{space 2}-.0486513{col 35}{space 2} .0335323{col 46}{space 1}   -1.45{col 55}{space 3}0.147{col 63}{space 4}-.1143735{col 76}{space 3} .0170709
+{txt}{space 16}6. f  {c |}{col 23}{res}{space 2} .0433017{col 35}{space 2} .0362707{col 46}{space 1}    1.19{col 55}{space 3}0.233{col 63}{space 4}-.0277876{col 76}{space 3}  .114391
+{txt}{space 16}7. g  {c |}{col 23}{res}{space 2} .0412992{col 35}{space 2} .0379413{col 46}{space 1}    1.09{col 55}{space 3}0.276{col 63}{space 4}-.0330644{col 76}{space 3} .1156628
+{txt}{space 16}8. h  {c |}{col 23}{res}{space 2}-.0298807{col 35}{space 2} .0390853{col 46}{space 1}   -0.76{col 55}{space 3}0.445{col 63}{space 4}-.1064866{col 76}{space 3} .0467251
+{txt}{space 16}9. i  {c |}{col 23}{res}{space 2}-.0854715{col 35}{space 2}  .040748{col 46}{space 1}   -2.10{col 55}{space 3}0.036{col 63}{space 4}-.1653362{col 76}{space 3}-.0056068
+{txt}{space 15}10. j  {c |}{col 23}{res}{space 2}-.1355456{col 35}{space 2} .0410915{col 46}{space 1}   -3.30{col 55}{space 3}0.001{col 63}{space 4}-.2160834{col 76}{space 3}-.0550077
+{txt}{space 15}11. k  {c |}{col 23}{res}{space 2}-.0391795{col 35}{space 2} .0445438{col 46}{space 1}   -0.88{col 55}{space 3}0.379{col 63}{space 4}-.1264837{col 76}{space 3} .0481247
+{txt}{space 15}12. l  {c |}{col 23}{res}{space 2}-.0116577{col 35}{space 2}  .048263{col 46}{space 1}   -0.24{col 55}{space 3}0.809{col 63}{space 4}-.1062514{col 76}{space 3}  .082936
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2} 1.502532{col 35}{space 2} .0270364{col 46}{space 1}   55.57{col 55}{space 3}0.000{col 63}{space 4} 1.449542{col 76}{space 3} 1.555523
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+
+{com}. est store MT2 
+{txt}
+{com}. *WOMEN TEST 1 - Interview year 
+. logit participation i.redcats i.wave ///
+>  if fem == 1 & par_miss == 0  [pw=nwei], robust cluster(pidp)
+
+{res}{txt}Iteration 0:{space 2}Log pseudolikelihood = {res:-90635.685}  
+Iteration 1:{space 2}Log pseudolikelihood = {res:-89877.866}  
+Iteration 2:{space 2}Log pseudolikelihood = {res:-89864.787}  
+Iteration 3:{space 2}Log pseudolikelihood = {res:-89864.777}  
+Iteration 4:{space 2}Log pseudolikelihood = {res:-89864.777}  
+{res}
+{txt}{col 1}Logistic regression{col 56}{lalign 13:Number of obs}{col 69} = {res}{ralign 7:153,119}
+{txt}{col 56}{lalign 13:Wald chi2({res:21})}{col 69} = {res}{ralign 7:523.09}
+{txt}{col 56}{lalign 13:Prob > chi2}{col 69} = {res}{ralign 7:0.0000}
+{txt}{col 1}{lalign 20:Log pseudolikelihood}{col 21} = {res}{ralign 10:-89864.777}{txt}{col 56}{lalign 13:Pseudo R2}{col 69} = {res}{ralign 7:0.0085}
+
+{txt}{ralign 87:(Std. err. adjusted for {res:22,827} clusters in {res:pidp})}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}        participation{col 23}{c |} Coefficient{col 35}  std. err.{col 47}      z{col 55}   P>|z|{col 63}     [95% con{col 76}f. interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 14}redcats {c |}
+{space 2}White Muslim Brit.  {c |}{col 23}{res}{space 2}-.0062459{col 35}{space 2} .2519884{col 46}{space 1}   -0.02{col 55}{space 3}0.980{col 63}{space 4} -.500134{col 76}{space 3} .4876422
+{txt}{space 5}Muslim Indian 1  {c |}{col 23}{res}{space 2} -.867159{col 35}{space 2}  .208884{col 46}{space 1}   -4.15{col 55}{space 3}0.000{col 63}{space 4}-1.276564{col 76}{space 3}-.4577538
+{txt}{space 2}Muslim Pakistani 1  {c |}{col 23}{res}{space 2}-1.445041{col 35}{space 2} .1228774{col 46}{space 1}  -11.76{col 55}{space 3}0.000{col 63}{space 4}-1.685876{col 76}{space 3}-1.204205
+{txt}Muslim Bangladeshi 1  {c |}{col 23}{res}{space 2}-1.281241{col 35}{space 2} .1589786{col 46}{space 1}   -8.06{col 55}{space 3}0.000{col 63}{space 4}-1.592833{col 76}{space 3}-.9696489
+{txt}{space 6}Muslim Black 1  {c |}{col 23}{res}{space 2}-.7941353{col 35}{space 2} .1590832{col 46}{space 1}   -4.99{col 55}{space 3}0.000{col 63}{space 4}-1.105933{col 76}{space 3}-.4823379
+{txt}{space 6}Muslim Other 1  {c |}{col 23}{res}{space 2}-1.256043{col 35}{space 2} .2631524{col 46}{space 1}   -4.77{col 55}{space 3}0.000{col 63}{space 4}-1.771812{col 76}{space 3}-.7402738
+{txt}{space 5}Muslim Indian 2  {c |}{col 23}{res}{space 2}-.6521004{col 35}{space 2} .2377471{col 46}{space 1}   -2.74{col 55}{space 3}0.006{col 63}{space 4}-1.118076{col 76}{space 3}-.1861246
+{txt}{space 2}Muslim Pakistani 2  {c |}{col 23}{res}{space 2}-.8790735{col 35}{space 2} .0905543{col 46}{space 1}   -9.71{col 55}{space 3}0.000{col 63}{space 4}-1.056557{col 76}{space 3}-.7015904
+{txt}Muslim Bangladeshi 2  {c |}{col 23}{res}{space 2}-.5237573{col 35}{space 2} .1256963{col 46}{space 1}   -4.17{col 55}{space 3}0.000{col 63}{space 4}-.7701176{col 76}{space 3} -.277397
+{txt}{space 6}Muslim Other 2  {c |}{col 23}{res}{space 2}-1.003974{col 35}{space 2} .1801436{col 46}{space 1}   -5.57{col 55}{space 3}0.000{col 63}{space 4}-1.357049{col 76}{space 3}-.6508992
+{txt}{space 21} {c |}
+{space 17}wave {c |}
+{space 16}2. b  {c |}{col 23}{res}{space 2} .0003584{col 35}{space 2} .0163764{col 46}{space 1}    0.02{col 55}{space 3}0.983{col 63}{space 4}-.0317388{col 76}{space 3} .0324555
+{txt}{space 16}3. c  {c |}{col 23}{res}{space 2} .0222843{col 35}{space 2} .0198376{col 46}{space 1}    1.12{col 55}{space 3}0.261{col 63}{space 4}-.0165967{col 76}{space 3} .0611653
+{txt}{space 16}4. d  {c |}{col 23}{res}{space 2} .0241401{col 35}{space 2} .0220241{col 46}{space 1}    1.10{col 55}{space 3}0.273{col 63}{space 4}-.0190264{col 76}{space 3} .0673065
+{txt}{space 16}5. e  {c |}{col 23}{res}{space 2} .1101301{col 35}{space 2} .0242892{col 46}{space 1}    4.53{col 55}{space 3}0.000{col 63}{space 4} .0625242{col 76}{space 3}  .157736
+{txt}{space 16}6. f  {c |}{col 23}{res}{space 2} .1590023{col 35}{space 2} .0262108{col 46}{space 1}    6.07{col 55}{space 3}0.000{col 63}{space 4} .1076301{col 76}{space 3} .2103746
+{txt}{space 16}7. g  {c |}{col 23}{res}{space 2} .1834157{col 35}{space 2} .0278337{col 46}{space 1}    6.59{col 55}{space 3}0.000{col 63}{space 4} .1288626{col 76}{space 3} .2379687
+{txt}{space 16}8. h  {c |}{col 23}{res}{space 2} .1773695{col 35}{space 2} .0291362{col 46}{space 1}    6.09{col 55}{space 3}0.000{col 63}{space 4} .1202637{col 76}{space 3} .2344754
+{txt}{space 16}9. i  {c |}{col 23}{res}{space 2} .2080024{col 35}{space 2} .0307862{col 46}{space 1}    6.76{col 55}{space 3}0.000{col 63}{space 4} .1476625{col 76}{space 3} .2683422
+{txt}{space 15}10. j  {c |}{col 23}{res}{space 2} .1833885{col 35}{space 2} .0312308{col 46}{space 1}    5.87{col 55}{space 3}0.000{col 63}{space 4} .1221774{col 76}{space 3} .2445997
+{txt}{space 15}11. k  {c |}{col 23}{res}{space 2}  .272186{col 35}{space 2} .0335814{col 46}{space 1}    8.11{col 55}{space 3}0.000{col 63}{space 4} .2063677{col 76}{space 3} .3380044
+{txt}{space 15}12. l  {c |}{col 23}{res}{space 2} .3567194{col 35}{space 2} .0363495{col 46}{space 1}    9.81{col 55}{space 3}0.000{col 63}{space 4} .2854756{col 76}{space 3} .4279632
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2} .8130646{col 35}{space 2}  .019692{col 46}{space 1}   41.29{col 55}{space 3}0.000{col 63}{space 4}  .774469{col 76}{space 3} .8516603
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+
+{com}. est store WT2
+{txt}
+{com}. 
+. est tab MT1 MT2 WT1 WT2, star stat(N r2_p) b(%8.3f) var(30)
+{res}
+{txt}{hline 30}{c -}{c TT}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}
+{ralign 30:Variable} {c |} {center 11:MT1} {space 1} {center 11:MT2} {space 1} {center 11:WT1} {space 1} {center 11:WT2} {space 1}
+{hline 30}{c -}{c +}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}
+{res}{txt}{space 23}redcats {c |}
+{space 11}White Muslim Brit.  {c |}{res} {ralign 8:0.643}{lalign 3:*}{txt} {space 1}{res} {ralign 8:0.642}{lalign 3:*}{txt} {space 1}{res} {ralign 8:-0.005}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.006}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 14}Muslim Indian 1  {c |}{res} {ralign 8:0.836}{lalign 3:**}{txt} {space 1}{res} {ralign 8:0.837}{lalign 3:**}{txt} {space 1}{res} {ralign 8:-0.873}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-0.867}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 11}Muslim Pakistani 1  {c |}{res} {ralign 8:0.049}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.051}{lalign 3:}{txt} {space 1}{res} {ralign 8:-1.450}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-1.445}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 9}Muslim Bangladeshi 1  {c |}{res} {ralign 8:0.419}{lalign 3:*}{txt} {space 1}{res} {ralign 8:0.423}{lalign 3:*}{txt} {space 1}{res} {ralign 8:-1.285}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-1.281}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 15}Muslim Black 1  {c |}{res} {ralign 8:-0.268}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.264}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.802}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-0.794}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 15}Muslim Other 1  {c |}{res} {ralign 8:-0.560}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.560}{lalign 3:}{txt} {space 1}{res} {ralign 8:-1.266}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-1.256}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 14}Muslim Indian 2  {c |}{res} {ralign 8:-0.623}{lalign 3:**}{txt} {space 1}{res} {ralign 8:-0.618}{lalign 3:**}{txt} {space 1}{res} {ralign 8:-0.657}{lalign 3:**}{txt} {space 1}{res} {ralign 8:-0.652}{lalign 3:**}{txt} {space 1}
+{res}{txt}{space 11}Muslim Pakistani 2  {c |}{res} {ralign 8:-0.471}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-0.465}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-0.882}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-0.879}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 9}Muslim Bangladeshi 2  {c |}{res} {ralign 8:-0.799}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-0.791}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-0.532}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-0.524}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 15}Muslim Other 2  {c |}{res} {ralign 8:-0.843}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-0.838}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-1.010}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-1.004}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 30} {c |}
+{space 20}intdaty_dv {c |}
+{space 25}2010  {c |}{res} {ralign 8:0.014}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.041}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2011  {c |}{res} {ralign 8:-0.043}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.017}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2012  {c |}{res} {ralign 8:-0.084}{lalign 3:*}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.030}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2013  {c |}{res} {ralign 8:-0.001}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.044}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2014  {c |}{res} {ralign 8:0.065}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.096}{lalign 3:**}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2015  {c |}{res} {ralign 8:0.091}{lalign 3:*}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.144}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2016  {c |}{res} {ralign 8:0.065}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.162}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2017  {c |}{res} {ralign 8:-0.027}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.160}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2018  {c |}{res} {ralign 8:-0.041}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.150}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2019  {c |}{res} {ralign 8:-0.020}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.174}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2020  {c |}{res} {ralign 8:0.071}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.297}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2021  {c |}{res} {ralign 8:0.026}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.348}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2022  {c |}{res} {ralign 8:0.326}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.189}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 30} {c |}
+{space 26}wave {c |}
+{space 25}2. b  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.096}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.000}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}3. c  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.131}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.022}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}4. d  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.103}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.024}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}5. e  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.049}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.110}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 25}6. f  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.043}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.159}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 25}7. g  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.041}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.183}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 25}8. h  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.030}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.177}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 25}9. i  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.085}{lalign 3:*}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.208}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 24}10. j  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.136}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.183}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 24}11. k  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.039}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.272}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 24}12. l  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.012}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.357}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 30} {c |}
+{space 25}_cons {c |}{res} {ralign 8:1.443}{lalign 3:***}{txt} {space 1}{res} {ralign 8:1.503}{lalign 3:***}{txt} {space 1}{res} {ralign 8:0.846}{lalign 3:***}{txt} {space 1}{res} {ralign 8:0.813}{lalign 3:***}{txt} {space 1}
+{res}{txt}{hline 30}{c -}{c +}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}
+{ralign 30:N} {c |}{res} {ralign 8:119861}{lalign 3:}{txt} {space 1}{res} {ralign 8:119861}{lalign 3:}{txt} {space 1}{res} {ralign 8:153119}{lalign 3:}{txt} {space 1}{res} {ralign 8:153119}{lalign 3:}{txt} {space 1}
+{res}{txt}{ralign 30:r2_p} {c |}{res} {ralign 8:0.002}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.002}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.009}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.009}{lalign 3:}{txt} {space 1}
+{res}{txt}{hline 30}{c -}{c BT}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}
+{ralign 88:Legend: * p<0.05; ** p<0.01; *** p<0.001}
+{res}{txt}
+{com}. 
+. 
+. ** (2) EMPLOYMENT 
+. * MEN TEST 3 - interview year 
+. logit employment i.redcats i.intdaty_dv ///
+>  if fem == 0 & emp_miss == 0 & participation == 1  [pw=nwei], robust cluster(pidp) 
+
+{res}{txt}Iteration 0:{space 2}Log pseudolikelihood = {res:-32456.401}  
+Iteration 1:{space 2}Log pseudolikelihood = {res: -32288.19}  
+Iteration 2:{space 2}Log pseudolikelihood = {res:-32265.138}  
+Iteration 3:{space 2}Log pseudolikelihood = {res: -32265.12}  
+Iteration 4:{space 2}Log pseudolikelihood = {res: -32265.12}  
+{res}
+{txt}{col 1}Logistic regression{col 57}{lalign 13:Number of obs}{col 70} = {res}{ralign 6:97,129}
+{txt}{col 57}{lalign 13:Wald chi2({res:23})}{col 70} = {res}{ralign 6:155.49}
+{txt}{col 57}{lalign 13:Prob > chi2}{col 70} = {res}{ralign 6:0.0000}
+{txt}{col 1}{lalign 20:Log pseudolikelihood}{col 21} = {res}{ralign 9:-32265.12}{txt}{col 57}{lalign 13:Pseudo R2}{col 70} = {res}{ralign 6:0.0059}
+
+{txt}{ralign 87:(Std. err. adjusted for {res:16,470} clusters in {res:pidp})}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}           employment{col 23}{c |} Coefficient{col 35}  std. err.{col 47}      z{col 55}   P>|z|{col 63}     [95% con{col 76}f. interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 14}redcats {c |}
+{space 2}White Muslim Brit.  {c |}{col 23}{res}{space 2} -.264994{col 35}{space 2} .3969839{col 46}{space 1}   -0.67{col 55}{space 3}0.504{col 63}{space 4}-1.043068{col 76}{space 3} .5130801
+{txt}{space 5}Muslim Indian 1  {c |}{col 23}{res}{space 2} .3978608{col 35}{space 2} .3224595{col 46}{space 1}    1.23{col 55}{space 3}0.217{col 63}{space 4}-.2341482{col 76}{space 3}  1.02987
+{txt}{space 2}Muslim Pakistani 1  {c |}{col 23}{res}{space 2} .0778208{col 35}{space 2} .1781642{col 46}{space 1}    0.44{col 55}{space 3}0.662{col 63}{space 4}-.2713745{col 76}{space 3} .4270161
+{txt}Muslim Bangladeshi 1  {c |}{col 23}{res}{space 2}-.8721349{col 35}{space 2} .2009716{col 46}{space 1}   -4.34{col 55}{space 3}0.000{col 63}{space 4}-1.266032{col 76}{space 3}-.4782377
+{txt}{space 6}Muslim Black 1  {c |}{col 23}{res}{space 2}-.9494149{col 35}{space 2} .2393744{col 46}{space 1}   -3.97{col 55}{space 3}0.000{col 63}{space 4} -1.41858{col 76}{space 3}-.4802497
+{txt}{space 6}Muslim Other 1  {c |}{col 23}{res}{space 2}-.5298854{col 35}{space 2}  .460161{col 46}{space 1}   -1.15{col 55}{space 3}0.250{col 63}{space 4}-1.431784{col 76}{space 3} .3720135
+{txt}{space 5}Muslim Indian 2  {c |}{col 23}{res}{space 2} .1025067{col 35}{space 2} .3398047{col 46}{space 1}    0.30{col 55}{space 3}0.763{col 63}{space 4}-.5634983{col 76}{space 3} .7685117
+{txt}{space 2}Muslim Pakistani 2  {c |}{col 23}{res}{space 2}-.6176681{col 35}{space 2} .1608348{col 46}{space 1}   -3.84{col 55}{space 3}0.000{col 63}{space 4}-.9328985{col 76}{space 3}-.3024377
+{txt}Muslim Bangladeshi 2  {c |}{col 23}{res}{space 2}-.6094105{col 35}{space 2} .1858857{col 46}{space 1}   -3.28{col 55}{space 3}0.001{col 63}{space 4}-.9737398{col 76}{space 3}-.2450811
+{txt}{space 6}Muslim Other 2  {c |}{col 23}{res}{space 2}-1.182756{col 35}{space 2} .3273576{col 46}{space 1}   -3.61{col 55}{space 3}0.000{col 63}{space 4}-1.824365{col 76}{space 3}-.5411466
+{txt}{space 21} {c |}
+{space 11}intdaty_dv {c |}
+{space 16}2010  {c |}{col 23}{res}{space 2}-.0098634{col 35}{space 2} .0588829{col 46}{space 1}   -0.17{col 55}{space 3}0.867{col 63}{space 4}-.1252717{col 76}{space 3} .1055449
+{txt}{space 16}2011  {c |}{col 23}{res}{space 2}-.0409557{col 35}{space 2} .0623936{col 46}{space 1}   -0.66{col 55}{space 3}0.512{col 63}{space 4} -.163245{col 76}{space 3} .0813336
+{txt}{space 16}2012  {c |}{col 23}{res}{space 2}-.0576324{col 35}{space 2} .0651981{col 46}{space 1}   -0.88{col 55}{space 3}0.377{col 63}{space 4}-.1854184{col 76}{space 3} .0701535
+{txt}{space 16}2013  {c |}{col 23}{res}{space 2} .0671966{col 35}{space 2} .0675737{col 46}{space 1}    0.99{col 55}{space 3}0.320{col 63}{space 4}-.0652455{col 76}{space 3} .1996387
+{txt}{space 16}2014  {c |}{col 23}{res}{space 2} .2543971{col 35}{space 2} .0718336{col 46}{space 1}    3.54{col 55}{space 3}0.000{col 63}{space 4} .1136059{col 76}{space 3} .3951883
+{txt}{space 16}2015  {c |}{col 23}{res}{space 2} .3584602{col 35}{space 2} .0761017{col 46}{space 1}    4.71{col 55}{space 3}0.000{col 63}{space 4} .2093037{col 76}{space 3} .5076167
+{txt}{space 16}2016  {c |}{col 23}{res}{space 2} .3552226{col 35}{space 2} .0784525{col 46}{space 1}    4.53{col 55}{space 3}0.000{col 63}{space 4} .2014586{col 76}{space 3} .5089866
+{txt}{space 16}2017  {c |}{col 23}{res}{space 2}  .399513{col 35}{space 2} .0836454{col 46}{space 1}    4.78{col 55}{space 3}0.000{col 63}{space 4} .2355709{col 76}{space 3}  .563455
+{txt}{space 16}2018  {c |}{col 23}{res}{space 2}  .249269{col 35}{space 2} .0819507{col 46}{space 1}    3.04{col 55}{space 3}0.002{col 63}{space 4} .0886487{col 76}{space 3} .4098894
+{txt}{space 16}2019  {c |}{col 23}{res}{space 2} .2956218{col 35}{space 2} .0854688{col 46}{space 1}    3.46{col 55}{space 3}0.001{col 63}{space 4} .1281059{col 76}{space 3} .4631377
+{txt}{space 16}2020  {c |}{col 23}{res}{space 2} .1855271{col 35}{space 2} .0884973{col 46}{space 1}    2.10{col 55}{space 3}0.036{col 63}{space 4} .0120755{col 76}{space 3} .3589786
+{txt}{space 16}2021  {c |}{col 23}{res}{space 2} .2260443{col 35}{space 2} .1411367{col 46}{space 1}    1.60{col 55}{space 3}0.109{col 63}{space 4}-.0505786{col 76}{space 3} .5026672
+{txt}{space 16}2022  {c |}{col 23}{res}{space 2} .0534744{col 35}{space 2} .6149088{col 46}{space 1}    0.09{col 55}{space 3}0.931{col 63}{space 4}-1.151725{col 76}{space 3} 1.258673
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2} 2.286194{col 35}{space 2} .0571087{col 46}{space 1}   40.03{col 55}{space 3}0.000{col 63}{space 4} 2.174263{col 76}{space 3} 2.398125
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+
+{com}. est store MT3
+{txt}
+{com}. *WOMEN TEST 3 - interview year 
+. logit employment i.redcats i.intdaty_dv ///
+>  if fem == 1 & emp_miss == 0 & participation == 1  [pw=nwei], robust cluster(pidp) 
+
+{res}{txt}Iteration 0:{space 2}Log pseudolikelihood = {res:-25303.389}  
+Iteration 1:{space 2}Log pseudolikelihood = {res:-25269.303}  
+Iteration 2:{space 2}Log pseudolikelihood = {res:-25025.459}  
+Iteration 3:{space 2}Log pseudolikelihood = {res:-25024.077}  
+Iteration 4:{space 2}Log pseudolikelihood = {res:-25024.074}  
+{res}
+{txt}{col 1}Logistic regression{col 56}{lalign 13:Number of obs}{col 69} = {res}{ralign 7:107,215}
+{txt}{col 56}{lalign 13:Wald chi2({res:23})}{col 69} = {res}{ralign 7:376.50}
+{txt}{col 56}{lalign 13:Prob > chi2}{col 69} = {res}{ralign 7:0.0000}
+{txt}{col 1}{lalign 20:Log pseudolikelihood}{col 21} = {res}{ralign 10:-25024.074}{txt}{col 56}{lalign 13:Pseudo R2}{col 69} = {res}{ralign 7:0.0110}
+
+{txt}{ralign 87:(Std. err. adjusted for {res:18,422} clusters in {res:pidp})}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}           employment{col 23}{c |} Coefficient{col 35}  std. err.{col 47}      z{col 55}   P>|z|{col 63}     [95% con{col 76}f. interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 14}redcats {c |}
+{space 2}White Muslim Brit.  {c |}{col 23}{res}{space 2} .4483021{col 35}{space 2}  .412124{col 46}{space 1}    1.09{col 55}{space 3}0.277{col 63}{space 4}-.3594461{col 76}{space 3}  1.25605
+{txt}{space 5}Muslim Indian 1  {c |}{col 23}{res}{space 2}-.6451286{col 35}{space 2} .3122362{col 46}{space 1}   -2.07{col 55}{space 3}0.039{col 63}{space 4}  -1.2571{col 76}{space 3}-.0331569
+{txt}{space 2}Muslim Pakistani 1  {c |}{col 23}{res}{space 2}-1.654933{col 35}{space 2} .1566642{col 46}{space 1}  -10.56{col 55}{space 3}0.000{col 63}{space 4}-1.961989{col 76}{space 3}-1.347877
+{txt}Muslim Bangladeshi 1  {c |}{col 23}{res}{space 2}-1.330916{col 35}{space 2} .2360142{col 46}{space 1}   -5.64{col 55}{space 3}0.000{col 63}{space 4}-1.793495{col 76}{space 3}-.8683365
+{txt}{space 6}Muslim Black 1  {c |}{col 23}{res}{space 2}-1.621041{col 35}{space 2} .2117189{col 46}{space 1}   -7.66{col 55}{space 3}0.000{col 63}{space 4}-2.036002{col 76}{space 3}-1.206079
+{txt}{space 6}Muslim Other 1  {c |}{col 23}{res}{space 2}-1.289603{col 35}{space 2} .4316465{col 46}{space 1}   -2.99{col 55}{space 3}0.003{col 63}{space 4}-2.135614{col 76}{space 3}-.4435913
+{txt}{space 5}Muslim Indian 2  {c |}{col 23}{res}{space 2}-.7572135{col 35}{space 2} .3029385{col 46}{space 1}   -2.50{col 55}{space 3}0.012{col 63}{space 4}-1.350962{col 76}{space 3} -.163465
+{txt}{space 2}Muslim Pakistani 2  {c |}{col 23}{res}{space 2}-1.345108{col 35}{space 2} .1456932{col 46}{space 1}   -9.23{col 55}{space 3}0.000{col 63}{space 4}-1.630661{col 76}{space 3}-1.059554
+{txt}Muslim Bangladeshi 2  {c |}{col 23}{res}{space 2}-1.008039{col 35}{space 2}  .179178{col 46}{space 1}   -5.63{col 55}{space 3}0.000{col 63}{space 4}-1.359221{col 76}{space 3}-.6568562
+{txt}{space 6}Muslim Other 2  {c |}{col 23}{res}{space 2}-1.389094{col 35}{space 2}  .222503{col 46}{space 1}   -6.24{col 55}{space 3}0.000{col 63}{space 4}-1.825192{col 76}{space 3}-.9529958
+{txt}{space 21} {c |}
+{space 11}intdaty_dv {c |}
+{space 16}2010  {c |}{col 23}{res}{space 2}-.0039739{col 35}{space 2} .0679559{col 46}{space 1}   -0.06{col 55}{space 3}0.953{col 63}{space 4}-.1371651{col 76}{space 3} .1292172
+{txt}{space 16}2011  {c |}{col 23}{res}{space 2}-.0673522{col 35}{space 2} .0699912{col 46}{space 1}   -0.96{col 55}{space 3}0.336{col 63}{space 4}-.2045325{col 76}{space 3}  .069828
+{txt}{space 16}2012  {c |}{col 23}{res}{space 2}-.0728092{col 35}{space 2} .0725966{col 46}{space 1}   -1.00{col 55}{space 3}0.316{col 63}{space 4} -.215096{col 76}{space 3} .0694776
+{txt}{space 16}2013  {c |}{col 23}{res}{space 2} .0104995{col 35}{space 2}  .075142{col 46}{space 1}    0.14{col 55}{space 3}0.889{col 63}{space 4}-.1367761{col 76}{space 3}  .157775
+{txt}{space 16}2014  {c |}{col 23}{res}{space 2}  .013889{col 35}{space 2} .0781306{col 46}{space 1}    0.18{col 55}{space 3}0.859{col 63}{space 4}-.1392442{col 76}{space 3} .1670222
+{txt}{space 16}2015  {c |}{col 23}{res}{space 2} .1322019{col 35}{space 2}  .082434{col 46}{space 1}    1.60{col 55}{space 3}0.109{col 63}{space 4}-.0293656{col 76}{space 3} .2937695
+{txt}{space 16}2016  {c |}{col 23}{res}{space 2} .2804472{col 35}{space 2}  .084646{col 46}{space 1}    3.31{col 55}{space 3}0.001{col 63}{space 4} .1145441{col 76}{space 3} .4463503
+{txt}{space 16}2017  {c |}{col 23}{res}{space 2} .2708647{col 35}{space 2} .0869896{col 46}{space 1}    3.11{col 55}{space 3}0.002{col 63}{space 4} .1003682{col 76}{space 3} .4413611
+{txt}{space 16}2018  {c |}{col 23}{res}{space 2} .2096438{col 35}{space 2} .0908297{col 46}{space 1}    2.31{col 55}{space 3}0.021{col 63}{space 4} .0316209{col 76}{space 3} .3876667
+{txt}{space 16}2019  {c |}{col 23}{res}{space 2} .2789556{col 35}{space 2}  .093123{col 46}{space 1}    3.00{col 55}{space 3}0.003{col 63}{space 4} .0964378{col 76}{space 3} .4614734
+{txt}{space 16}2020  {c |}{col 23}{res}{space 2} .0300479{col 35}{space 2} .0933906{col 46}{space 1}    0.32{col 55}{space 3}0.748{col 63}{space 4}-.1529942{col 76}{space 3} .2130901
+{txt}{space 16}2021  {c |}{col 23}{res}{space 2}-.1046071{col 35}{space 2} .1273422{col 46}{space 1}   -0.82{col 55}{space 3}0.411{col 63}{space 4}-.3541932{col 76}{space 3}  .144979
+{txt}{space 16}2022  {c |}{col 23}{res}{space 2}-.1516972{col 35}{space 2} .6520244{col 46}{space 1}   -0.23{col 55}{space 3}0.816{col 63}{space 4}-1.429642{col 76}{space 3} 1.126247
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2} 2.667038{col 35}{space 2} .0636724{col 46}{space 1}   41.89{col 55}{space 3}0.000{col 63}{space 4} 2.542242{col 76}{space 3} 2.791833
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+
+{com}. est store WT3
+{txt}
+{com}. *MEN TEST 4 - interview year 
+. logit employment i.redcats i.wave ///
+>  if fem == 0 & emp_miss == 0 & participation == 1  [pw=nwei], robust cluster(pidp) 
+
+{res}{txt}Iteration 0:{space 2}Log pseudolikelihood = {res:-32456.401}  
+Iteration 1:{space 2}Log pseudolikelihood = {res:-32287.064}  
+Iteration 2:{space 2}Log pseudolikelihood = {res:-32264.029}  
+Iteration 3:{space 2}Log pseudolikelihood = {res: -32264.01}  
+Iteration 4:{space 2}Log pseudolikelihood = {res: -32264.01}  
+{res}
+{txt}{col 1}Logistic regression{col 57}{lalign 13:Number of obs}{col 70} = {res}{ralign 6:97,129}
+{txt}{col 57}{lalign 13:Wald chi2({res:21})}{col 70} = {res}{ralign 6:157.18}
+{txt}{col 57}{lalign 13:Prob > chi2}{col 70} = {res}{ralign 6:0.0000}
+{txt}{col 1}{lalign 20:Log pseudolikelihood}{col 21} = {res}{ralign 9:-32264.01}{txt}{col 57}{lalign 13:Pseudo R2}{col 70} = {res}{ralign 6:0.0059}
+
+{txt}{ralign 87:(Std. err. adjusted for {res:16,470} clusters in {res:pidp})}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}           employment{col 23}{c |} Coefficient{col 35}  std. err.{col 47}      z{col 55}   P>|z|{col 63}     [95% con{col 76}f. interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 14}redcats {c |}
+{space 2}White Muslim Brit.  {c |}{col 23}{res}{space 2}-.2615562{col 35}{space 2} .3963077{col 46}{space 1}   -0.66{col 55}{space 3}0.509{col 63}{space 4}-1.038305{col 76}{space 3} .5151925
+{txt}{space 5}Muslim Indian 1  {c |}{col 23}{res}{space 2} .3840514{col 35}{space 2} .3222434{col 46}{space 1}    1.19{col 55}{space 3}0.233{col 63}{space 4} -.247534{col 76}{space 3} 1.015637
+{txt}{space 2}Muslim Pakistani 1  {c |}{col 23}{res}{space 2} .0894046{col 35}{space 2} .1783496{col 46}{space 1}    0.50{col 55}{space 3}0.616{col 63}{space 4} -.260154{col 76}{space 3} .4389633
+{txt}Muslim Bangladeshi 1  {c |}{col 23}{res}{space 2} -.863537{col 35}{space 2} .2008192{col 46}{space 1}   -4.30{col 55}{space 3}0.000{col 63}{space 4}-1.257135{col 76}{space 3}-.4699386
+{txt}{space 6}Muslim Black 1  {c |}{col 23}{res}{space 2}-.9397401{col 35}{space 2}  .237921{col 46}{space 1}   -3.95{col 55}{space 3}0.000{col 63}{space 4}-1.406057{col 76}{space 3}-.4734236
+{txt}{space 6}Muslim Other 1  {c |}{col 23}{res}{space 2}-.5284602{col 35}{space 2} .4592892{col 46}{space 1}   -1.15{col 55}{space 3}0.250{col 63}{space 4}-1.428651{col 76}{space 3} .3717301
+{txt}{space 5}Muslim Indian 2  {c |}{col 23}{res}{space 2} .0999833{col 35}{space 2} .3407132{col 46}{space 1}    0.29{col 55}{space 3}0.769{col 63}{space 4}-.5678023{col 76}{space 3} .7677689
+{txt}{space 2}Muslim Pakistani 2  {c |}{col 23}{res}{space 2}-.6050616{col 35}{space 2} .1612039{col 46}{space 1}   -3.75{col 55}{space 3}0.000{col 63}{space 4}-.9210153{col 76}{space 3}-.2891078
+{txt}Muslim Bangladeshi 2  {c |}{col 23}{res}{space 2}-.5999945{col 35}{space 2} .1850767{col 46}{space 1}   -3.24{col 55}{space 3}0.001{col 63}{space 4}-.9627381{col 76}{space 3}-.2372508
+{txt}{space 6}Muslim Other 2  {c |}{col 23}{res}{space 2}-1.176225{col 35}{space 2} .3283227{col 46}{space 1}   -3.58{col 55}{space 3}0.000{col 63}{space 4}-1.819726{col 76}{space 3}-.5327244
+{txt}{space 21} {c |}
+{space 17}wave {c |}
+{space 16}2. b  {c |}{col 23}{res}{space 2}-.0661302{col 35}{space 2} .0412733{col 46}{space 1}   -1.60{col 55}{space 3}0.109{col 63}{space 4}-.1470243{col 76}{space 3} .0147639
+{txt}{space 16}3. c  {c |}{col 23}{res}{space 2}-.0127668{col 35}{space 2} .0474421{col 46}{space 1}   -0.27{col 55}{space 3}0.788{col 63}{space 4}-.1057516{col 76}{space 3}  .080218
+{txt}{space 16}4. d  {c |}{col 23}{res}{space 2} .0130687{col 35}{space 2} .0498305{col 46}{space 1}    0.26{col 55}{space 3}0.793{col 63}{space 4}-.0845973{col 76}{space 3} .1107347
+{txt}{space 16}5. e  {c |}{col 23}{res}{space 2} .1704795{col 35}{space 2} .0551636{col 46}{space 1}    3.09{col 55}{space 3}0.002{col 63}{space 4} .0623609{col 76}{space 3} .2785981
+{txt}{space 16}6. f  {c |}{col 23}{res}{space 2} .3365871{col 35}{space 2} .0597451{col 46}{space 1}    5.63{col 55}{space 3}0.000{col 63}{space 4} .2194887{col 76}{space 3} .4536854
+{txt}{space 16}7. g  {c |}{col 23}{res}{space 2} .3931192{col 35}{space 2} .0649013{col 46}{space 1}    6.06{col 55}{space 3}0.000{col 63}{space 4} .2659149{col 76}{space 3} .5203235
+{txt}{space 16}8. h  {c |}{col 23}{res}{space 2} .3520905{col 35}{space 2} .0686269{col 46}{space 1}    5.13{col 55}{space 3}0.000{col 63}{space 4} .2175842{col 76}{space 3} .4865968
+{txt}{space 16}9. i  {c |}{col 23}{res}{space 2} .3422287{col 35}{space 2} .0718173{col 46}{space 1}    4.77{col 55}{space 3}0.000{col 63}{space 4} .2014694{col 76}{space 3} .4829881
+{txt}{space 15}10. j  {c |}{col 23}{res}{space 2}  .239477{col 35}{space 2} .0702173{col 46}{space 1}    3.41{col 55}{space 3}0.001{col 63}{space 4} .1018536{col 76}{space 3} .3771004
+{txt}{space 15}11. k  {c |}{col 23}{res}{space 2}  .197384{col 35}{space 2} .0739288{col 46}{space 1}    2.67{col 55}{space 3}0.008{col 63}{space 4} .0524862{col 76}{space 3} .3422817
+{txt}{space 15}12. l  {c |}{col 23}{res}{space 2} .3117986{col 35}{space 2} .0865524{col 46}{space 1}    3.60{col 55}{space 3}0.000{col 63}{space 4}  .142159{col 76}{space 3} .4814383
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2} 2.279113{col 35}{space 2} .0403577{col 46}{space 1}   56.47{col 55}{space 3}0.000{col 63}{space 4} 2.200013{col 76}{space 3} 2.358212
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+
+{com}. est store MT4
+{txt}
+{com}. *WOMEN TEST 4 - interview year 
+. logit employment i.redcats i.wave ///
+>  if fem == 1 & emp_miss == 0 & participation == 1  [pw=nwei], robust cluster(pidp) 
+
+{res}{txt}Iteration 0:{space 2}Log pseudolikelihood = {res:-25303.389}  
+Iteration 1:{space 2}Log pseudolikelihood = {res: -25277.15}  
+Iteration 2:{space 2}Log pseudolikelihood = {res:-25033.555}  
+Iteration 3:{space 2}Log pseudolikelihood = {res:-25032.173}  
+Iteration 4:{space 2}Log pseudolikelihood = {res:-25032.171}  
+{res}
+{txt}{col 1}Logistic regression{col 56}{lalign 13:Number of obs}{col 69} = {res}{ralign 7:107,215}
+{txt}{col 56}{lalign 13:Wald chi2({res:21})}{col 69} = {res}{ralign 7:369.95}
+{txt}{col 56}{lalign 13:Prob > chi2}{col 69} = {res}{ralign 7:0.0000}
+{txt}{col 1}{lalign 20:Log pseudolikelihood}{col 21} = {res}{ralign 10:-25032.171}{txt}{col 56}{lalign 13:Pseudo R2}{col 69} = {res}{ralign 7:0.0107}
+
+{txt}{ralign 87:(Std. err. adjusted for {res:18,422} clusters in {res:pidp})}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}           employment{col 23}{c |} Coefficient{col 35}  std. err.{col 47}      z{col 55}   P>|z|{col 63}     [95% con{col 76}f. interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 14}redcats {c |}
+{space 2}White Muslim Brit.  {c |}{col 23}{res}{space 2} .4546125{col 35}{space 2} .4117423{col 46}{space 1}    1.10{col 55}{space 3}0.270{col 63}{space 4}-.3523877{col 76}{space 3} 1.261613
+{txt}{space 5}Muslim Indian 1  {c |}{col 23}{res}{space 2}-.6577071{col 35}{space 2} .3109817{col 46}{space 1}   -2.11{col 55}{space 3}0.034{col 63}{space 4} -1.26722{col 76}{space 3}-.0481942
+{txt}{space 2}Muslim Pakistani 1  {c |}{col 23}{res}{space 2}-1.658051{col 35}{space 2} .1567728{col 46}{space 1}  -10.58{col 55}{space 3}0.000{col 63}{space 4} -1.96532{col 76}{space 3}-1.350782
+{txt}Muslim Bangladeshi 1  {c |}{col 23}{res}{space 2}-1.333794{col 35}{space 2} .2357677{col 46}{space 1}   -5.66{col 55}{space 3}0.000{col 63}{space 4} -1.79589{col 76}{space 3}-.8716978
+{txt}{space 6}Muslim Black 1  {c |}{col 23}{res}{space 2}-1.625714{col 35}{space 2}   .21098{col 46}{space 1}   -7.71{col 55}{space 3}0.000{col 63}{space 4}-2.039227{col 76}{space 3}-1.212201
+{txt}{space 6}Muslim Other 1  {c |}{col 23}{res}{space 2}-1.303803{col 35}{space 2} .4298975{col 46}{space 1}   -3.03{col 55}{space 3}0.002{col 63}{space 4}-2.146387{col 76}{space 3}-.4612197
+{txt}{space 5}Muslim Indian 2  {c |}{col 23}{res}{space 2}-.7642844{col 35}{space 2} .3038399{col 46}{space 1}   -2.52{col 55}{space 3}0.012{col 63}{space 4}  -1.3598{col 76}{space 3}-.1687691
+{txt}{space 2}Muslim Pakistani 2  {c |}{col 23}{res}{space 2}-1.351232{col 35}{space 2}  .145527{col 46}{space 1}   -9.29{col 55}{space 3}0.000{col 63}{space 4} -1.63646{col 76}{space 3}-1.066005
+{txt}Muslim Bangladeshi 2  {c |}{col 23}{res}{space 2}-1.014635{col 35}{space 2} .1785438{col 46}{space 1}   -5.68{col 55}{space 3}0.000{col 63}{space 4}-1.364574{col 76}{space 3}-.6646957
+{txt}{space 6}Muslim Other 2  {c |}{col 23}{res}{space 2}-1.393565{col 35}{space 2} .2215296{col 46}{space 1}   -6.29{col 55}{space 3}0.000{col 63}{space 4}-1.827756{col 76}{space 3}-.9593754
+{txt}{space 21} {c |}
+{space 17}wave {c |}
+{space 16}2. b  {c |}{col 23}{res}{space 2}-.0371804{col 35}{space 2} .0475919{col 46}{space 1}   -0.78{col 55}{space 3}0.435{col 63}{space 4}-.1304588{col 76}{space 3} .0560981
+{txt}{space 16}3. c  {c |}{col 23}{res}{space 2}-.0317166{col 35}{space 2} .0526456{col 46}{space 1}   -0.60{col 55}{space 3}0.547{col 63}{space 4}   -.1349{col 76}{space 3} .0714669
+{txt}{space 16}4. d  {c |}{col 23}{res}{space 2}-.0006336{col 35}{space 2} .0558077{col 46}{space 1}   -0.01{col 55}{space 3}0.991{col 63}{space 4}-.1100146{col 76}{space 3} .1087474
+{txt}{space 16}5. e  {c |}{col 23}{res}{space 2} .0449049{col 35}{space 2} .0599115{col 46}{space 1}    0.75{col 55}{space 3}0.454{col 63}{space 4}-.0725195{col 76}{space 3} .1623293
+{txt}{space 16}6. f  {c |}{col 23}{res}{space 2} .1052834{col 35}{space 2} .0638758{col 46}{space 1}    1.65{col 55}{space 3}0.099{col 63}{space 4}-.0199109{col 76}{space 3} .2304777
+{txt}{space 16}7. g  {c |}{col 23}{res}{space 2} .1955749{col 35}{space 2}  .068286{col 46}{space 1}    2.86{col 55}{space 3}0.004{col 63}{space 4} .0617367{col 76}{space 3} .3294131
+{txt}{space 16}8. h  {c |}{col 23}{res}{space 2} .3187914{col 35}{space 2} .0723539{col 46}{space 1}    4.41{col 55}{space 3}0.000{col 63}{space 4} .1769803{col 76}{space 3} .4606026
+{txt}{space 16}9. i  {c |}{col 23}{res}{space 2} .1957277{col 35}{space 2} .0742232{col 46}{space 1}    2.64{col 55}{space 3}0.008{col 63}{space 4}  .050253{col 76}{space 3} .3412024
+{txt}{space 15}10. j  {c |}{col 23}{res}{space 2} .2711014{col 35}{space 2} .0778018{col 46}{space 1}    3.48{col 55}{space 3}0.000{col 63}{space 4} .1186126{col 76}{space 3} .4235902
+{txt}{space 15}11. k  {c |}{col 23}{res}{space 2} .2221324{col 35}{space 2} .0809108{col 46}{space 1}    2.75{col 55}{space 3}0.006{col 63}{space 4} .0635502{col 76}{space 3} .3807146
+{txt}{space 15}12. l  {c |}{col 23}{res}{space 2}-.0150702{col 35}{space 2} .0828461{col 46}{space 1}   -0.18{col 55}{space 3}0.856{col 63}{space 4}-.1774456{col 76}{space 3} .1473052
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2} 2.647326{col 35}{space 2} .0442344{col 46}{space 1}   59.85{col 55}{space 3}0.000{col 63}{space 4} 2.560628{col 76}{space 3} 2.734024
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+
+{com}. est store WT4
+{txt}
+{com}. 
+. est tab MT3 MT4 WT3 WT4, star stat(N r2_p) b(%8.3f) var(30)
+{res}
+{txt}{hline 30}{c -}{c TT}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}
+{ralign 30:Variable} {c |} {center 11:MT3} {space 1} {center 11:MT4} {space 1} {center 11:WT3} {space 1} {center 11:WT4} {space 1}
+{hline 30}{c -}{c +}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}
+{res}{txt}{space 23}redcats {c |}
+{space 11}White Muslim Brit.  {c |}{res} {ralign 8:-0.265}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.262}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.448}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.455}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 14}Muslim Indian 1  {c |}{res} {ralign 8:0.398}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.384}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.645}{lalign 3:*}{txt} {space 1}{res} {ralign 8:-0.658}{lalign 3:*}{txt} {space 1}
+{res}{txt}{space 11}Muslim Pakistani 1  {c |}{res} {ralign 8:0.078}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.089}{lalign 3:}{txt} {space 1}{res} {ralign 8:-1.655}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-1.658}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 9}Muslim Bangladeshi 1  {c |}{res} {ralign 8:-0.872}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-0.864}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-1.331}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-1.334}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 15}Muslim Black 1  {c |}{res} {ralign 8:-0.949}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-0.940}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-1.621}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-1.626}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 15}Muslim Other 1  {c |}{res} {ralign 8:-0.530}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.528}{lalign 3:}{txt} {space 1}{res} {ralign 8:-1.290}{lalign 3:**}{txt} {space 1}{res} {ralign 8:-1.304}{lalign 3:**}{txt} {space 1}
+{res}{txt}{space 14}Muslim Indian 2  {c |}{res} {ralign 8:0.103}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.100}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.757}{lalign 3:*}{txt} {space 1}{res} {ralign 8:-0.764}{lalign 3:*}{txt} {space 1}
+{res}{txt}{space 11}Muslim Pakistani 2  {c |}{res} {ralign 8:-0.618}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-0.605}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-1.345}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-1.351}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 9}Muslim Bangladeshi 2  {c |}{res} {ralign 8:-0.609}{lalign 3:**}{txt} {space 1}{res} {ralign 8:-0.600}{lalign 3:**}{txt} {space 1}{res} {ralign 8:-1.008}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-1.015}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 15}Muslim Other 2  {c |}{res} {ralign 8:-1.183}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-1.176}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-1.389}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-1.394}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 30} {c |}
+{space 20}intdaty_dv {c |}
+{space 25}2010  {c |}{res} {ralign 8:-0.010}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.004}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2011  {c |}{res} {ralign 8:-0.041}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.067}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2012  {c |}{res} {ralign 8:-0.058}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.073}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2013  {c |}{res} {ralign 8:0.067}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.010}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2014  {c |}{res} {ralign 8:0.254}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.014}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2015  {c |}{res} {ralign 8:0.358}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.132}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2016  {c |}{res} {ralign 8:0.355}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.280}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2017  {c |}{res} {ralign 8:0.400}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.271}{lalign 3:**}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2018  {c |}{res} {ralign 8:0.249}{lalign 3:**}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.210}{lalign 3:*}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2019  {c |}{res} {ralign 8:0.296}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.279}{lalign 3:**}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2020  {c |}{res} {ralign 8:0.186}{lalign 3:*}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.030}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2021  {c |}{res} {ralign 8:0.226}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.105}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2022  {c |}{res} {ralign 8:0.053}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.152}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 30} {c |}
+{space 26}wave {c |}
+{space 25}2. b  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.066}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.037}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}3. c  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.013}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.032}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}4. d  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.013}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.001}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}5. e  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.170}{lalign 3:**}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.045}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}6. f  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.337}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.105}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}7. g  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.393}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.196}{lalign 3:**}{txt} {space 1}
+{res}{txt}{space 25}8. h  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.352}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.319}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 25}9. i  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.342}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.196}{lalign 3:**}{txt} {space 1}
+{res}{txt}{space 24}10. j  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.239}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.271}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 24}11. k  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.197}{lalign 3:**}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.222}{lalign 3:**}{txt} {space 1}
+{res}{txt}{space 24}12. l  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.312}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.015}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 30} {c |}
+{space 25}_cons {c |}{res} {ralign 8:2.286}{lalign 3:***}{txt} {space 1}{res} {ralign 8:2.279}{lalign 3:***}{txt} {space 1}{res} {ralign 8:2.667}{lalign 3:***}{txt} {space 1}{res} {ralign 8:2.647}{lalign 3:***}{txt} {space 1}
+{res}{txt}{hline 30}{c -}{c +}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}
+{ralign 30:N} {c |}{res} {ralign 8:97129}{lalign 3:}{txt} {space 1}{res} {ralign 8:97129}{lalign 3:}{txt} {space 1}{res} {ralign 8:107215}{lalign 3:}{txt} {space 1}{res} {ralign 8:107215}{lalign 3:}{txt} {space 1}
+{res}{txt}{ralign 30:r2_p} {c |}{res} {ralign 8:0.006}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.006}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.011}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.011}{lalign 3:}{txt} {space 1}
+{res}{txt}{hline 30}{c -}{c BT}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}
+{ralign 88:Legend: * p<0.05; ** p<0.01; *** p<0.001}
+{res}{txt}
+{com}. 
+. 
+. ** (3) CAMSIS
+. * MEN TEST 6
+. regress mcam10 i.redcats i.intdaty_dv ///
+> if fem == 0 & participation == 1 &  cam_miss == 0 [pw=nwei] , robust cluster(pidp)
+{txt}(sum of wgt is 104,297.934621337)
+
+Linear regression                               Number of obs     = {res}    88,814
+                                                {txt}F(23, 14961)      =  {res}     3.32
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0021
+                                                {txt}Root MSE          =    {res} 15.122
+
+{txt}{ralign 87:(Std. err. adjusted for {res:14,962} clusters in {res:pidp})}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}               mcam10{col 23}{c |} Coefficient{col 35}  std. err.{col 47}      t{col 55}   P>|t|{col 63}     [95% con{col 76}f. interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 14}redcats {c |}
+{space 2}White Muslim Brit.  {c |}{col 23}{res}{space 2}-3.154239{col 35}{space 2} 2.149388{col 46}{space 1}   -1.47{col 55}{space 3}0.142{col 63}{space 4}-7.367304{col 76}{space 3} 1.058826
+{txt}{space 5}Muslim Indian 1  {c |}{col 23}{res}{space 2}-.1627577{col 35}{space 2} 2.187449{col 46}{space 1}   -0.07{col 55}{space 3}0.941{col 63}{space 4}-4.450426{col 76}{space 3}  4.12491
+{txt}{space 2}Muslim Pakistani 1  {c |}{col 23}{res}{space 2}-3.704964{col 35}{space 2} 1.296741{col 46}{space 1}   -2.86{col 55}{space 3}0.004{col 63}{space 4}-6.246736{col 76}{space 3}-1.163192
+{txt}Muslim Bangladeshi 1  {c |}{col 23}{res}{space 2}-4.017089{col 35}{space 2} 1.563831{col 46}{space 1}   -2.57{col 55}{space 3}0.010{col 63}{space 4}-7.082389{col 76}{space 3}-.9517899
+{txt}{space 6}Muslim Black 1  {c |}{col 23}{res}{space 2}-3.333938{col 35}{space 2} 3.612681{col 46}{space 1}   -0.92{col 55}{space 3}0.356{col 63}{space 4}-10.41524{col 76}{space 3}  3.74736
+{txt}{space 6}Muslim Other 1  {c |}{col 23}{res}{space 2}-4.402931{col 35}{space 2} 2.781172{col 46}{space 1}   -1.58{col 55}{space 3}0.113{col 63}{space 4}-9.854369{col 76}{space 3} 1.048506
+{txt}{space 5}Muslim Indian 2  {c |}{col 23}{res}{space 2} 5.338128{col 35}{space 2}  2.12909{col 46}{space 1}    2.51{col 55}{space 3}0.012{col 63}{space 4}  1.16485{col 76}{space 3} 9.511405
+{txt}{space 2}Muslim Pakistani 2  {c |}{col 23}{res}{space 2} .6172965{col 35}{space 2} 1.232608{col 46}{space 1}    0.50{col 55}{space 3}0.617{col 63}{space 4}-1.798766{col 76}{space 3} 3.033359
+{txt}Muslim Bangladeshi 2  {c |}{col 23}{res}{space 2}-.5589972{col 35}{space 2} 1.341799{col 46}{space 1}   -0.42{col 55}{space 3}0.677{col 63}{space 4}-3.189087{col 76}{space 3} 2.071093
+{txt}{space 6}Muslim Other 2  {c |}{col 23}{res}{space 2} 7.347082{col 35}{space 2}  2.55795{col 46}{space 1}    2.87{col 55}{space 3}0.004{col 63}{space 4} 2.333187{col 76}{space 3} 12.36098
+{txt}{space 21} {c |}
+{space 11}intdaty_dv {c |}
+{space 16}2010  {c |}{col 23}{res}{space 2}-.5918456{col 35}{space 2} .2410893{col 46}{space 1}   -2.45{col 55}{space 3}0.014{col 63}{space 4} -1.06441{col 76}{space 3}-.1192811
+{txt}{space 16}2011  {c |}{col 23}{res}{space 2}-.7036287{col 35}{space 2} .2630684{col 46}{space 1}   -2.67{col 55}{space 3}0.007{col 63}{space 4}-1.219275{col 76}{space 3}-.1879824
+{txt}{space 16}2012  {c |}{col 23}{res}{space 2}-.7175979{col 35}{space 2} .2763874{col 46}{space 1}   -2.60{col 55}{space 3}0.009{col 63}{space 4}-1.259351{col 76}{space 3}-.1758448
+{txt}{space 16}2013  {c |}{col 23}{res}{space 2}-.4314232{col 35}{space 2} .2846078{col 46}{space 1}   -1.52{col 55}{space 3}0.130{col 63}{space 4}-.9892894{col 76}{space 3} .1264431
+{txt}{space 16}2014  {c |}{col 23}{res}{space 2}-.0357155{col 35}{space 2} .2914409{col 46}{space 1}   -0.12{col 55}{space 3}0.902{col 63}{space 4}-.6069754{col 76}{space 3} .5355445
+{txt}{space 16}2015  {c |}{col 23}{res}{space 2}-.0827653{col 35}{space 2} .2980481{col 46}{space 1}   -0.28{col 55}{space 3}0.781{col 63}{space 4} -.666976{col 76}{space 3} .5014454
+{txt}{space 16}2016  {c |}{col 23}{res}{space 2} .2819163{col 35}{space 2} .3063536{col 46}{space 1}    0.92{col 55}{space 3}0.357{col 63}{space 4}-.3185744{col 76}{space 3}  .882407
+{txt}{space 16}2017  {c |}{col 23}{res}{space 2} .1559056{col 35}{space 2} .3214816{col 46}{space 1}    0.48{col 55}{space 3}0.628{col 63}{space 4}-.4742376{col 76}{space 3} .7860489
+{txt}{space 16}2018  {c |}{col 23}{res}{space 2}-.2155369{col 35}{space 2} .3237713{col 46}{space 1}   -0.67{col 55}{space 3}0.506{col 63}{space 4}-.8501684{col 76}{space 3} .4190946
+{txt}{space 16}2019  {c |}{col 23}{res}{space 2}-.3104984{col 35}{space 2} .3367367{col 46}{space 1}   -0.92{col 55}{space 3}0.357{col 63}{space 4}-.9705437{col 76}{space 3} .3495469
+{txt}{space 16}2020  {c |}{col 23}{res}{space 2} .0186397{col 35}{space 2} .3526486{col 46}{space 1}    0.05{col 55}{space 3}0.958{col 63}{space 4}-.6725948{col 76}{space 3} .7098741
+{txt}{space 16}2021  {c |}{col 23}{res}{space 2} .0220785{col 35}{space 2} .5303482{col 46}{space 1}    0.04{col 55}{space 3}0.967{col 63}{space 4}-1.017469{col 76}{space 3} 1.061626
+{txt}{space 16}2022  {c |}{col 23}{res}{space 2}-.7170292{col 35}{space 2} 1.484394{col 46}{space 1}   -0.48{col 55}{space 3}0.629{col 63}{space 4}-3.626624{col 76}{space 3} 2.192566
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2} 49.36908{col 35}{space 2} .2734825{col 46}{space 1}  180.52{col 55}{space 3}0.000{col 63}{space 4} 48.83302{col 76}{space 3} 49.90514
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. est store MT6
+{txt}
+{com}. regress mcam10 i.redcats i.intdaty_dv ///
+> if fem == 1 & participation == 1 &  cam_miss == 0 [pw=nwei] , robust cluster(pidp)
+{txt}(sum of wgt is 97,709.1364369151)
+
+Linear regression                               Number of obs     = {res}    97,845
+                                                {txt}F(23, 16461)      =  {res}     1.93
+                                                {txt}Prob > F          = {res}    0.0048
+                                                {txt}R-squared         = {res}    0.0010
+                                                {txt}Root MSE          =    {res} 13.806
+
+{txt}{ralign 87:(Std. err. adjusted for {res:16,462} clusters in {res:pidp})}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}               mcam10{col 23}{c |} Coefficient{col 35}  std. err.{col 47}      t{col 55}   P>|t|{col 63}     [95% con{col 76}f. interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 14}redcats {c |}
+{space 2}White Muslim Brit.  {c |}{col 23}{res}{space 2}-1.226377{col 35}{space 2} 1.920698{col 46}{space 1}   -0.64{col 55}{space 3}0.523{col 63}{space 4}-4.991152{col 76}{space 3} 2.538398
+{txt}{space 5}Muslim Indian 1  {c |}{col 23}{res}{space 2}-.3103282{col 35}{space 2} 2.474977{col 46}{space 1}   -0.13{col 55}{space 3}0.900{col 63}{space 4}-5.161551{col 76}{space 3} 4.540894
+{txt}{space 2}Muslim Pakistani 1  {c |}{col 23}{res}{space 2}-.2321252{col 35}{space 2} 1.856811{col 46}{space 1}   -0.13{col 55}{space 3}0.901{col 63}{space 4}-3.871676{col 76}{space 3} 3.407425
+{txt}Muslim Bangladeshi 1  {c |}{col 23}{res}{space 2}-.9404012{col 35}{space 2} 1.851688{col 46}{space 1}   -0.51{col 55}{space 3}0.612{col 63}{space 4} -4.56991{col 76}{space 3} 2.689108
+{txt}{space 6}Muslim Black 1  {c |}{col 23}{res}{space 2}-6.848328{col 35}{space 2} 2.052151{col 46}{space 1}   -3.34{col 55}{space 3}0.001{col 63}{space 4}-10.87077{col 76}{space 3} -2.82589
+{txt}{space 6}Muslim Other 1  {c |}{col 23}{res}{space 2} -2.22081{col 35}{space 2} 2.853286{col 46}{space 1}   -0.78{col 55}{space 3}0.436{col 63}{space 4} -7.81356{col 76}{space 3}  3.37194
+{txt}{space 5}Muslim Indian 2  {c |}{col 23}{res}{space 2} 2.643553{col 35}{space 2} 1.445243{col 46}{space 1}    1.83{col 55}{space 3}0.067{col 63}{space 4}-.1892798{col 76}{space 3} 5.476385
+{txt}{space 2}Muslim Pakistani 2  {c |}{col 23}{res}{space 2} 1.431685{col 35}{space 2} .9247439{col 46}{space 1}    1.55{col 55}{space 3}0.122{col 63}{space 4}-.3809136{col 76}{space 3} 3.244283
+{txt}Muslim Bangladeshi 2  {c |}{col 23}{res}{space 2}-.6375752{col 35}{space 2} 1.079371{col 46}{space 1}   -0.59{col 55}{space 3}0.555{col 63}{space 4}-2.753259{col 76}{space 3} 1.478108
+{txt}{space 6}Muslim Other 2  {c |}{col 23}{res}{space 2} 6.642553{col 35}{space 2} 2.538517{col 46}{space 1}    2.62{col 55}{space 3}0.009{col 63}{space 4} 1.666785{col 76}{space 3} 11.61832
+{txt}{space 21} {c |}
+{space 11}intdaty_dv {c |}
+{space 16}2010  {c |}{col 23}{res}{space 2} .0686621{col 35}{space 2} .1993447{col 46}{space 1}    0.34{col 55}{space 3}0.731{col 63}{space 4}-.3220751{col 76}{space 3} .4593993
+{txt}{space 16}2011  {c |}{col 23}{res}{space 2}-.0421232{col 35}{space 2}  .216428{col 46}{space 1}   -0.19{col 55}{space 3}0.846{col 63}{space 4}-.4663455{col 76}{space 3} .3820991
+{txt}{space 16}2012  {c |}{col 23}{res}{space 2} .0129598{col 35}{space 2} .2278267{col 46}{space 1}    0.06{col 55}{space 3}0.955{col 63}{space 4}-.4336053{col 76}{space 3} .4595248
+{txt}{space 16}2013  {c |}{col 23}{res}{space 2} .2391609{col 35}{space 2} .2365034{col 46}{space 1}    1.01{col 55}{space 3}0.312{col 63}{space 4}-.2244113{col 76}{space 3} .7027331
+{txt}{space 16}2014  {c |}{col 23}{res}{space 2} .3341336{col 35}{space 2} .2423761{col 46}{space 1}    1.38{col 55}{space 3}0.168{col 63}{space 4}-.1409498{col 76}{space 3}  .809217
+{txt}{space 16}2015  {c |}{col 23}{res}{space 2} .4038709{col 35}{space 2} .2514088{col 46}{space 1}    1.61{col 55}{space 3}0.108{col 63}{space 4}-.0889175{col 76}{space 3} .8966594
+{txt}{space 16}2016  {c |}{col 23}{res}{space 2} .1181638{col 35}{space 2} .2558253{col 46}{space 1}    0.46{col 55}{space 3}0.644{col 63}{space 4}-.3832814{col 76}{space 3}  .619609
+{txt}{space 16}2017  {c |}{col 23}{res}{space 2} .2700819{col 35}{space 2}  .267011{col 46}{space 1}    1.01{col 55}{space 3}0.312{col 63}{space 4}-.2532886{col 76}{space 3} .7934524
+{txt}{space 16}2018  {c |}{col 23}{res}{space 2} .0030682{col 35}{space 2} .2756831{col 46}{space 1}    0.01{col 55}{space 3}0.991{col 63}{space 4}-.5373004{col 76}{space 3} .5434368
+{txt}{space 16}2019  {c |}{col 23}{res}{space 2} .3284795{col 35}{space 2} .2804991{col 46}{space 1}    1.17{col 55}{space 3}0.242{col 63}{space 4}-.2213291{col 76}{space 3} .8782881
+{txt}{space 16}2020  {c |}{col 23}{res}{space 2} .2985342{col 35}{space 2} .2930958{col 46}{space 1}    1.02{col 55}{space 3}0.308{col 63}{space 4}-.2759653{col 76}{space 3} .8730336
+{txt}{space 16}2021  {c |}{col 23}{res}{space 2} .5575491{col 35}{space 2} .4403594{col 46}{space 1}    1.27{col 55}{space 3}0.205{col 63}{space 4}-.3056029{col 76}{space 3} 1.420701
+{txt}{space 16}2022  {c |}{col 23}{res}{space 2} 1.339039{col 35}{space 2} 2.451706{col 46}{space 1}    0.55{col 55}{space 3}0.585{col 63}{space 4}-3.466569{col 76}{space 3} 6.144648
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2} 51.39163{col 35}{space 2} .2255538{col 46}{space 1}  227.85{col 55}{space 3}0.000{col 63}{space 4} 50.94952{col 76}{space 3} 51.83374
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. est store WT6
+{txt}
+{com}. regress mcam10 i.redcats i.wave ///
+> if fem == 0 & participation == 1 &  cam_miss == 0 [pw=nwei] , robust cluster(pidp)
+{txt}(sum of wgt is 104,297.934621337)
+
+Linear regression                               Number of obs     = {res}    88,814
+                                                {txt}F(21, 14961)      =  {res}     3.53
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0020
+                                                {txt}Root MSE          =    {res} 15.122
+
+{txt}{ralign 87:(Std. err. adjusted for {res:14,962} clusters in {res:pidp})}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}               mcam10{col 23}{c |} Coefficient{col 35}  std. err.{col 47}      t{col 55}   P>|t|{col 63}     [95% con{col 76}f. interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 14}redcats {c |}
+{space 2}White Muslim Brit.  {c |}{col 23}{res}{space 2}-3.148391{col 35}{space 2} 2.146326{col 46}{space 1}   -1.47{col 55}{space 3}0.142{col 63}{space 4}-7.355453{col 76}{space 3} 1.058672
+{txt}{space 5}Muslim Indian 1  {c |}{col 23}{res}{space 2}-.1877498{col 35}{space 2} 2.187455{col 46}{space 1}   -0.09{col 55}{space 3}0.932{col 63}{space 4} -4.47543{col 76}{space 3}  4.09993
+{txt}{space 2}Muslim Pakistani 1  {c |}{col 23}{res}{space 2}-3.695835{col 35}{space 2} 1.298087{col 46}{space 1}   -2.85{col 55}{space 3}0.004{col 63}{space 4}-6.240245{col 76}{space 3}-1.151424
+{txt}Muslim Bangladeshi 1  {c |}{col 23}{res}{space 2} -3.99766{col 35}{space 2} 1.564263{col 46}{space 1}   -2.56{col 55}{space 3}0.011{col 63}{space 4}-7.063806{col 76}{space 3}-.9315134
+{txt}{space 6}Muslim Black 1  {c |}{col 23}{res}{space 2}-3.315582{col 35}{space 2}  3.60673{col 46}{space 1}   -0.92{col 55}{space 3}0.358{col 63}{space 4}-10.38521{col 76}{space 3} 3.754051
+{txt}{space 6}Muslim Other 1  {c |}{col 23}{res}{space 2}-4.410124{col 35}{space 2} 2.786384{col 46}{space 1}   -1.58{col 55}{space 3}0.114{col 63}{space 4}-9.871778{col 76}{space 3}  1.05153
+{txt}{space 5}Muslim Indian 2  {c |}{col 23}{res}{space 2} 5.344933{col 35}{space 2} 2.128122{col 46}{space 1}    2.51{col 55}{space 3}0.012{col 63}{space 4} 1.173554{col 76}{space 3} 9.516313
+{txt}{space 2}Muslim Pakistani 2  {c |}{col 23}{res}{space 2} .6361905{col 35}{space 2} 1.232578{col 46}{space 1}    0.52{col 55}{space 3}0.606{col 63}{space 4}-1.779813{col 76}{space 3} 3.052194
+{txt}Muslim Bangladeshi 2  {c |}{col 23}{res}{space 2}-.5609141{col 35}{space 2} 1.343882{col 46}{space 1}   -0.42{col 55}{space 3}0.676{col 63}{space 4}-3.195088{col 76}{space 3}  2.07326
+{txt}{space 6}Muslim Other 2  {c |}{col 23}{res}{space 2} 7.357224{col 35}{space 2} 2.558856{col 46}{space 1}    2.88{col 55}{space 3}0.004{col 63}{space 4} 2.341553{col 76}{space 3}  12.3729
+{txt}{space 21} {c |}
+{space 17}wave {c |}
+{space 16}2. b  {c |}{col 23}{res}{space 2}-.3771028{col 35}{space 2} .1365448{col 46}{space 1}   -2.76{col 55}{space 3}0.006{col 63}{space 4}-.6447474{col 76}{space 3}-.1094582
+{txt}{space 16}3. c  {c |}{col 23}{res}{space 2}-.3355713{col 35}{space 2} .1673492{col 46}{space 1}   -2.01{col 55}{space 3}0.045{col 63}{space 4}-.6635961{col 76}{space 3}-.0075464
+{txt}{space 16}4. d  {c |}{col 23}{res}{space 2}-.3287195{col 35}{space 2} .1848182{col 46}{space 1}   -1.78{col 55}{space 3}0.075{col 63}{space 4}-.6909857{col 76}{space 3} .0335468
+{txt}{space 16}5. e  {c |}{col 23}{res}{space 2} .0827234{col 35}{space 2} .1965477{col 46}{space 1}    0.42{col 55}{space 3}0.674{col 63}{space 4}-.3025342{col 76}{space 3}  .467981
+{txt}{space 16}6. f  {c |}{col 23}{res}{space 2} .1693152{col 35}{space 2} .2077745{col 46}{space 1}    0.81{col 55}{space 3}0.415{col 63}{space 4}-.2379482{col 76}{space 3} .5765786
+{txt}{space 16}7. g  {c |}{col 23}{res}{space 2} .4059203{col 35}{space 2} .2219343{col 46}{space 1}    1.83{col 55}{space 3}0.067{col 63}{space 4} -.029098{col 76}{space 3} .8409386
+{txt}{space 16}8. h  {c |}{col 23}{res}{space 2} .4995935{col 35}{space 2} .2345983{col 46}{space 1}    2.13{col 55}{space 3}0.033{col 63}{space 4}  .039752{col 76}{space 3}  .959435
+{txt}{space 16}9. i  {c |}{col 23}{res}{space 2} .3932972{col 35}{space 2} .2476491{col 46}{space 1}    1.59{col 55}{space 3}0.112{col 63}{space 4}-.0921254{col 76}{space 3} .8787198
+{txt}{space 15}10. j  {c |}{col 23}{res}{space 2}-.0409059{col 35}{space 2} .2550665{col 46}{space 1}   -0.16{col 55}{space 3}0.873{col 63}{space 4}-.5408675{col 76}{space 3} .4590557
+{txt}{space 15}11. k  {c |}{col 23}{res}{space 2} .2890054{col 35}{space 2} .2781244{col 46}{space 1}    1.04{col 55}{space 3}0.299{col 63}{space 4}-.2561525{col 76}{space 3} .8341633
+{txt}{space 15}12. l  {c |}{col 23}{res}{space 2} .4165294{col 35}{space 2} .2970242{col 46}{space 1}    1.40{col 55}{space 3}0.161{col 63}{space 4}-.1656744{col 76}{space 3} .9987332
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2} 49.05774{col 35}{space 2} .1940792{col 46}{space 1}  252.77{col 55}{space 3}0.000{col 63}{space 4} 48.67732{col 76}{space 3} 49.43816
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. est store MT7
+{txt}
+{com}. regress mcam10 i.redcats i.wave ///
+> if fem == 1 & participation == 1 &  cam_miss == 0 [pw=nwei] , robust cluster(pidp)
+{txt}(sum of wgt is 97,709.1364369151)
+
+Linear regression                               Number of obs     = {res}    97,845
+                                                {txt}F(21, 16461)      =  {res}     2.16
+                                                {txt}Prob > F          = {res}    0.0015
+                                                {txt}R-squared         = {res}    0.0011
+                                                {txt}Root MSE          =    {res} 13.806
+
+{txt}{ralign 87:(Std. err. adjusted for {res:16,462} clusters in {res:pidp})}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}               mcam10{col 23}{c |} Coefficient{col 35}  std. err.{col 47}      t{col 55}   P>|t|{col 63}     [95% con{col 76}f. interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 14}redcats {c |}
+{space 2}White Muslim Brit.  {c |}{col 23}{res}{space 2}-1.217474{col 35}{space 2} 1.920275{col 46}{space 1}   -0.63{col 55}{space 3}0.526{col 63}{space 4} -4.98142{col 76}{space 3} 2.546473
+{txt}{space 5}Muslim Indian 1  {c |}{col 23}{res}{space 2}-.3399072{col 35}{space 2}  2.47446{col 46}{space 1}   -0.14{col 55}{space 3}0.891{col 63}{space 4}-5.190116{col 76}{space 3} 4.510301
+{txt}{space 2}Muslim Pakistani 1  {c |}{col 23}{res}{space 2}-.2230374{col 35}{space 2} 1.856806{col 46}{space 1}   -0.12{col 55}{space 3}0.904{col 63}{space 4}-3.862579{col 76}{space 3} 3.416504
+{txt}Muslim Bangladeshi 1  {c |}{col 23}{res}{space 2}-.9314153{col 35}{space 2} 1.850779{col 46}{space 1}   -0.50{col 55}{space 3}0.615{col 63}{space 4}-4.559143{col 76}{space 3} 2.696312
+{txt}{space 6}Muslim Black 1  {c |}{col 23}{res}{space 2}-6.828487{col 35}{space 2} 2.049023{col 46}{space 1}   -3.33{col 55}{space 3}0.001{col 63}{space 4}-10.84479{col 76}{space 3}-2.812181
+{txt}{space 6}Muslim Other 1  {c |}{col 23}{res}{space 2}-2.186675{col 35}{space 2} 2.851871{col 46}{space 1}   -0.77{col 55}{space 3}0.443{col 63}{space 4}-7.776651{col 76}{space 3}   3.4033
+{txt}{space 5}Muslim Indian 2  {c |}{col 23}{res}{space 2} 2.644082{col 35}{space 2} 1.442991{col 46}{space 1}    1.83{col 55}{space 3}0.067{col 63}{space 4}-.1843365{col 76}{space 3} 5.472499
+{txt}{space 2}Muslim Pakistani 2  {c |}{col 23}{res}{space 2} 1.444464{col 35}{space 2} .9252132{col 46}{space 1}    1.56{col 55}{space 3}0.118{col 63}{space 4}-.3690537{col 76}{space 3} 3.257982
+{txt}Muslim Bangladeshi 2  {c |}{col 23}{res}{space 2}-.6064248{col 35}{space 2} 1.077511{col 46}{space 1}   -0.56{col 55}{space 3}0.574{col 63}{space 4}-2.718463{col 76}{space 3} 1.505614
+{txt}{space 6}Muslim Other 2  {c |}{col 23}{res}{space 2} 6.640103{col 35}{space 2} 2.534767{col 46}{space 1}    2.62{col 55}{space 3}0.009{col 63}{space 4} 1.671686{col 76}{space 3} 11.60852
+{txt}{space 21} {c |}
+{space 17}wave {c |}
+{space 16}2. b  {c |}{col 23}{res}{space 2}-.0987148{col 35}{space 2} .1143478{col 46}{space 1}   -0.86{col 55}{space 3}0.388{col 63}{space 4}-.3228488{col 76}{space 3} .1254193
+{txt}{space 16}3. c  {c |}{col 23}{res}{space 2} -.039402{col 35}{space 2} .1406013{col 46}{space 1}   -0.28{col 55}{space 3}0.779{col 63}{space 4}-.3149958{col 76}{space 3} .2361918
+{txt}{space 16}4. d  {c |}{col 23}{res}{space 2} .1595056{col 35}{space 2} .1550264{col 46}{space 1}    1.03{col 55}{space 3}0.304{col 63}{space 4}-.1443629{col 76}{space 3}  .463374
+{txt}{space 16}5. e  {c |}{col 23}{res}{space 2} .1931058{col 35}{space 2} .1687855{col 46}{space 1}    1.14{col 55}{space 3}0.253{col 63}{space 4} -.137732{col 76}{space 3} .5239436
+{txt}{space 16}6. f  {c |}{col 23}{res}{space 2} .3394549{col 35}{space 2} .1767253{col 46}{space 1}    1.92{col 55}{space 3}0.055{col 63}{space 4}-.0069458{col 76}{space 3} .6858556
+{txt}{space 16}7. g  {c |}{col 23}{res}{space 2} .3428562{col 35}{space 2}  .189855{col 46}{space 1}    1.81{col 55}{space 3}0.071{col 63}{space 4}-.0292801{col 76}{space 3} .7149926
+{txt}{space 16}8. h  {c |}{col 23}{res}{space 2} .1810726{col 35}{space 2} .1973654{col 46}{space 1}    0.92{col 55}{space 3}0.359{col 63}{space 4} -.205785{col 76}{space 3} .5679302
+{txt}{space 16}9. i  {c |}{col 23}{res}{space 2} .1256529{col 35}{space 2} .2162207{col 46}{space 1}    0.58{col 55}{space 3}0.561{col 63}{space 4} -.298163{col 76}{space 3} .5494688
+{txt}{space 15}10. j  {c |}{col 23}{res}{space 2}-.0037822{col 35}{space 2} .2219739{col 46}{space 1}   -0.02{col 55}{space 3}0.986{col 63}{space 4} -.438875{col 76}{space 3} .4313105
+{txt}{space 15}11. k  {c |}{col 23}{res}{space 2} .3185218{col 35}{space 2} .2325992{col 46}{space 1}    1.37{col 55}{space 3}0.171{col 63}{space 4}-.1373977{col 76}{space 3} .7744414
+{txt}{space 15}12. l  {c |}{col 23}{res}{space 2} .5722315{col 35}{space 2}  .251072{col 46}{space 1}    2.28{col 55}{space 3}0.023{col 63}{space 4} .0801032{col 76}{space 3}  1.06436
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2}  51.4142{col 35}{space 2} .1600514{col 46}{space 1}  321.24{col 55}{space 3}0.000{col 63}{space 4} 51.10048{col 76}{space 3} 51.72792
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. est store WT7
+{txt}
+{com}. 
+. est tab MT6 MT7 WT6 WT7, star stat(N r2) b(%8.3f) var(30)
+{res}
+{txt}{hline 30}{c -}{c TT}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}
+{ralign 30:Variable} {c |} {center 11:MT6} {space 1} {center 11:MT7} {space 1} {center 11:WT6} {space 1} {center 11:WT7} {space 1}
+{hline 30}{c -}{c +}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}
+{res}{txt}{space 23}redcats {c |}
+{space 11}White Muslim Brit.  {c |}{res} {ralign 8:-3.154}{lalign 3:}{txt} {space 1}{res} {ralign 8:-3.148}{lalign 3:}{txt} {space 1}{res} {ralign 8:-1.226}{lalign 3:}{txt} {space 1}{res} {ralign 8:-1.217}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 14}Muslim Indian 1  {c |}{res} {ralign 8:-0.163}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.188}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.310}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.340}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 11}Muslim Pakistani 1  {c |}{res} {ralign 8:-3.705}{lalign 3:**}{txt} {space 1}{res} {ralign 8:-3.696}{lalign 3:**}{txt} {space 1}{res} {ralign 8:-0.232}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.223}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 9}Muslim Bangladeshi 1  {c |}{res} {ralign 8:-4.017}{lalign 3:*}{txt} {space 1}{res} {ralign 8:-3.998}{lalign 3:*}{txt} {space 1}{res} {ralign 8:-0.940}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.931}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 15}Muslim Black 1  {c |}{res} {ralign 8:-3.334}{lalign 3:}{txt} {space 1}{res} {ralign 8:-3.316}{lalign 3:}{txt} {space 1}{res} {ralign 8:-6.848}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-6.828}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 15}Muslim Other 1  {c |}{res} {ralign 8:-4.403}{lalign 3:}{txt} {space 1}{res} {ralign 8:-4.410}{lalign 3:}{txt} {space 1}{res} {ralign 8:-2.221}{lalign 3:}{txt} {space 1}{res} {ralign 8:-2.187}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 14}Muslim Indian 2  {c |}{res} {ralign 8:5.338}{lalign 3:*}{txt} {space 1}{res} {ralign 8:5.345}{lalign 3:*}{txt} {space 1}{res} {ralign 8:2.644}{lalign 3:}{txt} {space 1}{res} {ralign 8:2.644}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 11}Muslim Pakistani 2  {c |}{res} {ralign 8:0.617}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.636}{lalign 3:}{txt} {space 1}{res} {ralign 8:1.432}{lalign 3:}{txt} {space 1}{res} {ralign 8:1.444}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 9}Muslim Bangladeshi 2  {c |}{res} {ralign 8:-0.559}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.561}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.638}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.606}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 15}Muslim Other 2  {c |}{res} {ralign 8:7.347}{lalign 3:**}{txt} {space 1}{res} {ralign 8:7.357}{lalign 3:**}{txt} {space 1}{res} {ralign 8:6.643}{lalign 3:**}{txt} {space 1}{res} {ralign 8:6.640}{lalign 3:**}{txt} {space 1}
+{res}{txt}{space 30} {c |}
+{space 20}intdaty_dv {c |}
+{space 25}2010  {c |}{res} {ralign 8:-0.592}{lalign 3:*}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.069}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2011  {c |}{res} {ralign 8:-0.704}{lalign 3:**}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.042}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2012  {c |}{res} {ralign 8:-0.718}{lalign 3:**}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.013}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2013  {c |}{res} {ralign 8:-0.431}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.239}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2014  {c |}{res} {ralign 8:-0.036}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.334}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2015  {c |}{res} {ralign 8:-0.083}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.404}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2016  {c |}{res} {ralign 8:0.282}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.118}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2017  {c |}{res} {ralign 8:0.156}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.270}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2018  {c |}{res} {ralign 8:-0.216}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.003}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2019  {c |}{res} {ralign 8:-0.310}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.328}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2020  {c |}{res} {ralign 8:0.019}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.299}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2021  {c |}{res} {ralign 8:0.022}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.558}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2022  {c |}{res} {ralign 8:-0.717}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:1.339}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 30} {c |}
+{space 26}wave {c |}
+{space 25}2. b  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.377}{lalign 3:**}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.099}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}3. c  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.336}{lalign 3:*}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.039}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}4. d  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.329}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.160}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}5. e  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.083}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.193}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}6. f  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.169}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.339}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}7. g  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.406}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.343}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}8. h  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.500}{lalign 3:*}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.181}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}9. i  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.393}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.126}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 24}10. j  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.041}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.004}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 24}11. k  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.289}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.319}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 24}12. l  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.417}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.572}{lalign 3:*}{txt} {space 1}
+{res}{txt}{space 30} {c |}
+{space 25}_cons {c |}{res} {ralign 8:49.369}{lalign 3:***}{txt} {space 1}{res} {ralign 8:49.058}{lalign 3:***}{txt} {space 1}{res} {ralign 8:51.392}{lalign 3:***}{txt} {space 1}{res} {ralign 8:51.414}{lalign 3:***}{txt} {space 1}
+{res}{txt}{hline 30}{c -}{c +}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}
+{ralign 30:N} {c |}{res} {ralign 8:88814}{lalign 3:}{txt} {space 1}{res} {ralign 8:88814}{lalign 3:}{txt} {space 1}{res} {ralign 8:97845}{lalign 3:}{txt} {space 1}{res} {ralign 8:97845}{lalign 3:}{txt} {space 1}
+{res}{txt}{ralign 30:r2} {c |}{res} {ralign 8:0.002}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.002}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.001}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.001}{lalign 3:}{txt} {space 1}
+{res}{txt}{hline 30}{c -}{c BT}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}
+{ralign 88:Legend: * p<0.05; ** p<0.01; *** p<0.001}
+{res}{txt}
+{com}. 
+. ** (4) average hourly earnings
+. regress earningsxhours pubsector parttime i.redcats i.intdaty_dv  ///
+> if fem == 0 & participation == 1 &  earningmiss == 0 [pw=nwei] , robust cluster(pidp)
+{txt}(sum of wgt is 94,991.1557774569)
+
+Linear regression                               Number of obs     = {res}    80,900
+                                                {txt}F(25, 14669)      =  {res}    29.33
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0400
+                                                {txt}Root MSE          =    {res} 11.761
+
+{txt}{ralign 87:(Std. err. adjusted for {res:14,670} clusters in {res:pidp})}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}       earningsxhours{col 23}{c |} Coefficient{col 35}  std. err.{col 47}      t{col 55}   P>|t|{col 63}     [95% con{col 76}f. interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 12}pubsector {c |}{col 23}{res}{space 2} 2.982965{col 35}{space 2} .2175356{col 46}{space 1}   13.71{col 55}{space 3}0.000{col 63}{space 4} 2.556568{col 76}{space 3} 3.409363
+{txt}{space 13}parttime {c |}{col 23}{res}{space 2} 5.735321{col 35}{space 2} .4722742{col 46}{space 1}   12.14{col 55}{space 3}0.000{col 63}{space 4} 4.809605{col 76}{space 3} 6.661038
+{txt}{space 21} {c |}
+{space 14}redcats {c |}
+{space 2}White Muslim Brit.  {c |}{col 23}{res}{space 2}-1.459928{col 35}{space 2} 1.357838{col 46}{space 1}   -1.08{col 55}{space 3}0.282{col 63}{space 4}-4.121463{col 76}{space 3} 1.201606
+{txt}{space 5}Muslim Indian 1  {c |}{col 23}{res}{space 2}-.3415015{col 35}{space 2} 1.491748{col 46}{space 1}   -0.23{col 55}{space 3}0.819{col 63}{space 4}-3.265515{col 76}{space 3} 2.582512
+{txt}{space 2}Muslim Pakistani 1  {c |}{col 23}{res}{space 2}-4.396286{col 35}{space 2} .5858985{col 46}{space 1}   -7.50{col 55}{space 3}0.000{col 63}{space 4} -5.54472{col 76}{space 3}-3.247851
+{txt}Muslim Bangladeshi 1  {c |}{col 23}{res}{space 2}-3.721061{col 35}{space 2} .6189685{col 46}{space 1}   -6.01{col 55}{space 3}0.000{col 63}{space 4}-4.934317{col 76}{space 3}-2.507805
+{txt}{space 6}Muslim Black 1  {c |}{col 23}{res}{space 2} .3118852{col 35}{space 2} 2.429801{col 46}{space 1}    0.13{col 55}{space 3}0.898{col 63}{space 4} -4.45083{col 76}{space 3}   5.0746
+{txt}{space 6}Muslim Other 1  {c |}{col 23}{res}{space 2}-1.729858{col 35}{space 2} 1.637118{col 46}{space 1}   -1.06{col 55}{space 3}0.291{col 63}{space 4}-4.938815{col 76}{space 3}   1.4791
+{txt}{space 5}Muslim Indian 2  {c |}{col 23}{res}{space 2}-.4218698{col 35}{space 2} 1.129945{col 46}{space 1}   -0.37{col 55}{space 3}0.709{col 63}{space 4}-2.636703{col 76}{space 3} 1.792964
+{txt}{space 2}Muslim Pakistani 2  {c |}{col 23}{res}{space 2}-3.270036{col 35}{space 2} .6294356{col 46}{space 1}   -5.20{col 55}{space 3}0.000{col 63}{space 4}-4.503809{col 76}{space 3}-2.036263
+{txt}Muslim Bangladeshi 2  {c |}{col 23}{res}{space 2}-4.462565{col 35}{space 2} .8489079{col 46}{space 1}   -5.26{col 55}{space 3}0.000{col 63}{space 4}-6.126531{col 76}{space 3}-2.798599
+{txt}{space 6}Muslim Other 2  {c |}{col 23}{res}{space 2} 1.789111{col 35}{space 2} 1.568864{col 46}{space 1}    1.14{col 55}{space 3}0.254{col 63}{space 4}-1.286059{col 76}{space 3} 4.864282
+{txt}{space 21} {c |}
+{space 11}intdaty_dv {c |}
+{space 16}2010  {c |}{col 23}{res}{space 2} .0282991{col 35}{space 2} .2052194{col 46}{space 1}    0.14{col 55}{space 3}0.890{col 63}{space 4}-.3739566{col 76}{space 3} .4305548
+{txt}{space 16}2011  {c |}{col 23}{res}{space 2} .5601164{col 35}{space 2} .2113108{col 46}{space 1}    2.65{col 55}{space 3}0.008{col 63}{space 4} .1459206{col 76}{space 3} .9743121
+{txt}{space 16}2012  {c |}{col 23}{res}{space 2} .7570124{col 35}{space 2} .2168168{col 46}{space 1}    3.49{col 55}{space 3}0.000{col 63}{space 4} .3320243{col 76}{space 3}    1.182
+{txt}{space 16}2013  {c |}{col 23}{res}{space 2} .7383942{col 35}{space 2} .2186815{col 46}{space 1}    3.38{col 55}{space 3}0.001{col 63}{space 4}  .309751{col 76}{space 3} 1.167038
+{txt}{space 16}2014  {c |}{col 23}{res}{space 2} 1.402247{col 35}{space 2} .2327187{col 46}{space 1}    6.03{col 55}{space 3}0.000{col 63}{space 4} .9460889{col 76}{space 3} 1.858405
+{txt}{space 16}2015  {c |}{col 23}{res}{space 2} 1.695488{col 35}{space 2}  .235498{col 46}{space 1}    7.20{col 55}{space 3}0.000{col 63}{space 4} 1.233882{col 76}{space 3} 2.157094
+{txt}{space 16}2016  {c |}{col 23}{res}{space 2} 2.087361{col 35}{space 2} .2545399{col 46}{space 1}    8.20{col 55}{space 3}0.000{col 63}{space 4} 1.588431{col 76}{space 3} 2.586291
+{txt}{space 16}2017  {c |}{col 23}{res}{space 2} 2.481258{col 35}{space 2} .2527028{col 46}{space 1}    9.82{col 55}{space 3}0.000{col 63}{space 4} 1.985929{col 76}{space 3} 2.976587
+{txt}{space 16}2018  {c |}{col 23}{res}{space 2} 2.744628{col 35}{space 2} .2643111{col 46}{space 1}   10.38{col 55}{space 3}0.000{col 63}{space 4} 2.226545{col 76}{space 3} 3.262711
+{txt}{space 16}2019  {c |}{col 23}{res}{space 2} 3.270527{col 35}{space 2} .2729494{col 46}{space 1}   11.98{col 55}{space 3}0.000{col 63}{space 4} 2.735512{col 76}{space 3} 3.805542
+{txt}{space 16}2020  {c |}{col 23}{res}{space 2} 3.539665{col 35}{space 2} .2826203{col 46}{space 1}   12.52{col 55}{space 3}0.000{col 63}{space 4} 2.985694{col 76}{space 3} 4.093636
+{txt}{space 16}2021  {c |}{col 23}{res}{space 2} 4.109393{col 35}{space 2} .4193071{col 46}{space 1}    9.80{col 55}{space 3}0.000{col 63}{space 4} 3.287499{col 76}{space 3} 4.931288
+{txt}{space 16}2022  {c |}{col 23}{res}{space 2} 6.923093{col 35}{space 2} 2.859932{col 46}{space 1}    2.42{col 55}{space 3}0.016{col 63}{space 4} 1.317267{col 76}{space 3} 12.52892
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2} 15.14676{col 35}{space 2} .2059243{col 46}{space 1}   73.55{col 55}{space 3}0.000{col 63}{space 4} 14.74312{col 76}{space 3}  15.5504
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. est store MT8 
+{txt}
+{com}. regress earningsxhours pubsector parttime i.redcats i.intdaty_dv  ///
+> if fem == 1 & participation == 1 &  earningmiss == 0 [pw=nwei] , robust cluster(pidp)
+{txt}(sum of wgt is 93,649.5709998627)
+
+Linear regression                               Number of obs     = {res}    93,847
+                                                {txt}F(25, 16546)      =  {res}    43.43
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0411
+                                                {txt}Root MSE          =    {res} 11.283
+
+{txt}{ralign 87:(Std. err. adjusted for {res:16,547} clusters in {res:pidp})}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}       earningsxhours{col 23}{c |} Coefficient{col 35}  std. err.{col 47}      t{col 55}   P>|t|{col 63}     [95% con{col 76}f. interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 12}pubsector {c |}{col 23}{res}{space 2} 2.711825{col 35}{space 2} .1573761{col 46}{space 1}   17.23{col 55}{space 3}0.000{col 63}{space 4} 2.403351{col 76}{space 3} 3.020299
+{txt}{space 13}parttime {c |}{col 23}{res}{space 2} 3.500364{col 35}{space 2} .1785593{col 46}{space 1}   19.60{col 55}{space 3}0.000{col 63}{space 4} 3.150369{col 76}{space 3}  3.85036
+{txt}{space 21} {c |}
+{space 14}redcats {c |}
+{space 2}White Muslim Brit.  {c |}{col 23}{res}{space 2}-.5080163{col 35}{space 2} 1.562049{col 46}{space 1}   -0.33{col 55}{space 3}0.745{col 63}{space 4}-3.569801{col 76}{space 3} 2.553768
+{txt}{space 5}Muslim Indian 1  {c |}{col 23}{res}{space 2} -2.36762{col 35}{space 2} 1.444196{col 46}{space 1}   -1.64{col 55}{space 3}0.101{col 63}{space 4}  -5.1984{col 76}{space 3} .4631593
+{txt}{space 2}Muslim Pakistani 1  {c |}{col 23}{res}{space 2}-1.267986{col 35}{space 2} .8819499{col 46}{space 1}   -1.44{col 55}{space 3}0.151{col 63}{space 4}-2.996703{col 76}{space 3} .4607304
+{txt}Muslim Bangladeshi 1  {c |}{col 23}{res}{space 2} 1.075099{col 35}{space 2} 1.540795{col 46}{space 1}    0.70{col 55}{space 3}0.485{col 63}{space 4}-1.945025{col 76}{space 3} 4.095222
+{txt}{space 6}Muslim Black 1  {c |}{col 23}{res}{space 2}  2.09591{col 35}{space 2} 1.196999{col 46}{space 1}    1.75{col 55}{space 3}0.080{col 63}{space 4}-.2503367{col 76}{space 3} 4.442156
+{txt}{space 6}Muslim Other 1  {c |}{col 23}{res}{space 2} 1.890821{col 35}{space 2} 1.761054{col 46}{space 1}    1.07{col 55}{space 3}0.283{col 63}{space 4}-1.561033{col 76}{space 3} 5.342676
+{txt}{space 5}Muslim Indian 2  {c |}{col 23}{res}{space 2}-.8163004{col 35}{space 2} .9654195{col 46}{space 1}   -0.85{col 55}{space 3}0.398{col 63}{space 4}-2.708626{col 76}{space 3} 1.076025
+{txt}{space 2}Muslim Pakistani 2  {c |}{col 23}{res}{space 2} -1.49125{col 35}{space 2} .7594483{col 46}{space 1}   -1.96{col 55}{space 3}0.050{col 63}{space 4} -2.97985{col 76}{space 3}-.0026501
+{txt}Muslim Bangladeshi 2  {c |}{col 23}{res}{space 2}-3.287828{col 35}{space 2} .6832166{col 46}{space 1}   -4.81{col 55}{space 3}0.000{col 63}{space 4}-4.627006{col 76}{space 3}-1.948651
+{txt}{space 6}Muslim Other 2  {c |}{col 23}{res}{space 2} 4.153888{col 35}{space 2} 2.879921{col 46}{space 1}    1.44{col 55}{space 3}0.149{col 63}{space 4}-1.491067{col 76}{space 3} 9.798843
+{txt}{space 21} {c |}
+{space 11}intdaty_dv {c |}
+{space 16}2010  {c |}{col 23}{res}{space 2} .6564639{col 35}{space 2} .1580926{col 46}{space 1}    4.15{col 55}{space 3}0.000{col 63}{space 4} .3465855{col 76}{space 3} .9663423
+{txt}{space 16}2011  {c |}{col 23}{res}{space 2} .9719448{col 35}{space 2} .1605272{col 46}{space 1}    6.05{col 55}{space 3}0.000{col 63}{space 4} .6572942{col 76}{space 3} 1.286595
+{txt}{space 16}2012  {c |}{col 23}{res}{space 2}  1.52686{col 35}{space 2} .1770276{col 46}{space 1}    8.62{col 55}{space 3}0.000{col 63}{space 4} 1.179867{col 76}{space 3} 1.873853
+{txt}{space 16}2013  {c |}{col 23}{res}{space 2}   1.4633{col 35}{space 2} .1855584{col 46}{space 1}    7.89{col 55}{space 3}0.000{col 63}{space 4} 1.099586{col 76}{space 3} 1.827015
+{txt}{space 16}2014  {c |}{col 23}{res}{space 2} 1.872036{col 35}{space 2}  .185539{col 46}{space 1}   10.09{col 55}{space 3}0.000{col 63}{space 4}  1.50836{col 76}{space 3} 2.235712
+{txt}{space 16}2015  {c |}{col 23}{res}{space 2} 2.414054{col 35}{space 2} .1961102{col 46}{space 1}   12.31{col 55}{space 3}0.000{col 63}{space 4} 2.029656{col 76}{space 3} 2.798451
+{txt}{space 16}2016  {c |}{col 23}{res}{space 2} 2.756405{col 35}{space 2} .2085011{col 46}{space 1}   13.22{col 55}{space 3}0.000{col 63}{space 4} 2.347721{col 76}{space 3}  3.16509
+{txt}{space 16}2017  {c |}{col 23}{res}{space 2} 2.898957{col 35}{space 2} .2069528{col 46}{space 1}   14.01{col 55}{space 3}0.000{col 63}{space 4} 2.493307{col 76}{space 3} 3.304606
+{txt}{space 16}2018  {c |}{col 23}{res}{space 2} 2.931967{col 35}{space 2} .2297973{col 46}{space 1}   12.76{col 55}{space 3}0.000{col 63}{space 4}  2.48154{col 76}{space 3} 3.382394
+{txt}{space 16}2019  {c |}{col 23}{res}{space 2} 3.536079{col 35}{space 2} .2227754{col 46}{space 1}   15.87{col 55}{space 3}0.000{col 63}{space 4} 3.099415{col 76}{space 3} 3.972742
+{txt}{space 16}2020  {c |}{col 23}{res}{space 2} 3.808472{col 35}{space 2} .2284514{col 46}{space 1}   16.67{col 55}{space 3}0.000{col 63}{space 4} 3.360683{col 76}{space 3} 4.256261
+{txt}{space 16}2021  {c |}{col 23}{res}{space 2} 4.568621{col 35}{space 2}  .344576{col 46}{space 1}   13.26{col 55}{space 3}0.000{col 63}{space 4} 3.893215{col 76}{space 3} 5.244027
+{txt}{space 16}2022  {c |}{col 23}{res}{space 2}  5.54457{col 35}{space 2} 1.309613{col 46}{space 1}    4.23{col 55}{space 3}0.000{col 63}{space 4} 2.977588{col 76}{space 3} 8.111553
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2}   12.327{col 35}{space 2} .1767586{col 46}{space 1}   69.74{col 55}{space 3}0.000{col 63}{space 4} 11.98053{col 76}{space 3} 12.67346
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. est store WT8 
+{txt}
+{com}. regress earningsxhours pubsector parttime i.redcats i.wave  ///
+> if fem == 0 & participation == 1 &  earningmiss == 0 [pw=nwei] , robust cluster(pidp)
+{txt}(sum of wgt is 94,991.1557774569)
+
+Linear regression                               Number of obs     = {res}    80,900
+                                                {txt}F(23, 14669)      =  {res}    32.87
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0401
+                                                {txt}Root MSE          =    {res} 11.761
+
+{txt}{ralign 87:(Std. err. adjusted for {res:14,670} clusters in {res:pidp})}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}       earningsxhours{col 23}{c |} Coefficient{col 35}  std. err.{col 47}      t{col 55}   P>|t|{col 63}     [95% con{col 76}f. interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 12}pubsector {c |}{col 23}{res}{space 2} 2.970646{col 35}{space 2} .2175671{col 46}{space 1}   13.65{col 55}{space 3}0.000{col 63}{space 4} 2.544187{col 76}{space 3} 3.397105
+{txt}{space 13}parttime {c |}{col 23}{res}{space 2} 5.723408{col 35}{space 2} .4722264{col 46}{space 1}   12.12{col 55}{space 3}0.000{col 63}{space 4} 4.797785{col 76}{space 3} 6.649031
+{txt}{space 21} {c |}
+{space 14}redcats {c |}
+{space 2}White Muslim Brit.  {c |}{col 23}{res}{space 2}-1.439538{col 35}{space 2} 1.340197{col 46}{space 1}   -1.07{col 55}{space 3}0.283{col 63}{space 4}-4.066493{col 76}{space 3} 1.187418
+{txt}{space 5}Muslim Indian 1  {c |}{col 23}{res}{space 2}-.3007958{col 35}{space 2} 1.484861{col 46}{space 1}   -0.20{col 55}{space 3}0.839{col 63}{space 4}-3.211309{col 76}{space 3} 2.609718
+{txt}{space 2}Muslim Pakistani 1  {c |}{col 23}{res}{space 2}-4.329192{col 35}{space 2} .5887957{col 46}{space 1}   -7.35{col 55}{space 3}0.000{col 63}{space 4}-5.483306{col 76}{space 3}-3.175078
+{txt}Muslim Bangladeshi 1  {c |}{col 23}{res}{space 2}-3.660288{col 35}{space 2} .6149804{col 46}{space 1}   -5.95{col 55}{space 3}0.000{col 63}{space 4}-4.865727{col 76}{space 3}-2.454849
+{txt}{space 6}Muslim Black 1  {c |}{col 23}{res}{space 2} .3731706{col 35}{space 2} 2.419941{col 46}{space 1}    0.15{col 55}{space 3}0.877{col 63}{space 4}-4.370219{col 76}{space 3}  5.11656
+{txt}{space 6}Muslim Other 1  {c |}{col 23}{res}{space 2}-1.612411{col 35}{space 2}  1.63127{col 46}{space 1}   -0.99{col 55}{space 3}0.323{col 63}{space 4}-4.809905{col 76}{space 3} 1.585083
+{txt}{space 5}Muslim Indian 2  {c |}{col 23}{res}{space 2}-.3576197{col 35}{space 2} 1.131855{col 46}{space 1}   -0.32{col 55}{space 3}0.752{col 63}{space 4}-2.576197{col 76}{space 3} 1.860958
+{txt}{space 2}Muslim Pakistani 2  {c |}{col 23}{res}{space 2}-3.214837{col 35}{space 2} .6303447{col 46}{space 1}   -5.10{col 55}{space 3}0.000{col 63}{space 4}-4.450392{col 76}{space 3}-1.979282
+{txt}Muslim Bangladeshi 2  {c |}{col 23}{res}{space 2}-4.384905{col 35}{space 2}  .846296{col 46}{space 1}   -5.18{col 55}{space 3}0.000{col 63}{space 4}-6.043751{col 76}{space 3}-2.726058
+{txt}{space 6}Muslim Other 2  {c |}{col 23}{res}{space 2} 1.826828{col 35}{space 2} 1.579658{col 46}{space 1}    1.16{col 55}{space 3}0.248{col 63}{space 4}  -1.2695{col 76}{space 3} 4.923157
+{txt}{space 21} {c |}
+{space 17}wave {c |}
+{space 16}2. b  {c |}{col 23}{res}{space 2} .2374828{col 35}{space 2} .1453787{col 46}{space 1}    1.63{col 55}{space 3}0.102{col 63}{space 4}-.0474777{col 76}{space 3} .5224432
+{txt}{space 16}3. c  {c |}{col 23}{res}{space 2} .7632991{col 35}{space 2} .1665731{col 46}{space 1}    4.58{col 55}{space 3}0.000{col 63}{space 4} .4367948{col 76}{space 3} 1.089803
+{txt}{space 16}4. d  {c |}{col 23}{res}{space 2} .7014611{col 35}{space 2} .1659867{col 46}{space 1}    4.23{col 55}{space 3}0.000{col 63}{space 4} .3761064{col 76}{space 3} 1.026816
+{txt}{space 16}5. e  {c |}{col 23}{res}{space 2} .9903515{col 35}{space 2} .1714512{col 46}{space 1}    5.78{col 55}{space 3}0.000{col 63}{space 4} .6542856{col 76}{space 3} 1.326417
+{txt}{space 16}6. f  {c |}{col 23}{res}{space 2} 1.731355{col 35}{space 2} .1890751{col 46}{space 1}    9.16{col 55}{space 3}0.000{col 63}{space 4} 1.360744{col 76}{space 3} 2.101965
+{txt}{space 16}7. g  {c |}{col 23}{res}{space 2} 1.815122{col 35}{space 2} .2035967{col 46}{space 1}    8.92{col 55}{space 3}0.000{col 63}{space 4} 1.416047{col 76}{space 3} 2.214197
+{txt}{space 16}8. h  {c |}{col 23}{res}{space 2} 2.054827{col 35}{space 2} .2061252{col 46}{space 1}    9.97{col 55}{space 3}0.000{col 63}{space 4} 1.650796{col 76}{space 3} 2.458858
+{txt}{space 16}9. i  {c |}{col 23}{res}{space 2} 2.830523{col 35}{space 2} .2225438{col 46}{space 1}   12.72{col 55}{space 3}0.000{col 63}{space 4} 2.394309{col 76}{space 3} 3.266737
+{txt}{space 15}10. j  {c |}{col 23}{res}{space 2} 3.019209{col 35}{space 2} .2282199{col 46}{space 1}   13.23{col 55}{space 3}0.000{col 63}{space 4} 2.571869{col 76}{space 3} 3.466549
+{txt}{space 15}11. k  {c |}{col 23}{res}{space 2} 3.359299{col 35}{space 2} .2303957{col 46}{space 1}   14.58{col 55}{space 3}0.000{col 63}{space 4} 2.907694{col 76}{space 3} 3.810904
+{txt}{space 15}12. l  {c |}{col 23}{res}{space 2} 3.952254{col 35}{space 2} .2599523{col 46}{space 1}   15.20{col 55}{space 3}0.000{col 63}{space 4} 3.442715{col 76}{space 3} 4.461793
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2} 15.14474{col 35}{space 2}  .157171{col 46}{space 1}   96.36{col 55}{space 3}0.000{col 63}{space 4} 14.83666{col 76}{space 3} 15.45281
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. est store MT9
+{txt}
+{com}. regress earningsxhours pubsector parttime i.redcats i.wave  ///
+> if fem == 1 & participation == 1 &  earningmiss == 0 [pw=nwei] , robust cluster(pidp)
+{txt}(sum of wgt is 93,649.5709998627)
+
+Linear regression                               Number of obs     = {res}    93,847
+                                                {txt}F(23, 16546)      =  {res}    46.91
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0410
+                                                {txt}Root MSE          =    {res} 11.284
+
+{txt}{ralign 87:(Std. err. adjusted for {res:16,547} clusters in {res:pidp})}
+{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 23}{c |}{col 35}    Robust
+{col 1}       earningsxhours{col 23}{c |} Coefficient{col 35}  std. err.{col 47}      t{col 55}   P>|t|{col 63}     [95% con{col 76}f. interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 12}pubsector {c |}{col 23}{res}{space 2}  2.70508{col 35}{space 2} .1573096{col 46}{space 1}   17.20{col 55}{space 3}0.000{col 63}{space 4} 2.396736{col 76}{space 3} 3.013424
+{txt}{space 13}parttime {c |}{col 23}{res}{space 2} 3.504057{col 35}{space 2} .1786184{col 46}{space 1}   19.62{col 55}{space 3}0.000{col 63}{space 4} 3.153946{col 76}{space 3} 3.854168
+{txt}{space 21} {c |}
+{space 14}redcats {c |}
+{space 2}White Muslim Brit.  {c |}{col 23}{res}{space 2}-.5040453{col 35}{space 2} 1.552633{col 46}{space 1}   -0.32{col 55}{space 3}0.745{col 63}{space 4}-3.547373{col 76}{space 3} 2.539282
+{txt}{space 5}Muslim Indian 1  {c |}{col 23}{res}{space 2}-2.286874{col 35}{space 2} 1.430212{col 46}{space 1}   -1.60{col 55}{space 3}0.110{col 63}{space 4}-5.090242{col 76}{space 3} .5164952
+{txt}{space 2}Muslim Pakistani 1  {c |}{col 23}{res}{space 2}-1.236449{col 35}{space 2} .8829725{col 46}{space 1}   -1.40{col 55}{space 3}0.161{col 63}{space 4} -2.96717{col 76}{space 3}  .494272
+{txt}Muslim Bangladeshi 1  {c |}{col 23}{res}{space 2} 1.069268{col 35}{space 2} 1.542258{col 46}{space 1}    0.69{col 55}{space 3}0.488{col 63}{space 4}-1.953722{col 76}{space 3} 4.092259
+{txt}{space 6}Muslim Black 1  {c |}{col 23}{res}{space 2} 2.144857{col 35}{space 2} 1.192902{col 46}{space 1}    1.80{col 55}{space 3}0.072{col 63}{space 4} -.193358{col 76}{space 3} 4.483073
+{txt}{space 6}Muslim Other 1  {c |}{col 23}{res}{space 2} 2.016581{col 35}{space 2} 1.734679{col 46}{space 1}    1.16{col 55}{space 3}0.245{col 63}{space 4}-1.383576{col 76}{space 3} 5.416737
+{txt}{space 5}Muslim Indian 2  {c |}{col 23}{res}{space 2}-.7520576{col 35}{space 2} .9790599{col 46}{space 1}   -0.77{col 55}{space 3}0.442{col 63}{space 4} -2.67112{col 76}{space 3} 1.167005
+{txt}{space 2}Muslim Pakistani 2  {c |}{col 23}{res}{space 2}-1.469862{col 35}{space 2} .7586722{col 46}{space 1}   -1.94{col 55}{space 3}0.053{col 63}{space 4}-2.956941{col 76}{space 3}  .017217
+{txt}Muslim Bangladeshi 2  {c |}{col 23}{res}{space 2}-3.203807{col 35}{space 2} .6734284{col 46}{space 1}   -4.76{col 55}{space 3}0.000{col 63}{space 4}-4.523799{col 76}{space 3}-1.883815
+{txt}{space 6}Muslim Other 2  {c |}{col 23}{res}{space 2} 4.156087{col 35}{space 2} 2.859469{col 46}{space 1}    1.45{col 55}{space 3}0.146{col 63}{space 4} -1.44878{col 76}{space 3} 9.760953
+{txt}{space 21} {c |}
+{space 17}wave {c |}
+{space 16}2. b  {c |}{col 23}{res}{space 2} .5833212{col 35}{space 2} .1150391{col 46}{space 1}    5.07{col 55}{space 3}0.000{col 63}{space 4} .3578322{col 76}{space 3} .8088102
+{txt}{space 16}3. c  {c |}{col 23}{res}{space 2} 1.002326{col 35}{space 2} .1291939{col 46}{space 1}    7.76{col 55}{space 3}0.000{col 63}{space 4} .7490923{col 76}{space 3}  1.25556
+{txt}{space 16}4. d  {c |}{col 23}{res}{space 2} 1.207566{col 35}{space 2} .1409726{col 46}{space 1}    8.57{col 55}{space 3}0.000{col 63}{space 4} .9312442{col 76}{space 3} 1.483887
+{txt}{space 16}5. e  {c |}{col 23}{res}{space 2}  1.31868{col 35}{space 2}  .150288{col 46}{space 1}    8.77{col 55}{space 3}0.000{col 63}{space 4} 1.024099{col 76}{space 3} 1.613261
+{txt}{space 16}6. f  {c |}{col 23}{res}{space 2} 2.042253{col 35}{space 2}  .161558{col 46}{space 1}   12.64{col 55}{space 3}0.000{col 63}{space 4} 1.725582{col 76}{space 3} 2.358924
+{txt}{space 16}7. g  {c |}{col 23}{res}{space 2} 2.282519{col 35}{space 2} .1675248{col 46}{space 1}   13.62{col 55}{space 3}0.000{col 63}{space 4} 1.954153{col 76}{space 3} 2.610886
+{txt}{space 16}8. h  {c |}{col 23}{res}{space 2} 2.670702{col 35}{space 2} .1789377{col 46}{space 1}   14.93{col 55}{space 3}0.000{col 63}{space 4} 2.319965{col 76}{space 3} 3.021439
+{txt}{space 16}9. i  {c |}{col 23}{res}{space 2} 2.567345{col 35}{space 2} .1729555{col 46}{space 1}   14.84{col 55}{space 3}0.000{col 63}{space 4} 2.228334{col 76}{space 3} 2.906356
+{txt}{space 15}10. j  {c |}{col 23}{res}{space 2} 2.911037{col 35}{space 2} .2104889{col 46}{space 1}   13.83{col 55}{space 3}0.000{col 63}{space 4} 2.498456{col 76}{space 3} 3.323618
+{txt}{space 15}11. k  {c |}{col 23}{res}{space 2} 3.430624{col 35}{space 2} .2019432{col 46}{space 1}   16.99{col 55}{space 3}0.000{col 63}{space 4} 3.034794{col 76}{space 3} 3.826455
+{txt}{space 15}12. l  {c |}{col 23}{res}{space 2} 3.950031{col 35}{space 2} .2113019{col 46}{space 1}   18.69{col 55}{space 3}0.000{col 63}{space 4} 3.535857{col 76}{space 3} 4.364206
+{txt}{space 21} {c |}
+{space 16}_cons {c |}{col 23}{res}{space 2} 12.58338{col 35}{space 2} .1449449{col 46}{space 1}   86.81{col 55}{space 3}0.000{col 63}{space 4} 12.29927{col 76}{space 3} 12.86749
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. est store WT9
+{txt}
+{com}. 
+. est tab MT8 MT9 WT8 WT9, star stat(N r2) b(%8.3f) var(30)
+{res}
+{txt}{hline 30}{c -}{c TT}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}
+{ralign 30:Variable} {c |} {center 11:MT8} {space 1} {center 11:MT9} {space 1} {center 11:WT8} {space 1} {center 11:WT9} {space 1}
+{hline 30}{c -}{c +}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}
+{res}{txt}{space 21}pubsector {c |}{res} {ralign 8:2.983}{lalign 3:***}{txt} {space 1}{res} {ralign 8:2.971}{lalign 3:***}{txt} {space 1}{res} {ralign 8:2.712}{lalign 3:***}{txt} {space 1}{res} {ralign 8:2.705}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 22}parttime {c |}{res} {ralign 8:5.735}{lalign 3:***}{txt} {space 1}{res} {ralign 8:5.723}{lalign 3:***}{txt} {space 1}{res} {ralign 8:3.500}{lalign 3:***}{txt} {space 1}{res} {ralign 8:3.504}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 30} {c |}
+{space 23}redcats {c |}
+{space 11}White Muslim Brit.  {c |}{res} {ralign 8:-1.460}{lalign 3:}{txt} {space 1}{res} {ralign 8:-1.440}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.508}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.504}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 14}Muslim Indian 1  {c |}{res} {ralign 8:-0.342}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.301}{lalign 3:}{txt} {space 1}{res} {ralign 8:-2.368}{lalign 3:}{txt} {space 1}{res} {ralign 8:-2.287}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 11}Muslim Pakistani 1  {c |}{res} {ralign 8:-4.396}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-4.329}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-1.268}{lalign 3:}{txt} {space 1}{res} {ralign 8:-1.236}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 9}Muslim Bangladeshi 1  {c |}{res} {ralign 8:-3.721}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-3.660}{lalign 3:***}{txt} {space 1}{res} {ralign 8:1.075}{lalign 3:}{txt} {space 1}{res} {ralign 8:1.069}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 15}Muslim Black 1  {c |}{res} {ralign 8:0.312}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.373}{lalign 3:}{txt} {space 1}{res} {ralign 8:2.096}{lalign 3:}{txt} {space 1}{res} {ralign 8:2.145}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 15}Muslim Other 1  {c |}{res} {ralign 8:-1.730}{lalign 3:}{txt} {space 1}{res} {ralign 8:-1.612}{lalign 3:}{txt} {space 1}{res} {ralign 8:1.891}{lalign 3:}{txt} {space 1}{res} {ralign 8:2.017}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 14}Muslim Indian 2  {c |}{res} {ralign 8:-0.422}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.358}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.816}{lalign 3:}{txt} {space 1}{res} {ralign 8:-0.752}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 11}Muslim Pakistani 2  {c |}{res} {ralign 8:-3.270}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-3.215}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-1.491}{lalign 3:*}{txt} {space 1}{res} {ralign 8:-1.470}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 9}Muslim Bangladeshi 2  {c |}{res} {ralign 8:-4.463}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-4.385}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-3.288}{lalign 3:***}{txt} {space 1}{res} {ralign 8:-3.204}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 15}Muslim Other 2  {c |}{res} {ralign 8:1.789}{lalign 3:}{txt} {space 1}{res} {ralign 8:1.827}{lalign 3:}{txt} {space 1}{res} {ralign 8:4.154}{lalign 3:}{txt} {space 1}{res} {ralign 8:4.156}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 30} {c |}
+{space 20}intdaty_dv {c |}
+{space 25}2010  {c |}{res} {ralign 8:0.028}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.656}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2011  {c |}{res} {ralign 8:0.560}{lalign 3:**}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.972}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2012  {c |}{res} {ralign 8:0.757}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:1.527}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2013  {c |}{res} {ralign 8:0.738}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:1.463}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2014  {c |}{res} {ralign 8:1.402}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:1.872}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2015  {c |}{res} {ralign 8:1.695}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:2.414}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2016  {c |}{res} {ralign 8:2.087}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:2.756}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2017  {c |}{res} {ralign 8:2.481}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:2.899}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2018  {c |}{res} {ralign 8:2.745}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:2.932}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2019  {c |}{res} {ralign 8:3.271}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:3.536}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2020  {c |}{res} {ralign 8:3.540}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:3.808}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2021  {c |}{res} {ralign 8:4.109}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:4.569}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 25}2022  {c |}{res} {ralign 8:6.923}{lalign 3:*}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:5.545}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}
+{res}{txt}{space 30} {c |}
+{space 26}wave {c |}
+{space 25}2. b  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.237}{lalign 3:}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.583}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 25}3. c  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.763}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:1.002}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 25}4. d  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.701}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:1.208}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 25}5. e  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.990}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:1.319}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 25}6. f  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:1.731}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:2.042}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 25}7. g  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:1.815}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:2.283}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 25}8. h  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:2.055}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:2.671}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 25}9. i  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:2.831}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:2.567}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 24}10. j  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:3.019}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:2.911}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 24}11. k  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:3.359}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:3.431}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 24}12. l  {c |}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:3.952}{lalign 3:***}{txt} {space 1}{res} {ralign 8:}{lalign 3:}{txt} {space 1}{res} {ralign 8:3.950}{lalign 3:***}{txt} {space 1}
+{res}{txt}{space 30} {c |}
+{space 25}_cons {c |}{res} {ralign 8:15.147}{lalign 3:***}{txt} {space 1}{res} {ralign 8:15.145}{lalign 3:***}{txt} {space 1}{res} {ralign 8:12.327}{lalign 3:***}{txt} {space 1}{res} {ralign 8:12.583}{lalign 3:***}{txt} {space 1}
+{res}{txt}{hline 30}{c -}{c +}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}
+{ralign 30:N} {c |}{res} {ralign 8:80900}{lalign 3:}{txt} {space 1}{res} {ralign 8:80900}{lalign 3:}{txt} {space 1}{res} {ralign 8:93847}{lalign 3:}{txt} {space 1}{res} {ralign 8:93847}{lalign 3:}{txt} {space 1}
+{res}{txt}{ralign 30:r2} {c |}{res} {ralign 8:0.040}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.040}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.041}{lalign 3:}{txt} {space 1}{res} {ralign 8:0.041}{lalign 3:}{txt} {space 1}
+{res}{txt}{hline 30}{c -}{c BT}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}{c -}{hline 11}{c -}{c -}
+{ralign 88:Legend: * p<0.05; ** p<0.01; *** p<0.001}
+{res}{txt}
+{com}. 
+. 
+. /* compare results: compare the results from the different models to check for consistency and identify any signiciant differences. Look for changes in coefficients of main variables of interest and overall model fit. */ 
+. 
+{txt}end of do-file
+
+{com}. log close
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}/Users/scothunter/Library/CloudStorage/OneDrive-UniversityofStirling/thesis/directory/syntax/prep/attachments/s1a_interview_year_hunter24.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res}17 Sep 2024, 13:00:14
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}
