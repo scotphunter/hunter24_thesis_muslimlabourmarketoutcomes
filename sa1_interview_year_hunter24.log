@@ -1,0 +1,1236 @@
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/scothunter/Library/CloudStorage/OneDrive-UniversityofStirling/thesis/directory/attachments/sa1_interview_year_hunter24.log
+  log type:  text
+ opened on:  17 Sep 2024, 16:52:10
+
+. do "/Users/scothunter/Library/CloudStorage/OneDrive-UniversityofStirling/thesis/directory/syntax/prep/attachments/sa1_interview_year_hunter24.do"
+
+. ** ************************************************************************** **
+.         * SENSITIVITY ANALYSIS 1
+.         * 
+.         * Testing interview year versus wave of UKHLS as controls. 
+.         
+.         * Part of PhD research on assessing impact of contemporary migration 
+.         * patterns on the Muslim community in the UK. 
+.         * Last updated 15 AUG 2024 
+.         * Scot Hunter 
+. ** ************************************************************************** **
+. 
+. 
+. 
+. /*
+> 
+> When conducting analysis with pooled data, it is common practice to control for potential period effects by including controls for survey waves. Period eff
+> ects account for how variations over time can lead to shifts in the social, cultural, economic, or physical environments of respondents in cross-sectional 
+> surveys (Khattab and Hussein, 2018, p. 1026).
+> 
+> In the context of the UK Household Longitudinal Study (UKHLS), researchers typically use the interview year (`intdaty_dv') in their models to control for p
+> eriod effects. However, there is an argument that using survey wave dummies might be more effective. These dummies can capture non-period influences, such 
+> as changes in survey delivery arrangements, although they may be less precise in measuring period effects compared to the interview year.
+> 
+> This sensitivity analysis compares the use of both survey wave dummies and interview year to check for consistency and identify any significant differences
+>  in the results.
+> 
+> */ 
+. 
+. 
+. * data prep. 
+. 
+. use $ptemp/file8.dta, clear 
+(Substantive data for responding adults (16+), incl. proxies)
+
+. keep if dvage >= 16 & dvage < 66
+(102,658 observations deleted)
+
+. capture drop age2
+
+. gen age2 = dvage*dvage
+
+. recode health 1=1 2=0
+(283,804 changes made to health)
+
+. lab var dvage_ind "age"
+
+. lab var health "health"
+
+. clonevar relg = ff_religion
+(24,112 missing values generated)
+
+. recode relg 2 = 0 
+(149,740 changes made to relg)
+
+. tab relg
+
+          relg |      Freq.     Percent        Cum.
+---------------+-----------------------------------
+0. No religion |    316,168       84.58       84.58
+    12. Muslim |     31,690        8.48       93.06
+     13. Hindu |     10,184        2.72       95.78
+    14. Jewish |      1,771        0.47       96.26
+      15. Sikh |      3,951        1.06       97.31
+  16. Buddhist |      5,140        1.38       98.69
+     97. Other |      4,899        1.31      100.00
+---------------+-----------------------------------
+         Total |    373,803      100.00
+
+. tab jbnssec8_dv, m
+
+       Current job: Eight Class NS-SEC |      Freq.     Percent        Cum.
+---------------------------------------+-----------------------------------
+1. Large employers & higher management |     12,251        3.08        3.08
+                2. Higher professional |     22,900        5.75        8.83
+    3. Lower management & professional |     77,465       19.47       28.30
+                       4. Intermediate |     36,611        9.20       37.50
+      5. Small employers & own account |     25,972        6.53       44.03
+      6. Lower supervisory & technical |     19,544        4.91       48.94
+                       7. Semi-routine |     48,234       12.12       61.06
+                            8. Routine |     26,006        6.54       67.60
+                                     . |    128,932       32.40      100.00
+---------------------------------------+-----------------------------------
+                                 Total |    397,915      100.00
+
+. recode  jbnssec8_dv . = -9
+(128,932 changes made to jbnssec8_dv)
+
+. capture drop topro 
+
+. gen topro = jbnssec8_dv
+
+. recode topro 1 2 = 1 -9 = . * = 0 
+(385,664 changes made to topro)
+
+. capture drop reason
+
+. gen reason = jbstat
+(66 missing values generated)
+
+. recode reason 1 2 3 5 = . 4 = 1 7 = 2 6 = 3 8 = 4 8 9 10 11 12 13 97 = 5
+(397,849 changes made to reason)
+
+. label define reason 1 "retired" 2 "student" 3 "looking after family or home" 4 "long term illness or disabled" 5 "other"
+
+. label values reason reason 
+
+. capture drop looking 
+
+. gen looking=(reason==3)
+
+. recode intdaty_dv -9 = . 
+(9 changes made to intdaty_dv)
+
+. 
+. 
+. ** interview year (year when survey was conducted - can vary across waves)
+. su intdaty_dv, detail
+
+                Interview date: Year, derived
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%         2009           2009
+ 5%         2009           2009
+10%         2010           2009       Obs             397,906
+25%         2011           2009       Sum of wgt.     397,906
+
+50%         2014                      Mean           2014.239
+                        Largest       Std. dev.      3.399559
+75%         2017           2022
+90%         2019           2022       Variance         11.557
+95%         2020           2022       Skewness       .2524635
+99%         2021           2022       Kurtosis       1.933656
+
+. 
+. ** survey wave (wave of survey)
+. su wave, detail 
+
+                       Wave of survey 
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%            1              1
+ 5%            1              1
+10%            1              1       Obs             397,915
+25%            3              1       Sum of wgt.     397,915
+
+50%            5                      Mean            5.74482
+                        Largest       Std. dev.      3.352803
+75%            8             12
+90%           11             12       Variance       11.24129
+95%           12             12       Skewness       .2679817
+99%           12             12       Kurtosis       1.910296
+
+. 
+. tab intdaty_dv wave 
+
+ Interview date: |                                                     Wave of survey 
+   Year, derived |      1. a       2. b       3. c       4. d       5. e       6. f       7. g       8. h       9. i      10. j      11. k |     Total
+-----------------+-------------------------------------------------------------------------------------------------------------------------+----------
+            2009 |    21,145          0          0          0          0          0          0          0          0          0          0 |    21,145 
+            2010 |    19,962     25,203          0          0          0          0          0          0          0          0          0 |    45,165 
+            2011 |     1,516     18,613     23,122          0          0          0          0          0          0          0          0 |    43,251 
+            2012 |         0        899     16,236     21,465          0          0          0          0          0          0          0 |    38,600 
+            2013 |         0          0      1,048     15,155     19,913          0          0          0          0          0          0 |    36,116 
+            2014 |         0          0          0      1,402     14,637     17,924          0          0          0          0          0 |    33,963 
+            2015 |         0          0          0          0      1,181     15,650     16,923          0          0          0          0 |    33,754 
+            2016 |         0          0          0          0          0      1,834     14,855     15,894          0          0          0 |    32,583 
+            2017 |         0          0          0          0          0          0      1,315     12,805     14,487          0          0 |    28,607 
+            2018 |         0          0          0          0          0          0          0      1,583     11,317     13,776          0 |    26,676 
+            2019 |         0          0          0          0          0          0          0          0      1,280     10,992     12,931 |    25,203 
+            2020 |         0          0          0          0          0          0          0          0          0        804     10,094 |    23,306 
+            2021 |         0          0          0          0          0          0          0          0          0          0        589 |     9,174 
+            2022 |         0          0          0          0          0          0          0          0          0          0          0 |       363 
+-----------------+-------------------------------------------------------------------------------------------------------------------------+----------
+           Total |    42,623     44,715     40,406     38,022     35,731     35,408     33,093     30,282     27,084     25,572     23,614 |   397,906 
+
+
+                 |  Wave of
+ Interview date: |  survey 
+   Year, derived |     12. l |     Total
+-----------------+-----------+----------
+            2009 |         0 |    21,145 
+            2010 |         0 |    45,165 
+            2011 |         0 |    43,251 
+            2012 |         0 |    38,600 
+            2013 |         0 |    36,116 
+            2014 |         0 |    33,963 
+            2015 |         0 |    33,754 
+            2016 |         0 |    32,583 
+            2017 |         0 |    28,607 
+            2018 |         0 |    26,676 
+            2019 |         0 |    25,203 
+            2020 |    12,408 |    23,306 
+            2021 |     8,585 |     9,174 
+            2022 |       363 |       363 
+-----------------+-----------+----------
+           Total |    21,356 |   397,906 
+
+. * interview year varies across wave variable. 
+. 
+. 
+. /* sensitivity analysis: conduct seperate analyses using only the interview year and only the survey wave dummies. This helps in understanding the individu
+> al impact of each control. */ 
+. 
+. 
+. 
+. *MEN TEST 1 - Interview year 
+. logit participation i.redcats i.intdaty_dv ///
+>  if fem == 0 & par_miss == 0  [pw=nwei], robust cluster(pidp)
+
+Iteration 0:  Log pseudolikelihood = -69190.767  
+Iteration 1:  Log pseudolikelihood =  -69051.43  
+Iteration 2:  Log pseudolikelihood = -69046.016  
+Iteration 3:  Log pseudolikelihood =  -69046.01  
+
+Logistic regression                                    Number of obs = 119,861
+                                                       Wald chi2(23) =  136.86
+                                                       Prob > chi2   =  0.0000
+Log pseudolikelihood = -69046.01                       Pseudo R2     =  0.0021
+
+                                       (Std. err. adjusted for 18,870 clusters in pidp)
+---------------------------------------------------------------------------------------
+                      |               Robust
+        participation | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+              redcats |
+  White Muslim Brit.  |   .6425368   .2931278     2.19   0.028     .0680167    1.217057
+     Muslim Indian 1  |   .8355681   .2968419     2.81   0.005     .2537687    1.417368
+  Muslim Pakistani 1  |   .0490196   .1373581     0.36   0.721    -.2201974    .3182365
+Muslim Bangladeshi 1  |   .4191937   .2005968     2.09   0.037     .0260312    .8123562
+      Muslim Black 1  |   -.267809   .2283514    -1.17   0.241    -.7153695    .1797515
+      Muslim Other 1  |  -.5603539   .4196081    -1.34   0.182    -1.382771    .2620628
+     Muslim Indian 2  |  -.6231939   .2173673    -2.87   0.004    -1.049226   -.1971618
+  Muslim Pakistani 2  |  -.4708998   .1210354    -3.89   0.000    -.7081247   -.2336749
+Muslim Bangladeshi 2  |  -.7986321   .1710317    -4.67   0.000    -1.133848   -.4634161
+      Muslim Other 2  |   -.843337   .2102952    -4.01   0.000    -1.255508    -.431166
+                      |
+           intdaty_dv |
+                2010  |   .0139386   .0352711     0.40   0.693    -.0551914    .0830687
+                2011  |  -.0432319   .0386074    -1.12   0.263     -.118901    .0324373
+                2012  |  -.0843032   .0405915    -2.08   0.038    -.1638609   -.0047454
+                2013  |  -.0007058   .0425758    -0.02   0.987    -.0841528    .0827412
+                2014  |   .0648929   .0444709     1.46   0.145    -.0222686    .1520543
+                2015  |   .0909548   .0463312     1.96   0.050     .0001474    .1817622
+                2016  |   .0652976    .046893     1.39   0.164     -.026611    .1572063
+                2017  |  -.0272306    .047941    -0.57   0.570    -.1211932     .066732
+                2018  |  -.0407585   .0489824    -0.83   0.405    -.1367622    .0552451
+                2019  |  -.0197974   .0504351    -0.39   0.695    -.1186483    .0790535
+                2020  |   .0708646   .0540985     1.31   0.190    -.0351666    .1768958
+                2021  |   .0260022   .0769359     0.34   0.735    -.1247894    .1767938
+                2022  |   .3258055   .3883328     0.84   0.401    -.4353128    1.086924
+                      |
+                _cons |    1.44335   .0374717    38.52   0.000     1.369906    1.516793
+---------------------------------------------------------------------------------------
+
+. est store MT1 
+
+. *WOMEN TEST 1 - Interview year 
+. logit participation i.redcats i.intdaty_dv ///
+>  if fem == 1 & par_miss == 0  [pw=nwei], robust cluster(pidp)
+
+Iteration 0:  Log pseudolikelihood = -90635.685  
+Iteration 1:  Log pseudolikelihood = -89877.366  
+Iteration 2:  Log pseudolikelihood = -89864.287  
+Iteration 3:  Log pseudolikelihood = -89864.278  
+Iteration 4:  Log pseudolikelihood = -89864.278  
+
+Logistic regression                                    Number of obs = 153,119
+                                                       Wald chi2(23) =  515.42
+                                                       Prob > chi2   =  0.0000
+Log pseudolikelihood = -89864.278                      Pseudo R2     =  0.0085
+
+                                       (Std. err. adjusted for 22,827 clusters in pidp)
+---------------------------------------------------------------------------------------
+                      |               Robust
+        participation | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+              redcats |
+  White Muslim Brit.  |  -.0051472   .2521184    -0.02   0.984    -.4992901    .4889958
+     Muslim Indian 1  |  -.8732707     .20855    -4.19   0.000    -1.282021   -.4645201
+  Muslim Pakistani 1  |  -1.449952    .123113   -11.78   0.000     -1.69125   -1.208655
+Muslim Bangladeshi 1  |  -1.284837   .1593305    -8.06   0.000    -1.597119   -.9725546
+      Muslim Black 1  |  -.8022075   .1594179    -5.03   0.000    -1.114661    -.489754
+      Muslim Other 1  |  -1.266406   .2622119    -4.83   0.000    -1.780332   -.7524798
+     Muslim Indian 2  |  -.6565939   .2371755    -2.77   0.006    -1.121449   -.1917385
+  Muslim Pakistani 2  |  -.8818521   .0904843    -9.75   0.000    -1.059198   -.7045061
+Muslim Bangladeshi 2  |  -.5317453   .1254595    -4.24   0.000    -.7776414   -.2858493
+      Muslim Other 2  |  -1.009863   .1817054    -5.56   0.000    -1.365999   -.6537269
+                      |
+           intdaty_dv |
+                2010  |   -.040758   .0260516    -1.56   0.118    -.0918181    .0103022
+                2011  |  -.0172838   .0281424    -0.61   0.539    -.0724418    .0378743
+                2012  |  -.0296836   .0297756    -1.00   0.319    -.0880428    .0286755
+                2013  |   .0435729   .0311923     1.40   0.162    -.0175629    .1047087
+                2014  |   .0955174   .0329068     2.90   0.004     .0310212    .1600136
+                2015  |   .1436252   .0342571     4.19   0.000     .0764826    .2107679
+                2016  |     .16193   .0349523     4.63   0.000     .0934247    .2304353
+                2017  |    .160195   .0362714     4.42   0.000     .0891044    .2312856
+                2018  |   .1500583   .0372878     4.02   0.000     .0769756     .223141
+                2019  |   .1736617   .0383165     4.53   0.000     .0985628    .2487606
+                2020  |   .2970332   .0405194     7.33   0.000     .2176165    .3764498
+                2021  |   .3482103   .0594025     5.86   0.000     .2317835    .4646372
+                2022  |   .1887774   .3072501     0.61   0.539    -.4134217    .7909765
+                      |
+                _cons |   .8459639    .027844    30.38   0.000     .7913908    .9005371
+---------------------------------------------------------------------------------------
+
+. est store WT1 
+
+. *MEN TEST 1 - Wave
+. logit participation i.redcats i.wave ///
+>  if fem == 0 & par_miss == 0  [pw=nwei], robust cluster(pidp)
+
+Iteration 0:  Log pseudolikelihood = -69190.767  
+Iteration 1:  Log pseudolikelihood = -69044.604  
+Iteration 2:  Log pseudolikelihood = -69039.183  
+Iteration 3:  Log pseudolikelihood = -69039.177  
+
+Logistic regression                                    Number of obs = 119,861
+                                                       Wald chi2(21) =  154.66
+                                                       Prob > chi2   =  0.0000
+Log pseudolikelihood = -69039.177                      Pseudo R2     =  0.0022
+
+                                       (Std. err. adjusted for 18,870 clusters in pidp)
+---------------------------------------------------------------------------------------
+                      |               Robust
+        participation | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+              redcats |
+  White Muslim Brit.  |   .6419155   .2930356     2.19   0.028     .0675763    1.216255
+     Muslim Indian 1  |   .8367959   .2964763     2.82   0.005     .2557131    1.417879
+  Muslim Pakistani 1  |    .051145   .1375376     0.37   0.710    -.2184237    .3207137
+Muslim Bangladeshi 1  |   .4232242   .2006742     2.11   0.035     .0299099    .8165385
+      Muslim Black 1  |  -.2638572   .2276062    -1.16   0.246    -.7099572    .1822427
+      Muslim Other 1  |  -.5601665   .4192365    -1.34   0.181    -1.381855     .261522
+     Muslim Indian 2  |  -.6175506   .2170945    -2.84   0.004    -1.043048   -.1920532
+  Muslim Pakistani 2  |   -.464914   .1212104    -3.84   0.000    -.7024819   -.2273461
+Muslim Bangladeshi 2  |  -.7913566   .1710396    -4.63   0.000    -1.126588   -.4561251
+      Muslim Other 2  |  -.8382187   .2103895    -3.98   0.000    -1.250575   -.4258628
+                      |
+                 wave |
+                2. b  |  -.0960303   .0237914    -4.04   0.000    -.1426606      -.0494
+                3. c  |  -.1306262    .028593    -4.57   0.000    -.1866674   -.0745851
+                4. d  |  -.1030895   .0308746    -3.34   0.001    -.1636026   -.0425764
+                5. e  |  -.0486513   .0335323    -1.45   0.147    -.1143735    .0170709
+                6. f  |   .0433017   .0362707     1.19   0.233    -.0277876     .114391
+                7. g  |   .0412992   .0379413     1.09   0.276    -.0330644    .1156628
+                8. h  |  -.0298807   .0390853    -0.76   0.445    -.1064866    .0467251
+                9. i  |  -.0854715    .040748    -2.10   0.036    -.1653362   -.0056068
+               10. j  |  -.1355456   .0410915    -3.30   0.001    -.2160834   -.0550077
+               11. k  |  -.0391795   .0445438    -0.88   0.379    -.1264837    .0481247
+               12. l  |  -.0116577    .048263    -0.24   0.809    -.1062514     .082936
+                      |
+                _cons |   1.502532   .0270364    55.57   0.000     1.449542    1.555523
+---------------------------------------------------------------------------------------
+
+. est store MT2 
+
+. *WOMEN TEST 1 - Interview year 
+. logit participation i.redcats i.wave ///
+>  if fem == 1 & par_miss == 0  [pw=nwei], robust cluster(pidp)
+
+Iteration 0:  Log pseudolikelihood = -90635.685  
+Iteration 1:  Log pseudolikelihood = -89877.866  
+Iteration 2:  Log pseudolikelihood = -89864.787  
+Iteration 3:  Log pseudolikelihood = -89864.777  
+Iteration 4:  Log pseudolikelihood = -89864.777  
+
+Logistic regression                                    Number of obs = 153,119
+                                                       Wald chi2(21) =  523.09
+                                                       Prob > chi2   =  0.0000
+Log pseudolikelihood = -89864.777                      Pseudo R2     =  0.0085
+
+                                       (Std. err. adjusted for 22,827 clusters in pidp)
+---------------------------------------------------------------------------------------
+                      |               Robust
+        participation | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+              redcats |
+  White Muslim Brit.  |  -.0062459   .2519884    -0.02   0.980     -.500134    .4876422
+     Muslim Indian 1  |   -.867159    .208884    -4.15   0.000    -1.276564   -.4577538
+  Muslim Pakistani 1  |  -1.445041   .1228774   -11.76   0.000    -1.685876   -1.204205
+Muslim Bangladeshi 1  |  -1.281241   .1589786    -8.06   0.000    -1.592833   -.9696489
+      Muslim Black 1  |  -.7941353   .1590832    -4.99   0.000    -1.105933   -.4823379
+      Muslim Other 1  |  -1.256043   .2631524    -4.77   0.000    -1.771812   -.7402738
+     Muslim Indian 2  |  -.6521004   .2377471    -2.74   0.006    -1.118076   -.1861246
+  Muslim Pakistani 2  |  -.8790735   .0905543    -9.71   0.000    -1.056557   -.7015904
+Muslim Bangladeshi 2  |  -.5237573   .1256963    -4.17   0.000    -.7701176    -.277397
+      Muslim Other 2  |  -1.003974   .1801436    -5.57   0.000    -1.357049   -.6508992
+                      |
+                 wave |
+                2. b  |   .0003584   .0163764     0.02   0.983    -.0317388    .0324555
+                3. c  |   .0222843   .0198376     1.12   0.261    -.0165967    .0611653
+                4. d  |   .0241401   .0220241     1.10   0.273    -.0190264    .0673065
+                5. e  |   .1101301   .0242892     4.53   0.000     .0625242     .157736
+                6. f  |   .1590023   .0262108     6.07   0.000     .1076301    .2103746
+                7. g  |   .1834157   .0278337     6.59   0.000     .1288626    .2379687
+                8. h  |   .1773695   .0291362     6.09   0.000     .1202637    .2344754
+                9. i  |   .2080024   .0307862     6.76   0.000     .1476625    .2683422
+               10. j  |   .1833885   .0312308     5.87   0.000     .1221774    .2445997
+               11. k  |    .272186   .0335814     8.11   0.000     .2063677    .3380044
+               12. l  |   .3567194   .0363495     9.81   0.000     .2854756    .4279632
+                      |
+                _cons |   .8130646    .019692    41.29   0.000      .774469    .8516603
+---------------------------------------------------------------------------------------
+
+. est store WT2
+
+. 
+. est tab MT1 MT2 WT1 WT2, star stat(N r2_p) b(%8.3f) var(30)
+
+----------------------------------------------------------------------------------------
+                      Variable |     MT1           MT2           WT1           WT2      
+-------------------------------+--------------------------------------------------------
+                       redcats |
+           White Muslim Brit.  |    0.643*        0.642*       -0.005        -0.006     
+              Muslim Indian 1  |    0.836**       0.837**      -0.873***     -0.867***  
+           Muslim Pakistani 1  |    0.049         0.051        -1.450***     -1.445***  
+         Muslim Bangladeshi 1  |    0.419*        0.423*       -1.285***     -1.281***  
+               Muslim Black 1  |   -0.268        -0.264        -0.802***     -0.794***  
+               Muslim Other 1  |   -0.560        -0.560        -1.266***     -1.256***  
+              Muslim Indian 2  |   -0.623**      -0.618**      -0.657**      -0.652**   
+           Muslim Pakistani 2  |   -0.471***     -0.465***     -0.882***     -0.879***  
+         Muslim Bangladeshi 2  |   -0.799***     -0.791***     -0.532***     -0.524***  
+               Muslim Other 2  |   -0.843***     -0.838***     -1.010***     -1.004***  
+                               |
+                    intdaty_dv |
+                         2010  |    0.014                      -0.041                   
+                         2011  |   -0.043                      -0.017                   
+                         2012  |   -0.084*                     -0.030                   
+                         2013  |   -0.001                       0.044                   
+                         2014  |    0.065                       0.096**                 
+                         2015  |    0.091*                      0.144***                
+                         2016  |    0.065                       0.162***                
+                         2017  |   -0.027                       0.160***                
+                         2018  |   -0.041                       0.150***                
+                         2019  |   -0.020                       0.174***                
+                         2020  |    0.071                       0.297***                
+                         2021  |    0.026                       0.348***                
+                         2022  |    0.326                       0.189                   
+                               |
+                          wave |
+                         2. b  |                 -0.096***                    0.000     
+                         3. c  |                 -0.131***                    0.022     
+                         4. d  |                 -0.103***                    0.024     
+                         5. e  |                 -0.049                       0.110***  
+                         6. f  |                  0.043                       0.159***  
+                         7. g  |                  0.041                       0.183***  
+                         8. h  |                 -0.030                       0.177***  
+                         9. i  |                 -0.085*                      0.208***  
+                        10. j  |                 -0.136***                    0.183***  
+                        11. k  |                 -0.039                       0.272***  
+                        12. l  |                 -0.012                       0.357***  
+                               |
+                         _cons |    1.443***      1.503***      0.846***      0.813***  
+-------------------------------+--------------------------------------------------------
+                             N |   119861        119861        153119        153119     
+                          r2_p |    0.002         0.002         0.009         0.009     
+----------------------------------------------------------------------------------------
+                                                Legend: * p<0.05; ** p<0.01; *** p<0.001
+
+. 
+. 
+. ** (2) EMPLOYMENT 
+. * MEN TEST 3 - interview year 
+. logit employment i.redcats i.intdaty_dv ///
+>  if fem == 0 & emp_miss == 0 & participation == 1  [pw=nwei], robust cluster(pidp) 
+
+Iteration 0:  Log pseudolikelihood = -32456.401  
+Iteration 1:  Log pseudolikelihood =  -32288.19  
+Iteration 2:  Log pseudolikelihood = -32265.138  
+Iteration 3:  Log pseudolikelihood =  -32265.12  
+Iteration 4:  Log pseudolikelihood =  -32265.12  
+
+Logistic regression                                     Number of obs = 97,129
+                                                        Wald chi2(23) = 155.49
+                                                        Prob > chi2   = 0.0000
+Log pseudolikelihood = -32265.12                        Pseudo R2     = 0.0059
+
+                                       (Std. err. adjusted for 16,470 clusters in pidp)
+---------------------------------------------------------------------------------------
+                      |               Robust
+           employment | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+              redcats |
+  White Muslim Brit.  |   -.264994   .3969839    -0.67   0.504    -1.043068    .5130801
+     Muslim Indian 1  |   .3978608   .3224595     1.23   0.217    -.2341482     1.02987
+  Muslim Pakistani 1  |   .0778208   .1781642     0.44   0.662    -.2713745    .4270161
+Muslim Bangladeshi 1  |  -.8721349   .2009716    -4.34   0.000    -1.266032   -.4782377
+      Muslim Black 1  |  -.9494149   .2393744    -3.97   0.000     -1.41858   -.4802497
+      Muslim Other 1  |  -.5298854    .460161    -1.15   0.250    -1.431784    .3720135
+     Muslim Indian 2  |   .1025067   .3398047     0.30   0.763    -.5634983    .7685117
+  Muslim Pakistani 2  |  -.6176681   .1608348    -3.84   0.000    -.9328985   -.3024377
+Muslim Bangladeshi 2  |  -.6094105   .1858857    -3.28   0.001    -.9737398   -.2450811
+      Muslim Other 2  |  -1.182756   .3273576    -3.61   0.000    -1.824365   -.5411466
+                      |
+           intdaty_dv |
+                2010  |  -.0098634   .0588829    -0.17   0.867    -.1252717    .1055449
+                2011  |  -.0409557   .0623936    -0.66   0.512     -.163245    .0813336
+                2012  |  -.0576324   .0651981    -0.88   0.377    -.1854184    .0701535
+                2013  |   .0671966   .0675737     0.99   0.320    -.0652455    .1996387
+                2014  |   .2543971   .0718336     3.54   0.000     .1136059    .3951883
+                2015  |   .3584602   .0761017     4.71   0.000     .2093037    .5076167
+                2016  |   .3552226   .0784525     4.53   0.000     .2014586    .5089866
+                2017  |    .399513   .0836454     4.78   0.000     .2355709     .563455
+                2018  |    .249269   .0819507     3.04   0.002     .0886487    .4098894
+                2019  |   .2956218   .0854688     3.46   0.001     .1281059    .4631377
+                2020  |   .1855271   .0884973     2.10   0.036     .0120755    .3589786
+                2021  |   .2260443   .1411367     1.60   0.109    -.0505786    .5026672
+                2022  |   .0534744   .6149088     0.09   0.931    -1.151725    1.258673
+                      |
+                _cons |   2.286194   .0571087    40.03   0.000     2.174263    2.398125
+---------------------------------------------------------------------------------------
+
+. est store MT3
+
+. *WOMEN TEST 3 - interview year 
+. logit employment i.redcats i.intdaty_dv ///
+>  if fem == 1 & emp_miss == 0 & participation == 1  [pw=nwei], robust cluster(pidp) 
+
+Iteration 0:  Log pseudolikelihood = -25303.389  
+Iteration 1:  Log pseudolikelihood = -25269.303  
+Iteration 2:  Log pseudolikelihood = -25025.459  
+Iteration 3:  Log pseudolikelihood = -25024.077  
+Iteration 4:  Log pseudolikelihood = -25024.074  
+
+Logistic regression                                    Number of obs = 107,215
+                                                       Wald chi2(23) =  376.50
+                                                       Prob > chi2   =  0.0000
+Log pseudolikelihood = -25024.074                      Pseudo R2     =  0.0110
+
+                                       (Std. err. adjusted for 18,422 clusters in pidp)
+---------------------------------------------------------------------------------------
+                      |               Robust
+           employment | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+              redcats |
+  White Muslim Brit.  |   .4483021    .412124     1.09   0.277    -.3594461     1.25605
+     Muslim Indian 1  |  -.6451286   .3122362    -2.07   0.039      -1.2571   -.0331569
+  Muslim Pakistani 1  |  -1.654933   .1566642   -10.56   0.000    -1.961989   -1.347877
+Muslim Bangladeshi 1  |  -1.330916   .2360142    -5.64   0.000    -1.793495   -.8683365
+      Muslim Black 1  |  -1.621041   .2117189    -7.66   0.000    -2.036002   -1.206079
+      Muslim Other 1  |  -1.289603   .4316465    -2.99   0.003    -2.135614   -.4435913
+     Muslim Indian 2  |  -.7572135   .3029385    -2.50   0.012    -1.350962    -.163465
+  Muslim Pakistani 2  |  -1.345108   .1456932    -9.23   0.000    -1.630661   -1.059554
+Muslim Bangladeshi 2  |  -1.008039    .179178    -5.63   0.000    -1.359221   -.6568562
+      Muslim Other 2  |  -1.389094    .222503    -6.24   0.000    -1.825192   -.9529958
+                      |
+           intdaty_dv |
+                2010  |  -.0039739   .0679559    -0.06   0.953    -.1371651    .1292172
+                2011  |  -.0673522   .0699912    -0.96   0.336    -.2045325     .069828
+                2012  |  -.0728092   .0725966    -1.00   0.316     -.215096    .0694776
+                2013  |   .0104995    .075142     0.14   0.889    -.1367761     .157775
+                2014  |    .013889   .0781306     0.18   0.859    -.1392442    .1670222
+                2015  |   .1322019    .082434     1.60   0.109    -.0293656    .2937695
+                2016  |   .2804472    .084646     3.31   0.001     .1145441    .4463503
+                2017  |   .2708647   .0869896     3.11   0.002     .1003682    .4413611
+                2018  |   .2096438   .0908297     2.31   0.021     .0316209    .3876667
+                2019  |   .2789556    .093123     3.00   0.003     .0964378    .4614734
+                2020  |   .0300479   .0933906     0.32   0.748    -.1529942    .2130901
+                2021  |  -.1046071   .1273422    -0.82   0.411    -.3541932     .144979
+                2022  |  -.1516972   .6520244    -0.23   0.816    -1.429642    1.126247
+                      |
+                _cons |   2.667038   .0636724    41.89   0.000     2.542242    2.791833
+---------------------------------------------------------------------------------------
+
+. est store WT3
+
+. *MEN TEST 4 - interview year 
+. logit employment i.redcats i.wave ///
+>  if fem == 0 & emp_miss == 0 & participation == 1  [pw=nwei], robust cluster(pidp) 
+
+Iteration 0:  Log pseudolikelihood = -32456.401  
+Iteration 1:  Log pseudolikelihood = -32287.064  
+Iteration 2:  Log pseudolikelihood = -32264.029  
+Iteration 3:  Log pseudolikelihood =  -32264.01  
+Iteration 4:  Log pseudolikelihood =  -32264.01  
+
+Logistic regression                                     Number of obs = 97,129
+                                                        Wald chi2(21) = 157.18
+                                                        Prob > chi2   = 0.0000
+Log pseudolikelihood = -32264.01                        Pseudo R2     = 0.0059
+
+                                       (Std. err. adjusted for 16,470 clusters in pidp)
+---------------------------------------------------------------------------------------
+                      |               Robust
+           employment | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+              redcats |
+  White Muslim Brit.  |  -.2615562   .3963077    -0.66   0.509    -1.038305    .5151925
+     Muslim Indian 1  |   .3840514   .3222434     1.19   0.233     -.247534    1.015637
+  Muslim Pakistani 1  |   .0894046   .1783496     0.50   0.616     -.260154    .4389633
+Muslim Bangladeshi 1  |   -.863537   .2008192    -4.30   0.000    -1.257135   -.4699386
+      Muslim Black 1  |  -.9397401    .237921    -3.95   0.000    -1.406057   -.4734236
+      Muslim Other 1  |  -.5284602   .4592892    -1.15   0.250    -1.428651    .3717301
+     Muslim Indian 2  |   .0999833   .3407132     0.29   0.769    -.5678023    .7677689
+  Muslim Pakistani 2  |  -.6050616   .1612039    -3.75   0.000    -.9210153   -.2891078
+Muslim Bangladeshi 2  |  -.5999945   .1850767    -3.24   0.001    -.9627381   -.2372508
+      Muslim Other 2  |  -1.176225   .3283227    -3.58   0.000    -1.819726   -.5327244
+                      |
+                 wave |
+                2. b  |  -.0661302   .0412733    -1.60   0.109    -.1470243    .0147639
+                3. c  |  -.0127668   .0474421    -0.27   0.788    -.1057516     .080218
+                4. d  |   .0130687   .0498305     0.26   0.793    -.0845973    .1107347
+                5. e  |   .1704795   .0551636     3.09   0.002     .0623609    .2785981
+                6. f  |   .3365871   .0597451     5.63   0.000     .2194887    .4536854
+                7. g  |   .3931192   .0649013     6.06   0.000     .2659149    .5203235
+                8. h  |   .3520905   .0686269     5.13   0.000     .2175842    .4865968
+                9. i  |   .3422287   .0718173     4.77   0.000     .2014694    .4829881
+               10. j  |    .239477   .0702173     3.41   0.001     .1018536    .3771004
+               11. k  |    .197384   .0739288     2.67   0.008     .0524862    .3422817
+               12. l  |   .3117986   .0865524     3.60   0.000      .142159    .4814383
+                      |
+                _cons |   2.279113   .0403577    56.47   0.000     2.200013    2.358212
+---------------------------------------------------------------------------------------
+
+. est store MT4
+
+. *WOMEN TEST 4 - interview year 
+. logit employment i.redcats i.wave ///
+>  if fem == 1 & emp_miss == 0 & participation == 1  [pw=nwei], robust cluster(pidp) 
+
+Iteration 0:  Log pseudolikelihood = -25303.389  
+Iteration 1:  Log pseudolikelihood =  -25277.15  
+Iteration 2:  Log pseudolikelihood = -25033.555  
+Iteration 3:  Log pseudolikelihood = -25032.173  
+Iteration 4:  Log pseudolikelihood = -25032.171  
+
+Logistic regression                                    Number of obs = 107,215
+                                                       Wald chi2(21) =  369.95
+                                                       Prob > chi2   =  0.0000
+Log pseudolikelihood = -25032.171                      Pseudo R2     =  0.0107
+
+                                       (Std. err. adjusted for 18,422 clusters in pidp)
+---------------------------------------------------------------------------------------
+                      |               Robust
+           employment | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+              redcats |
+  White Muslim Brit.  |   .4546125   .4117423     1.10   0.270    -.3523877    1.261613
+     Muslim Indian 1  |  -.6577071   .3109817    -2.11   0.034     -1.26722   -.0481942
+  Muslim Pakistani 1  |  -1.658051   .1567728   -10.58   0.000     -1.96532   -1.350782
+Muslim Bangladeshi 1  |  -1.333794   .2357677    -5.66   0.000     -1.79589   -.8716978
+      Muslim Black 1  |  -1.625714     .21098    -7.71   0.000    -2.039227   -1.212201
+      Muslim Other 1  |  -1.303803   .4298975    -3.03   0.002    -2.146387   -.4612197
+     Muslim Indian 2  |  -.7642844   .3038399    -2.52   0.012      -1.3598   -.1687691
+  Muslim Pakistani 2  |  -1.351232    .145527    -9.29   0.000     -1.63646   -1.066005
+Muslim Bangladeshi 2  |  -1.014635   .1785438    -5.68   0.000    -1.364574   -.6646957
+      Muslim Other 2  |  -1.393565   .2215296    -6.29   0.000    -1.827756   -.9593754
+                      |
+                 wave |
+                2. b  |  -.0371804   .0475919    -0.78   0.435    -.1304588    .0560981
+                3. c  |  -.0317166   .0526456    -0.60   0.547       -.1349    .0714669
+                4. d  |  -.0006336   .0558077    -0.01   0.991    -.1100146    .1087474
+                5. e  |   .0449049   .0599115     0.75   0.454    -.0725195    .1623293
+                6. f  |   .1052834   .0638758     1.65   0.099    -.0199109    .2304777
+                7. g  |   .1955749    .068286     2.86   0.004     .0617367    .3294131
+                8. h  |   .3187914   .0723539     4.41   0.000     .1769803    .4606026
+                9. i  |   .1957277   .0742232     2.64   0.008      .050253    .3412024
+               10. j  |   .2711014   .0778018     3.48   0.000     .1186126    .4235902
+               11. k  |   .2221324   .0809108     2.75   0.006     .0635502    .3807146
+               12. l  |  -.0150702   .0828461    -0.18   0.856    -.1774456    .1473052
+                      |
+                _cons |   2.647326   .0442344    59.85   0.000     2.560628    2.734024
+---------------------------------------------------------------------------------------
+
+. est store WT4
+
+. 
+. est tab MT3 MT4 WT3 WT4, star stat(N r2_p) b(%8.3f) var(30)
+
+----------------------------------------------------------------------------------------
+                      Variable |     MT3           MT4           WT3           WT4      
+-------------------------------+--------------------------------------------------------
+                       redcats |
+           White Muslim Brit.  |   -0.265        -0.262         0.448         0.455     
+              Muslim Indian 1  |    0.398         0.384        -0.645*       -0.658*    
+           Muslim Pakistani 1  |    0.078         0.089        -1.655***     -1.658***  
+         Muslim Bangladeshi 1  |   -0.872***     -0.864***     -1.331***     -1.334***  
+               Muslim Black 1  |   -0.949***     -0.940***     -1.621***     -1.626***  
+               Muslim Other 1  |   -0.530        -0.528        -1.290**      -1.304**   
+              Muslim Indian 2  |    0.103         0.100        -0.757*       -0.764*    
+           Muslim Pakistani 2  |   -0.618***     -0.605***     -1.345***     -1.351***  
+         Muslim Bangladeshi 2  |   -0.609**      -0.600**      -1.008***     -1.015***  
+               Muslim Other 2  |   -1.183***     -1.176***     -1.389***     -1.394***  
+                               |
+                    intdaty_dv |
+                         2010  |   -0.010                      -0.004                   
+                         2011  |   -0.041                      -0.067                   
+                         2012  |   -0.058                      -0.073                   
+                         2013  |    0.067                       0.010                   
+                         2014  |    0.254***                    0.014                   
+                         2015  |    0.358***                    0.132                   
+                         2016  |    0.355***                    0.280***                
+                         2017  |    0.400***                    0.271**                 
+                         2018  |    0.249**                     0.210*                  
+                         2019  |    0.296***                    0.279**                 
+                         2020  |    0.186*                      0.030                   
+                         2021  |    0.226                      -0.105                   
+                         2022  |    0.053                      -0.152                   
+                               |
+                          wave |
+                         2. b  |                 -0.066                      -0.037     
+                         3. c  |                 -0.013                      -0.032     
+                         4. d  |                  0.013                      -0.001     
+                         5. e  |                  0.170**                     0.045     
+                         6. f  |                  0.337***                    0.105     
+                         7. g  |                  0.393***                    0.196**   
+                         8. h  |                  0.352***                    0.319***  
+                         9. i  |                  0.342***                    0.196**   
+                        10. j  |                  0.239***                    0.271***  
+                        11. k  |                  0.197**                     0.222**   
+                        12. l  |                  0.312***                   -0.015     
+                               |
+                         _cons |    2.286***      2.279***      2.667***      2.647***  
+-------------------------------+--------------------------------------------------------
+                             N |    97129         97129        107215        107215     
+                          r2_p |    0.006         0.006         0.011         0.011     
+----------------------------------------------------------------------------------------
+                                                Legend: * p<0.05; ** p<0.01; *** p<0.001
+
+. 
+. 
+. ** (3) CAMSIS
+. * MEN TEST 6
+. regress mcam10 i.redcats i.intdaty_dv ///
+> if fem == 0 & participation == 1 &  cam_miss == 0 [pw=nwei] , robust cluster(pidp)
+(sum of wgt is 104,297.934621337)
+
+Linear regression                               Number of obs     =     88,814
+                                                F(23, 14961)      =       3.32
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.0021
+                                                Root MSE          =     15.122
+
+                                       (Std. err. adjusted for 14,962 clusters in pidp)
+---------------------------------------------------------------------------------------
+                      |               Robust
+               mcam10 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+              redcats |
+  White Muslim Brit.  |  -3.154239   2.149388    -1.47   0.142    -7.367304    1.058826
+     Muslim Indian 1  |  -.1627577   2.187449    -0.07   0.941    -4.450426     4.12491
+  Muslim Pakistani 1  |  -3.704964   1.296741    -2.86   0.004    -6.246736   -1.163192
+Muslim Bangladeshi 1  |  -4.017089   1.563831    -2.57   0.010    -7.082389   -.9517899
+      Muslim Black 1  |  -3.333938   3.612681    -0.92   0.356    -10.41524     3.74736
+      Muslim Other 1  |  -4.402931   2.781172    -1.58   0.113    -9.854369    1.048506
+     Muslim Indian 2  |   5.338128    2.12909     2.51   0.012      1.16485    9.511405
+  Muslim Pakistani 2  |   .6172965   1.232608     0.50   0.617    -1.798766    3.033359
+Muslim Bangladeshi 2  |  -.5589972   1.341799    -0.42   0.677    -3.189087    2.071093
+      Muslim Other 2  |   7.347082    2.55795     2.87   0.004     2.333187    12.36098
+                      |
+           intdaty_dv |
+                2010  |  -.5918456   .2410893    -2.45   0.014     -1.06441   -.1192811
+                2011  |  -.7036287   .2630684    -2.67   0.007    -1.219275   -.1879824
+                2012  |  -.7175979   .2763874    -2.60   0.009    -1.259351   -.1758448
+                2013  |  -.4314232   .2846078    -1.52   0.130    -.9892894    .1264431
+                2014  |  -.0357155   .2914409    -0.12   0.902    -.6069754    .5355445
+                2015  |  -.0827653   .2980481    -0.28   0.781     -.666976    .5014454
+                2016  |   .2819163   .3063536     0.92   0.357    -.3185744     .882407
+                2017  |   .1559056   .3214816     0.48   0.628    -.4742376    .7860489
+                2018  |  -.2155369   .3237713    -0.67   0.506    -.8501684    .4190946
+                2019  |  -.3104984   .3367367    -0.92   0.357    -.9705437    .3495469
+                2020  |   .0186397   .3526486     0.05   0.958    -.6725948    .7098741
+                2021  |   .0220785   .5303482     0.04   0.967    -1.017469    1.061626
+                2022  |  -.7170292   1.484394    -0.48   0.629    -3.626624    2.192566
+                      |
+                _cons |   49.36908   .2734825   180.52   0.000     48.83302    49.90514
+---------------------------------------------------------------------------------------
+
+. est store MT6
+
+. regress mcam10 i.redcats i.intdaty_dv ///
+> if fem == 1 & participation == 1 &  cam_miss == 0 [pw=nwei] , robust cluster(pidp)
+(sum of wgt is 97,709.1364369151)
+
+Linear regression                               Number of obs     =     97,845
+                                                F(23, 16461)      =       1.93
+                                                Prob > F          =     0.0048
+                                                R-squared         =     0.0010
+                                                Root MSE          =     13.806
+
+                                       (Std. err. adjusted for 16,462 clusters in pidp)
+---------------------------------------------------------------------------------------
+                      |               Robust
+               mcam10 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+              redcats |
+  White Muslim Brit.  |  -1.226377   1.920698    -0.64   0.523    -4.991152    2.538398
+     Muslim Indian 1  |  -.3103282   2.474977    -0.13   0.900    -5.161551    4.540894
+  Muslim Pakistani 1  |  -.2321252   1.856811    -0.13   0.901    -3.871676    3.407425
+Muslim Bangladeshi 1  |  -.9404012   1.851688    -0.51   0.612     -4.56991    2.689108
+      Muslim Black 1  |  -6.848328   2.052151    -3.34   0.001    -10.87077    -2.82589
+      Muslim Other 1  |   -2.22081   2.853286    -0.78   0.436     -7.81356     3.37194
+     Muslim Indian 2  |   2.643553   1.445243     1.83   0.067    -.1892798    5.476385
+  Muslim Pakistani 2  |   1.431685   .9247439     1.55   0.122    -.3809136    3.244283
+Muslim Bangladeshi 2  |  -.6375752   1.079371    -0.59   0.555    -2.753259    1.478108
+      Muslim Other 2  |   6.642553   2.538517     2.62   0.009     1.666785    11.61832
+                      |
+           intdaty_dv |
+                2010  |   .0686621   .1993447     0.34   0.731    -.3220751    .4593993
+                2011  |  -.0421232    .216428    -0.19   0.846    -.4663455    .3820991
+                2012  |   .0129598   .2278267     0.06   0.955    -.4336053    .4595248
+                2013  |   .2391609   .2365034     1.01   0.312    -.2244113    .7027331
+                2014  |   .3341336   .2423761     1.38   0.168    -.1409498     .809217
+                2015  |   .4038709   .2514088     1.61   0.108    -.0889175    .8966594
+                2016  |   .1181638   .2558253     0.46   0.644    -.3832814     .619609
+                2017  |   .2700819    .267011     1.01   0.312    -.2532886    .7934524
+                2018  |   .0030682   .2756831     0.01   0.991    -.5373004    .5434368
+                2019  |   .3284795   .2804991     1.17   0.242    -.2213291    .8782881
+                2020  |   .2985342   .2930958     1.02   0.308    -.2759653    .8730336
+                2021  |   .5575491   .4403594     1.27   0.205    -.3056029    1.420701
+                2022  |   1.339039   2.451706     0.55   0.585    -3.466569    6.144648
+                      |
+                _cons |   51.39163   .2255538   227.85   0.000     50.94952    51.83374
+---------------------------------------------------------------------------------------
+
+. est store WT6
+
+. regress mcam10 i.redcats i.wave ///
+> if fem == 0 & participation == 1 &  cam_miss == 0 [pw=nwei] , robust cluster(pidp)
+(sum of wgt is 104,297.934621337)
+
+Linear regression                               Number of obs     =     88,814
+                                                F(21, 14961)      =       3.53
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.0020
+                                                Root MSE          =     15.122
+
+                                       (Std. err. adjusted for 14,962 clusters in pidp)
+---------------------------------------------------------------------------------------
+                      |               Robust
+               mcam10 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+              redcats |
+  White Muslim Brit.  |  -3.148391   2.146326    -1.47   0.142    -7.355453    1.058672
+     Muslim Indian 1  |  -.1877498   2.187455    -0.09   0.932     -4.47543     4.09993
+  Muslim Pakistani 1  |  -3.695835   1.298087    -2.85   0.004    -6.240245   -1.151424
+Muslim Bangladeshi 1  |   -3.99766   1.564263    -2.56   0.011    -7.063806   -.9315134
+      Muslim Black 1  |  -3.315582    3.60673    -0.92   0.358    -10.38521    3.754051
+      Muslim Other 1  |  -4.410124   2.786384    -1.58   0.114    -9.871778     1.05153
+     Muslim Indian 2  |   5.344933   2.128122     2.51   0.012     1.173554    9.516313
+  Muslim Pakistani 2  |   .6361905   1.232578     0.52   0.606    -1.779813    3.052194
+Muslim Bangladeshi 2  |  -.5609141   1.343882    -0.42   0.676    -3.195088     2.07326
+      Muslim Other 2  |   7.357224   2.558856     2.88   0.004     2.341553     12.3729
+                      |
+                 wave |
+                2. b  |  -.3771028   .1365448    -2.76   0.006    -.6447474   -.1094582
+                3. c  |  -.3355713   .1673492    -2.01   0.045    -.6635961   -.0075464
+                4. d  |  -.3287195   .1848182    -1.78   0.075    -.6909857    .0335468
+                5. e  |   .0827234   .1965477     0.42   0.674    -.3025342     .467981
+                6. f  |   .1693152   .2077745     0.81   0.415    -.2379482    .5765786
+                7. g  |   .4059203   .2219343     1.83   0.067     -.029098    .8409386
+                8. h  |   .4995935   .2345983     2.13   0.033      .039752     .959435
+                9. i  |   .3932972   .2476491     1.59   0.112    -.0921254    .8787198
+               10. j  |  -.0409059   .2550665    -0.16   0.873    -.5408675    .4590557
+               11. k  |   .2890054   .2781244     1.04   0.299    -.2561525    .8341633
+               12. l  |   .4165294   .2970242     1.40   0.161    -.1656744    .9987332
+                      |
+                _cons |   49.05774   .1940792   252.77   0.000     48.67732    49.43816
+---------------------------------------------------------------------------------------
+
+. est store MT7
+
+. regress mcam10 i.redcats i.wave ///
+> if fem == 1 & participation == 1 &  cam_miss == 0 [pw=nwei] , robust cluster(pidp)
+(sum of wgt is 97,709.1364369151)
+
+Linear regression                               Number of obs     =     97,845
+                                                F(21, 16461)      =       2.16
+                                                Prob > F          =     0.0015
+                                                R-squared         =     0.0011
+                                                Root MSE          =     13.806
+
+                                       (Std. err. adjusted for 16,462 clusters in pidp)
+---------------------------------------------------------------------------------------
+                      |               Robust
+               mcam10 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+              redcats |
+  White Muslim Brit.  |  -1.217474   1.920275    -0.63   0.526     -4.98142    2.546473
+     Muslim Indian 1  |  -.3399072    2.47446    -0.14   0.891    -5.190116    4.510301
+  Muslim Pakistani 1  |  -.2230374   1.856806    -0.12   0.904    -3.862579    3.416504
+Muslim Bangladeshi 1  |  -.9314153   1.850779    -0.50   0.615    -4.559143    2.696312
+      Muslim Black 1  |  -6.828487   2.049023    -3.33   0.001    -10.84479   -2.812181
+      Muslim Other 1  |  -2.186675   2.851871    -0.77   0.443    -7.776651      3.4033
+     Muslim Indian 2  |   2.644082   1.442991     1.83   0.067    -.1843365    5.472499
+  Muslim Pakistani 2  |   1.444464   .9252132     1.56   0.118    -.3690537    3.257982
+Muslim Bangladeshi 2  |  -.6064248   1.077511    -0.56   0.574    -2.718463    1.505614
+      Muslim Other 2  |   6.640103   2.534767     2.62   0.009     1.671686    11.60852
+                      |
+                 wave |
+                2. b  |  -.0987148   .1143478    -0.86   0.388    -.3228488    .1254193
+                3. c  |   -.039402   .1406013    -0.28   0.779    -.3149958    .2361918
+                4. d  |   .1595056   .1550264     1.03   0.304    -.1443629     .463374
+                5. e  |   .1931058   .1687855     1.14   0.253     -.137732    .5239436
+                6. f  |   .3394549   .1767253     1.92   0.055    -.0069458    .6858556
+                7. g  |   .3428562    .189855     1.81   0.071    -.0292801    .7149926
+                8. h  |   .1810726   .1973654     0.92   0.359     -.205785    .5679302
+                9. i  |   .1256529   .2162207     0.58   0.561     -.298163    .5494688
+               10. j  |  -.0037822   .2219739    -0.02   0.986     -.438875    .4313105
+               11. k  |   .3185218   .2325992     1.37   0.171    -.1373977    .7744414
+               12. l  |   .5722315    .251072     2.28   0.023     .0801032     1.06436
+                      |
+                _cons |    51.4142   .1600514   321.24   0.000     51.10048    51.72792
+---------------------------------------------------------------------------------------
+
+. est store WT7
+
+. 
+. est tab MT6 MT7 WT6 WT7, star stat(N r2) b(%8.3f) var(30)
+
+----------------------------------------------------------------------------------------
+                      Variable |     MT6           MT7           WT6           WT7      
+-------------------------------+--------------------------------------------------------
+                       redcats |
+           White Muslim Brit.  |   -3.154        -3.148        -1.226        -1.217     
+              Muslim Indian 1  |   -0.163        -0.188        -0.310        -0.340     
+           Muslim Pakistani 1  |   -3.705**      -3.696**      -0.232        -0.223     
+         Muslim Bangladeshi 1  |   -4.017*       -3.998*       -0.940        -0.931     
+               Muslim Black 1  |   -3.334        -3.316        -6.848***     -6.828***  
+               Muslim Other 1  |   -4.403        -4.410        -2.221        -2.187     
+              Muslim Indian 2  |    5.338*        5.345*        2.644         2.644     
+           Muslim Pakistani 2  |    0.617         0.636         1.432         1.444     
+         Muslim Bangladeshi 2  |   -0.559        -0.561        -0.638        -0.606     
+               Muslim Other 2  |    7.347**       7.357**       6.643**       6.640**   
+                               |
+                    intdaty_dv |
+                         2010  |   -0.592*                      0.069                   
+                         2011  |   -0.704**                    -0.042                   
+                         2012  |   -0.718**                     0.013                   
+                         2013  |   -0.431                       0.239                   
+                         2014  |   -0.036                       0.334                   
+                         2015  |   -0.083                       0.404                   
+                         2016  |    0.282                       0.118                   
+                         2017  |    0.156                       0.270                   
+                         2018  |   -0.216                       0.003                   
+                         2019  |   -0.310                       0.328                   
+                         2020  |    0.019                       0.299                   
+                         2021  |    0.022                       0.558                   
+                         2022  |   -0.717                       1.339                   
+                               |
+                          wave |
+                         2. b  |                 -0.377**                    -0.099     
+                         3. c  |                 -0.336*                     -0.039     
+                         4. d  |                 -0.329                       0.160     
+                         5. e  |                  0.083                       0.193     
+                         6. f  |                  0.169                       0.339     
+                         7. g  |                  0.406                       0.343     
+                         8. h  |                  0.500*                      0.181     
+                         9. i  |                  0.393                       0.126     
+                        10. j  |                 -0.041                      -0.004     
+                        11. k  |                  0.289                       0.319     
+                        12. l  |                  0.417                       0.572*    
+                               |
+                         _cons |   49.369***     49.058***     51.392***     51.414***  
+-------------------------------+--------------------------------------------------------
+                             N |    88814         88814         97845         97845     
+                            r2 |    0.002         0.002         0.001         0.001     
+----------------------------------------------------------------------------------------
+                                                Legend: * p<0.05; ** p<0.01; *** p<0.001
+
+. 
+. ** (4) average hourly earnings
+. regress earningsxhours pubsector parttime i.redcats i.intdaty_dv  ///
+> if fem == 0 & participation == 1 &  earningmiss == 0 [pw=nwei] , robust cluster(pidp)
+(sum of wgt is 94,991.1557774569)
+
+Linear regression                               Number of obs     =     80,900
+                                                F(25, 14669)      =      29.33
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.0400
+                                                Root MSE          =     11.761
+
+                                       (Std. err. adjusted for 14,670 clusters in pidp)
+---------------------------------------------------------------------------------------
+                      |               Robust
+       earningsxhours | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+            pubsector |   2.982965   .2175356    13.71   0.000     2.556568    3.409363
+             parttime |   5.735321   .4722742    12.14   0.000     4.809605    6.661038
+                      |
+              redcats |
+  White Muslim Brit.  |  -1.459928   1.357838    -1.08   0.282    -4.121463    1.201606
+     Muslim Indian 1  |  -.3415015   1.491748    -0.23   0.819    -3.265515    2.582512
+  Muslim Pakistani 1  |  -4.396286   .5858985    -7.50   0.000     -5.54472   -3.247851
+Muslim Bangladeshi 1  |  -3.721061   .6189685    -6.01   0.000    -4.934317   -2.507805
+      Muslim Black 1  |   .3118852   2.429801     0.13   0.898     -4.45083      5.0746
+      Muslim Other 1  |  -1.729858   1.637118    -1.06   0.291    -4.938815      1.4791
+     Muslim Indian 2  |  -.4218698   1.129945    -0.37   0.709    -2.636703    1.792964
+  Muslim Pakistani 2  |  -3.270036   .6294356    -5.20   0.000    -4.503809   -2.036263
+Muslim Bangladeshi 2  |  -4.462565   .8489079    -5.26   0.000    -6.126531   -2.798599
+      Muslim Other 2  |   1.789111   1.568864     1.14   0.254    -1.286059    4.864282
+                      |
+           intdaty_dv |
+                2010  |   .0282991   .2052194     0.14   0.890    -.3739566    .4305548
+                2011  |   .5601164   .2113108     2.65   0.008     .1459206    .9743121
+                2012  |   .7570124   .2168168     3.49   0.000     .3320243       1.182
+                2013  |   .7383942   .2186815     3.38   0.001      .309751    1.167038
+                2014  |   1.402247   .2327187     6.03   0.000     .9460889    1.858405
+                2015  |   1.695488    .235498     7.20   0.000     1.233882    2.157094
+                2016  |   2.087361   .2545399     8.20   0.000     1.588431    2.586291
+                2017  |   2.481258   .2527028     9.82   0.000     1.985929    2.976587
+                2018  |   2.744628   .2643111    10.38   0.000     2.226545    3.262711
+                2019  |   3.270527   .2729494    11.98   0.000     2.735512    3.805542
+                2020  |   3.539665   .2826203    12.52   0.000     2.985694    4.093636
+                2021  |   4.109393   .4193071     9.80   0.000     3.287499    4.931288
+                2022  |   6.923093   2.859932     2.42   0.016     1.317267    12.52892
+                      |
+                _cons |   15.14676   .2059243    73.55   0.000     14.74312     15.5504
+---------------------------------------------------------------------------------------
+
+. est store MT8 
+
+. regress earningsxhours pubsector parttime i.redcats i.intdaty_dv  ///
+> if fem == 1 & participation == 1 &  earningmiss == 0 [pw=nwei] , robust cluster(pidp)
+(sum of wgt is 93,649.5709998627)
+
+Linear regression                               Number of obs     =     93,847
+                                                F(25, 16546)      =      43.43
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.0411
+                                                Root MSE          =     11.283
+
+                                       (Std. err. adjusted for 16,547 clusters in pidp)
+---------------------------------------------------------------------------------------
+                      |               Robust
+       earningsxhours | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+            pubsector |   2.711825   .1573761    17.23   0.000     2.403351    3.020299
+             parttime |   3.500364   .1785593    19.60   0.000     3.150369     3.85036
+                      |
+              redcats |
+  White Muslim Brit.  |  -.5080163   1.562049    -0.33   0.745    -3.569801    2.553768
+     Muslim Indian 1  |   -2.36762   1.444196    -1.64   0.101      -5.1984    .4631593
+  Muslim Pakistani 1  |  -1.267986   .8819499    -1.44   0.151    -2.996703    .4607304
+Muslim Bangladeshi 1  |   1.075099   1.540795     0.70   0.485    -1.945025    4.095222
+      Muslim Black 1  |    2.09591   1.196999     1.75   0.080    -.2503367    4.442156
+      Muslim Other 1  |   1.890821   1.761054     1.07   0.283    -1.561033    5.342676
+     Muslim Indian 2  |  -.8163004   .9654195    -0.85   0.398    -2.708626    1.076025
+  Muslim Pakistani 2  |   -1.49125   .7594483    -1.96   0.050     -2.97985   -.0026501
+Muslim Bangladeshi 2  |  -3.287828   .6832166    -4.81   0.000    -4.627006   -1.948651
+      Muslim Other 2  |   4.153888   2.879921     1.44   0.149    -1.491067    9.798843
+                      |
+           intdaty_dv |
+                2010  |   .6564639   .1580926     4.15   0.000     .3465855    .9663423
+                2011  |   .9719448   .1605272     6.05   0.000     .6572942    1.286595
+                2012  |    1.52686   .1770276     8.62   0.000     1.179867    1.873853
+                2013  |     1.4633   .1855584     7.89   0.000     1.099586    1.827015
+                2014  |   1.872036    .185539    10.09   0.000      1.50836    2.235712
+                2015  |   2.414054   .1961102    12.31   0.000     2.029656    2.798451
+                2016  |   2.756405   .2085011    13.22   0.000     2.347721     3.16509
+                2017  |   2.898957   .2069528    14.01   0.000     2.493307    3.304606
+                2018  |   2.931967   .2297973    12.76   0.000      2.48154    3.382394
+                2019  |   3.536079   .2227754    15.87   0.000     3.099415    3.972742
+                2020  |   3.808472   .2284514    16.67   0.000     3.360683    4.256261
+                2021  |   4.568621    .344576    13.26   0.000     3.893215    5.244027
+                2022  |    5.54457   1.309613     4.23   0.000     2.977588    8.111553
+                      |
+                _cons |     12.327   .1767586    69.74   0.000     11.98053    12.67346
+---------------------------------------------------------------------------------------
+
+. est store WT8 
+
+. regress earningsxhours pubsector parttime i.redcats i.wave  ///
+> if fem == 0 & participation == 1 &  earningmiss == 0 [pw=nwei] , robust cluster(pidp)
+(sum of wgt is 94,991.1557774569)
+
+Linear regression                               Number of obs     =     80,900
+                                                F(23, 14669)      =      32.87
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.0401
+                                                Root MSE          =     11.761
+
+                                       (Std. err. adjusted for 14,670 clusters in pidp)
+---------------------------------------------------------------------------------------
+                      |               Robust
+       earningsxhours | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+            pubsector |   2.970646   .2175671    13.65   0.000     2.544187    3.397105
+             parttime |   5.723408   .4722264    12.12   0.000     4.797785    6.649031
+                      |
+              redcats |
+  White Muslim Brit.  |  -1.439538   1.340197    -1.07   0.283    -4.066493    1.187418
+     Muslim Indian 1  |  -.3007958   1.484861    -0.20   0.839    -3.211309    2.609718
+  Muslim Pakistani 1  |  -4.329192   .5887957    -7.35   0.000    -5.483306   -3.175078
+Muslim Bangladeshi 1  |  -3.660288   .6149804    -5.95   0.000    -4.865727   -2.454849
+      Muslim Black 1  |   .3731706   2.419941     0.15   0.877    -4.370219     5.11656
+      Muslim Other 1  |  -1.612411    1.63127    -0.99   0.323    -4.809905    1.585083
+     Muslim Indian 2  |  -.3576197   1.131855    -0.32   0.752    -2.576197    1.860958
+  Muslim Pakistani 2  |  -3.214837   .6303447    -5.10   0.000    -4.450392   -1.979282
+Muslim Bangladeshi 2  |  -4.384905    .846296    -5.18   0.000    -6.043751   -2.726058
+      Muslim Other 2  |   1.826828   1.579658     1.16   0.248      -1.2695    4.923157
+                      |
+                 wave |
+                2. b  |   .2374828   .1453787     1.63   0.102    -.0474777    .5224432
+                3. c  |   .7632991   .1665731     4.58   0.000     .4367948    1.089803
+                4. d  |   .7014611   .1659867     4.23   0.000     .3761064    1.026816
+                5. e  |   .9903515   .1714512     5.78   0.000     .6542856    1.326417
+                6. f  |   1.731355   .1890751     9.16   0.000     1.360744    2.101965
+                7. g  |   1.815122   .2035967     8.92   0.000     1.416047    2.214197
+                8. h  |   2.054827   .2061252     9.97   0.000     1.650796    2.458858
+                9. i  |   2.830523   .2225438    12.72   0.000     2.394309    3.266737
+               10. j  |   3.019209   .2282199    13.23   0.000     2.571869    3.466549
+               11. k  |   3.359299   .2303957    14.58   0.000     2.907694    3.810904
+               12. l  |   3.952254   .2599523    15.20   0.000     3.442715    4.461793
+                      |
+                _cons |   15.14474    .157171    96.36   0.000     14.83666    15.45281
+---------------------------------------------------------------------------------------
+
+. est store MT9
+
+. regress earningsxhours pubsector parttime i.redcats i.wave  ///
+> if fem == 1 & participation == 1 &  earningmiss == 0 [pw=nwei] , robust cluster(pidp)
+(sum of wgt is 93,649.5709998627)
+
+Linear regression                               Number of obs     =     93,847
+                                                F(23, 16546)      =      46.91
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.0410
+                                                Root MSE          =     11.284
+
+                                       (Std. err. adjusted for 16,547 clusters in pidp)
+---------------------------------------------------------------------------------------
+                      |               Robust
+       earningsxhours | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+            pubsector |    2.70508   .1573096    17.20   0.000     2.396736    3.013424
+             parttime |   3.504057   .1786184    19.62   0.000     3.153946    3.854168
+                      |
+              redcats |
+  White Muslim Brit.  |  -.5040453   1.552633    -0.32   0.745    -3.547373    2.539282
+     Muslim Indian 1  |  -2.286874   1.430212    -1.60   0.110    -5.090242    .5164952
+  Muslim Pakistani 1  |  -1.236449   .8829725    -1.40   0.161     -2.96717     .494272
+Muslim Bangladeshi 1  |   1.069268   1.542258     0.69   0.488    -1.953722    4.092259
+      Muslim Black 1  |   2.144857   1.192902     1.80   0.072     -.193358    4.483073
+      Muslim Other 1  |   2.016581   1.734679     1.16   0.245    -1.383576    5.416737
+     Muslim Indian 2  |  -.7520576   .9790599    -0.77   0.442     -2.67112    1.167005
+  Muslim Pakistani 2  |  -1.469862   .7586722    -1.94   0.053    -2.956941     .017217
+Muslim Bangladeshi 2  |  -3.203807   .6734284    -4.76   0.000    -4.523799   -1.883815
+      Muslim Other 2  |   4.156087   2.859469     1.45   0.146     -1.44878    9.760953
+                      |
+                 wave |
+                2. b  |   .5833212   .1150391     5.07   0.000     .3578322    .8088102
+                3. c  |   1.002326   .1291939     7.76   0.000     .7490923     1.25556
+                4. d  |   1.207566   .1409726     8.57   0.000     .9312442    1.483887
+                5. e  |    1.31868    .150288     8.77   0.000     1.024099    1.613261
+                6. f  |   2.042253    .161558    12.64   0.000     1.725582    2.358924
+                7. g  |   2.282519   .1675248    13.62   0.000     1.954153    2.610886
+                8. h  |   2.670702   .1789377    14.93   0.000     2.319965    3.021439
+                9. i  |   2.567345   .1729555    14.84   0.000     2.228334    2.906356
+               10. j  |   2.911037   .2104889    13.83   0.000     2.498456    3.323618
+               11. k  |   3.430624   .2019432    16.99   0.000     3.034794    3.826455
+               12. l  |   3.950031   .2113019    18.69   0.000     3.535857    4.364206
+                      |
+                _cons |   12.58338   .1449449    86.81   0.000     12.29927    12.86749
+---------------------------------------------------------------------------------------
+
+. est store WT9
+
+. 
+. est tab MT8 MT9 WT8 WT9, star stat(N r2) b(%8.3f) var(30)
+
+----------------------------------------------------------------------------------------
+                      Variable |     MT8           MT9           WT8           WT9      
+-------------------------------+--------------------------------------------------------
+                     pubsector |    2.983***      2.971***      2.712***      2.705***  
+                      parttime |    5.735***      5.723***      3.500***      3.504***  
+                               |
+                       redcats |
+           White Muslim Brit.  |   -1.460        -1.440        -0.508        -0.504     
+              Muslim Indian 1  |   -0.342        -0.301        -2.368        -2.287     
+           Muslim Pakistani 1  |   -4.396***     -4.329***     -1.268        -1.236     
+         Muslim Bangladeshi 1  |   -3.721***     -3.660***      1.075         1.069     
+               Muslim Black 1  |    0.312         0.373         2.096         2.145     
+               Muslim Other 1  |   -1.730        -1.612         1.891         2.017     
+              Muslim Indian 2  |   -0.422        -0.358        -0.816        -0.752     
+           Muslim Pakistani 2  |   -3.270***     -3.215***     -1.491*       -1.470     
+         Muslim Bangladeshi 2  |   -4.463***     -4.385***     -3.288***     -3.204***  
+               Muslim Other 2  |    1.789         1.827         4.154         4.156     
+                               |
+                    intdaty_dv |
+                         2010  |    0.028                       0.656***                
+                         2011  |    0.560**                     0.972***                
+                         2012  |    0.757***                    1.527***                
+                         2013  |    0.738***                    1.463***                
+                         2014  |    1.402***                    1.872***                
+                         2015  |    1.695***                    2.414***                
+                         2016  |    2.087***                    2.756***                
+                         2017  |    2.481***                    2.899***                
+                         2018  |    2.745***                    2.932***                
+                         2019  |    3.271***                    3.536***                
+                         2020  |    3.540***                    3.808***                
+                         2021  |    4.109***                    4.569***                
+                         2022  |    6.923*                      5.545***                
+                               |
+                          wave |
+                         2. b  |                  0.237                       0.583***  
+                         3. c  |                  0.763***                    1.002***  
+                         4. d  |                  0.701***                    1.208***  
+                         5. e  |                  0.990***                    1.319***  
+                         6. f  |                  1.731***                    2.042***  
+                         7. g  |                  1.815***                    2.283***  
+                         8. h  |                  2.055***                    2.671***  
+                         9. i  |                  2.831***                    2.567***  
+                        10. j  |                  3.019***                    2.911***  
+                        11. k  |                  3.359***                    3.431***  
+                        12. l  |                  3.952***                    3.950***  
+                               |
+                         _cons |   15.147***     15.145***     12.327***     12.583***  
+-------------------------------+--------------------------------------------------------
+                             N |    80900         80900         93847         93847     
+                            r2 |    0.040         0.040         0.041         0.041     
+----------------------------------------------------------------------------------------
+                                                Legend: * p<0.05; ** p<0.01; *** p<0.001
+
+. 
+. 
+. /* compare results: compare the results from the different models to check for consistency and identify any signiciant differences. Look for changes in coe
+> fficients of main variables of interest and overall model fit. */ 
+. 
+end of do-file
+
+. log close
+      name:  <unnamed>
+       log:  /Users/scothunter/Library/CloudStorage/OneDrive-UniversityofStirling/thesis/directory/attachments/sa1_interview_year_hunter24.log
+  log type:  text
+ closed on:  17 Sep 2024, 16:53:01
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
