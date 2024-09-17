@@ -1,0 +1,588 @@
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/scothunter/Library/CloudStorage/OneDrive-UniversityofStirling/thesis/directory/attachments/sa2_earnings_hunter24.log
+  log type:  text
+ opened on:  17 Sep 2024, 19:39:26
+
+. do "/var/folders/cj/8dv18brd2sd49mkfxtpn8j1w0000gn/T//SD09143.000000"
+
+. ** ************************************************************************** **
+.         * SENSITIVITY ANALYSIS 2
+.         * 
+.         * Testing earnings measure adjusted for inflation versus not.
+.         
+.         * Part of PhD research on assessing impact of contemporary migration 
+.         * patterns on the Muslim community in the UK. 
+.         * Scot Hunter 
+. ** ************************************************************************** **
+. 
+. 
+. /*
+> 
+> Analysis to check whether adjustments for inflation makes a difference to analysis of average hourly earnings - keeping in mind that all models are already
+>  adjusted for period effects with controls for wave of survey 
+> 
+> Total estimated net monthly income is included in the variable w_fimnnet_dv where "net" refers to net of taxes on earnings and national insurance contribut
+> ions. It is constructed as the sum of the six income components described below. 
+> 
+> Gross monthly income, w_fimngrs_dv, is also estimated from the individual income components described below except that the earnings components are gross, 
+> that is, before taxes and National Insurance contributions are deducted and tax is deducted from non-pay income (rental income), which is assumed to be rep
+> orted gross. 
+> 
+> */
+. 
+. use $ptemp/file8.dta, clear 
+(Substantive data for responding adults (16+), incl. proxies)
+
+. keep if dvage >= 16 & dvage < 66
+(102,658 observations deleted)
+
+. 
+. ** remove observations below 1 and 99 percentiles - 
+. su fimngrs_dv, detail
+
+             total monthly personal income gross
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%            0      -53958.19
+ 5%            0      -42790.51
+10%          104      -17741.34       Obs             397,915
+25%       653.84      -16930.04       Sum of wgt.     397,915
+
+50%         1427                      Mean           1868.897
+                        Largest       Std. dev.      4441.889
+75%         2400       728462.9
+90%         3667       728462.9       Variance       1.97e+07
+95%         4840       749254.4       Skewness       133.3485
+99%      9122.16        1343989       Kurtosis       29959.04
+
+. capture drop earnings 
+
+. gen earnings = fimngrs_dv 
+
+. recode earnings -60000/-1 8566.67/10000000 = . 
+(4,896 changes made to earnings)
+
+. capture drop earnings2
+
+. summ earnings, detail
+
+                          earnings
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%            0              0
+ 5%            0              0
+10%       100.17              0       Obs             393,019
+25%          650              0       Sum of wgt.     393,019
+
+50%      1408.73                      Mean           1690.547
+                        Largest       Std. dev.      1429.929
+75%         2349        8564.21
+90%         3512        8564.73       Variance        2044697
+95%      4480.46           8566       Skewness       1.400654
+99%      6701.91        8566.33       Kurtosis       5.618469
+
+. capture drop logearn
+
+. gen logearn = log(earnings)
+(31,781 missing values generated)
+
+. recode intdaty_dv -9 = . 
+(9 changes made to intdaty_dv)
+
+. 
+. 
+. ** check the average earnings per year of interview
+. table intdaty_dv, stat(mean earnings)
+
+-----------------------------------------
+                              |      Mean
+------------------------------+----------
+Interview date: Year, derived |          
+  2009                        |  1470.846
+  2010                        |  1516.142
+  2011                        |  1570.011
+  2012                        |  1613.743
+  2013                        |  1642.292
+  2014                        |  1699.512
+  2015                        |  1725.722
+  2016                        |  1755.499
+  2017                        |  1793.981
+  2018                        |  1826.991
+  2019                        |   1866.03
+  2020                        |  1932.244
+  2021                        |  1928.287
+  2022                        |  2025.863
+  Total                       |  1690.551
+-----------------------------------------
+
+. ** slight variations between years of interview. 
+. 
+. ** check the averae earnings per UKHLS wave. 
+. table wave, stat(mean earnings)
+
+--------------------------
+               |      Mean
+---------------+----------
+Wave of survey |          
+  1. a         |  1468.347
+  2. b         |  1547.618
+  3. c         |  1598.988
+  4. d         |   1625.23
+  5. e         |  1659.043
+  6. f         |  1709.348
+  7. g         |  1736.757
+  8. h         |  1784.005
+  9. i         |  1818.869
+  10. j        |  1843.664
+  11. k        |  1895.314
+  12. l        |  1973.242
+  Total        |  1690.547
+--------------------------
+
+. *some differences here - 
+. 
+. 
+. /*
+> https://iserredex.essex.ac.uk/support/issues/1509: 
+> 
+> Since in each wave, interviews are conducted over 2 years, averaging real wages for Wave 8, for example, would pick up incomes reported in 2016, 2017, and 
+> 2018 and by mixing these years, I was worried I would be misrepresenting the actual macro trend."
+> 
+> To this case, using year and not wave as the time variable is more appropriate
+> */
+. 
+. ** adjust for inflation. 
+. 
+. * Use a consumer price index (CPI) to adjust earnings for inflation. You can create a variable for the CPI and then adjust the earnings.
+. 
+. capture drop cpi
+
+. gen cpi = .
+(397,915 missing values generated)
+
+. replace cpi = 98  if intdaty_dv  == 2009
+(21,145 real changes made)
+
+. replace cpi = 100 if intdaty_dv  == 2010
+(45,165 real changes made)
+
+. replace cpi = 102 if intdaty_dv  == 2011
+(43,251 real changes made)
+
+. replace cpi = 104 if intdaty_dv  == 2012
+(38,600 real changes made)
+
+. replace cpi = 106 if intdaty_dv  == 2013
+(36,116 real changes made)
+
+. replace cpi = 108 if intdaty_dv  == 2014
+(33,963 real changes made)
+
+. replace cpi = 110 if intdaty_dv  == 2015
+(33,754 real changes made)
+
+. replace cpi = 112 if intdaty_dv  == 2016
+(32,583 real changes made)
+
+. replace cpi = 114 if intdaty_dv  == 2017
+(28,607 real changes made)
+
+. replace cpi = 116 if intdaty_dv  == 2018
+(26,676 real changes made)
+
+. replace cpi = 118 if intdaty_dv  == 2019
+(25,203 real changes made)
+
+. replace cpi = 120 if intdaty_dv  == 2020
+(23,306 real changes made)
+
+. replace cpi = 122 if intdaty_dv  == 2021
+(9,174 real changes made)
+
+. replace cpi = 124 if intdaty_dv  == 2022
+(363 real changes made)
+
+. 
+. capture drop adj_earnings
+
+. gen adj_earnings = earnings / (cpi / 100)
+(4,901 missing values generated)
+
+. 
+. 
+. * unadjusted earnings variable. 
+. regress earnings i.redcats i.wave
+
+      Source |       SS           df       MS      Number of obs   =   316,669
+-------------+----------------------------------   F(21, 316647)   =    447.28
+       Model |  1.8505e+10        21   881201195   Prob > F        =    0.0000
+    Residual |  6.2384e+11   316,647  1970138.29   R-squared       =    0.0288
+-------------+----------------------------------   Adj R-squared   =    0.0287
+       Total |  6.4234e+11   316,668  2028444.95   Root MSE        =    1403.6
+
+---------------------------------------------------------------------------------------
+             earnings | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+              redcats |
+  White Muslim Brit.  |  -124.2432   40.64055    -3.06   0.002    -203.8975   -44.58885
+     Muslim Indian 1  |  -487.9576   36.11197   -13.51   0.000    -558.7361   -417.1792
+  Muslim Pakistani 1  |  -698.8229   16.92138   -41.30   0.000    -731.9884   -665.6575
+Muslim Bangladeshi 1  |  -650.2268   19.74435   -32.93   0.000    -688.9252   -611.5285
+      Muslim Black 1  |  -395.3626   31.28539   -12.64   0.000    -456.6811   -334.0441
+      Muslim Other 1  |  -399.1113   40.69729    -9.81   0.000    -478.8768   -319.3458
+     Muslim Indian 2  |  -529.9442   39.07494   -13.56   0.000    -606.5299   -453.3584
+  Muslim Pakistani 2  |  -749.1151   18.29497   -40.95   0.000    -784.9727   -713.2575
+Muslim Bangladeshi 2  |  -807.5851   24.87031   -32.47   0.000    -856.3302     -758.84
+      Muslim Other 2  |  -645.8145   33.42461   -19.32   0.000    -711.3258   -580.3032
+                      |
+                 wave |
+                2. b  |    56.9551   10.60609     5.37   0.000     36.16746    77.74274
+                3. c  |   102.5378   10.86115     9.44   0.000     81.25022    123.8253
+                4. d  |   131.5943   11.03474    11.93   0.000     109.9665    153.2221
+                5. e  |   164.8561   11.22154    14.69   0.000     142.8622      186.85
+                6. f  |   257.8304   11.53113    22.36   0.000     235.2297    280.4311
+                7. g  |   281.3506   11.69732    24.05   0.000     258.4242     304.277
+                8. h  |   315.0648   11.88343    26.51   0.000     291.7736    338.3559
+                9. i  |   347.4299   12.25231    28.36   0.000     323.4157     371.444
+               10. j  |   371.8673   12.44913    29.87   0.000     347.4674    396.2672
+               11. k  |   415.3205   12.74833    32.58   0.000     390.3341    440.3069
+               12. l  |   505.8512   13.54841    37.34   0.000     479.2967    532.4057
+                      |
+                _cons |   1555.538   7.724329   201.38   0.000     1540.399    1570.678
+---------------------------------------------------------------------------------------
+
+. est store RE
+
+. * adjusted earnings varaible. 
+. regress adj_earnings i.redcats i.wave
+
+      Source |       SS           df       MS      Number of obs   =   316,666
+-------------+----------------------------------   F(21, 316644)   =    306.66
+       Model |  1.0784e+10        21   513502732   Prob > F        =    0.0000
+    Residual |  5.3022e+11   316,644  1674501.89   R-squared       =    0.0199
+-------------+----------------------------------   Adj R-squared   =    0.0199
+       Total |  5.4100e+11   316,665  1708444.36   Root MSE        =      1294
+
+---------------------------------------------------------------------------------------
+         adj_earnings | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+              redcats |
+  White Muslim Brit.  |  -113.4771   37.46744    -3.03   0.002    -186.9123   -40.04201
+     Muslim Indian 1  |  -457.1979   33.29245   -13.73   0.000    -522.4502   -391.9457
+  Muslim Pakistani 1  |  -649.8939    15.6002   -41.66   0.000    -680.4699    -619.318
+Muslim Bangladeshi 1  |  -610.1321   18.20276   -33.52   0.000     -645.809   -574.4552
+      Muslim Black 1  |  -377.7113   28.84271   -13.10   0.000    -434.2422   -321.1805
+      Muslim Other 1  |  -379.4465   37.51975   -10.11   0.000    -452.9842   -305.9089
+     Muslim Indian 2  |  -483.6914   36.02407   -13.43   0.000    -554.2976   -413.0853
+  Muslim Pakistani 2  |  -691.0824   16.86655   -40.97   0.000    -724.1403   -658.0244
+Muslim Bangladeshi 2  |  -748.7789    22.9285   -32.66   0.000    -793.7181   -703.8397
+      Muslim Other 2  |  -597.3533   30.81491   -19.39   0.000    -657.7496    -536.957
+                      |
+                 wave |
+                2. b  |   30.75862   9.778059     3.15   0.002     11.59391    49.92334
+                3. c  |   44.97004   10.01314     4.49   0.000     25.34457    64.59551
+                4. d  |   42.51244   10.17318     4.18   0.000     22.57331    62.45158
+                5. e  |   44.28646    10.3454     4.28   0.000     24.00978    64.56314
+                6. f  |   100.7601   10.63081     9.48   0.000     79.92398    121.5961
+                7. g  |   93.23899   10.78402     8.65   0.000     72.10262    114.3754
+                8. h  |   95.30465    10.9556     8.70   0.000     73.83198    116.7773
+                9. i  |   95.92681   11.29568     8.49   0.000      73.7876     118.066
+               10. j  |   89.82478   11.47713     7.83   0.000     67.32992    112.3196
+               11. k  |   99.77548   11.75297     8.49   0.000     76.73999     122.811
+               12. l  |   143.9078   12.49112    11.52   0.000     119.4256    168.3901
+                      |
+                _cons |   1564.521   7.121233   219.70   0.000     1550.564    1578.479
+---------------------------------------------------------------------------------------
+
+. est store ADJ 
+
+. 
+. est tab RE ADJ, star stat(r2) 
+
+----------------------------------------------
+    Variable |      RE              ADJ       
+-------------+--------------------------------
+     redcats |
+White Mus..  | -124.24318**    -113.47714**   
+Muslim In..  | -487.95764***   -457.19794***  
+Muslim Pa..  | -698.82295***   -649.89391***  
+Muslim Ba..  | -650.22682***   -610.13206***  
+Muslim Bl..  | -395.36259***   -377.71134***  
+Muslim Ot..  | -399.11131***   -379.44654***  
+Muslim In..  | -529.94417***   -483.69145***  
+Muslim Pa..  | -749.11508***   -691.08238***  
+Muslim Ba..  |  -807.5851***    -748.7789***  
+Muslim Ot..  | -645.81448***   -597.35329***  
+             |
+        wave |
+       2. b  |  56.955098***    30.758623**   
+       3. c  |  102.53777***    44.970038***  
+       4. d  |  131.59427***    42.512445***  
+       5. e  |  164.85613***     44.28646***  
+       6. f  |  257.83041***    100.76006***  
+       7. g  |  281.35059***    93.238993***  
+       8. h  |  315.06475***    95.304654***  
+       9. i  |  347.42987***    95.926812***  
+      10. j  |  371.86729***    89.824776***  
+      11. k  |   415.3205***    99.775484***  
+      12. l  |  505.85118***    143.90783***  
+             |
+       _cons |  1555.5385***    1564.5212***  
+-------------+--------------------------------
+          r2 |  .02880892       .01993247     
+----------------------------------------------
+      Legend: * p<0.05; ** p<0.01; *** p<0.001
+
+. 
+. * unadjusted earnings - generate hourly pay variable. 
+. su jshrs, detail
+
+          s/emp: hours normally worked per week   
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%            8              8
+ 5%           12              8
+10%           16              8       Obs              33,108
+25%           30              8       Sum of wgt.      33,108
+
+50%           40                      Mean            38.3986
+                        Largest       Std. dev.       16.1272
+75%           50            120
+90%           60            120       Variance       260.0867
+95%           65            120       Skewness       .5139581
+99%           84            120       Kurtosis       3.941737
+
+. recode jshrs -100/7 = .
+(0 changes made to jshrs)
+
+. su jshrs if jbstat == 1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       jshrs |     29,606    38.85676    16.03063          8        120
+
+. /* we have all the jshrs dat available for all self employed. */ 
+. capture drop allhours
+
+. gen allhours = jbhrs 
+(161,926 missing values generated)
+
+. replace allhours = jshrs if allhours == .
+(33,108 real changes made)
+
+. * monthly earnings 
+. sum earnings if participation == 1, detail
+
+                          earnings
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%            0              0
+ 5%       186.33              0
+10%          455              0       Obs             288,365
+25%      1041.67              0       Sum of wgt.     288,365
+
+50%         1750                      Mean            2034.65
+                        Largest       Std. dev.       1448.68
+75%      2701.67        8564.21
+90%         3900        8564.73       Variance        2098674
+95%      4906.67           8566       Skewness       1.295423
+99%      7041.67        8566.33       Kurtosis       5.259598
+
+. * weekly work hours 
+. sum allhours if participation == 1, detail
+
+                          allhours
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%            6              0
+ 5%           14              0
+10%           17              0       Obs             258,623
+25%           30              0       Sum of wgt.     258,623
+
+50%           37                      Mean           34.22801
+                        Largest       Std. dev.       11.4988
+75%           40            120
+90%           45            120       Variance       132.2225
+95%           50            120       Skewness       .1270372
+99%           69            120       Kurtosis       5.553094
+
+. capture drop allwhours 
+
+. gen allwhours = allhours if participation == 1
+(139,292 missing values generated)
+
+. recode allwhours 0/6 = . 60/10000 = . 
+(9,742 changes made to allwhours)
+
+. * let's make weekly earnings 
+. capture drop allwearnings  
+
+. gen allwearnings  = earnings / 4 if participation == 1
+(109,550 missing values generated)
+
+. capture drop earningsxhours
+
+. gen earningsxhours = allwearnings / allwhours if participation == 1
+(153,047 missing values generated)
+
+. capture drop logearningsxhours
+
+. gen logearningsxhours = log(earningsxhours)
+(153,561 missing values generated)
+
+. 
+. 
+. * adj monthly earnings  
+. * let's make weekly earnings 
+. capture drop adj_allwearnings  
+
+. gen adj_allwearnings  = adj_earnings / 4 if participation == 1
+(109,554 missing values generated)
+
+. capture drop adj_earningsxhours
+
+. gen adj_earningsxhours = adj_allwearnings / allwhours if participation == 1
+(153,051 missing values generated)
+
+. capture drop adj_logearningsxhours
+
+. gen adj_logearningsxhours = log(adj_earningsxhours)
+(153,565 missing values generated)
+
+. 
+. 
+. regress logearningsxhours i.redcats i.wave
+
+      Source |       SS           df       MS      Number of obs   =   199,325
+-------------+----------------------------------   F(21, 199303)   =    155.63
+       Model |   1425.4277        21  67.8775096   Prob > F        =    0.0000
+    Residual |  86925.3738   199,303  .436146841   R-squared       =    0.0161
+-------------+----------------------------------   Adj R-squared   =    0.0160
+       Total |  88350.8015   199,324    .4432522   Root MSE        =    .66041
+
+---------------------------------------------------------------------------------------
+    logearningsxhours | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+              redcats |
+  White Muslim Brit.  |  -.0608965   .0242133    -2.51   0.012     -.108354    -.013439
+     Muslim Indian 1  |  -.1788203   .0231508    -7.72   0.000    -.2241953   -.1334452
+  Muslim Pakistani 1  |   -.278515    .012461   -22.35   0.000    -.3029383   -.2540917
+Muslim Bangladeshi 1  |  -.1461457   .0149684    -9.76   0.000    -.1754834   -.1168079
+      Muslim Black 1  |    .004313   .0222136     0.19   0.846    -.0392251    .0478511
+      Muslim Other 1  |  -.0461075   .0280804    -1.64   0.101    -.1011443    .0089293
+     Muslim Indian 2  |   -.003184   .0263823    -0.12   0.904    -.0548927    .0485247
+  Muslim Pakistani 2  |  -.1797159   .0132918   -13.52   0.000    -.2057674   -.1536644
+Muslim Bangladeshi 2  |  -.1655177   .0182008    -9.09   0.000    -.2011907   -.1298446
+      Muslim Other 2  |   .0418524   .0261324     1.60   0.109    -.0093664    .0930712
+                      |
+                 wave |
+                2. b  |   .0376382    .006418     5.86   0.000      .025059    .0502174
+                3. c  |   .0642932   .0065501     9.82   0.000     .0514552    .0771313
+                4. d  |   .0738025   .0066402    11.11   0.000     .0607879    .0868171
+                5. e  |   .0745921   .0067189    11.10   0.000     .0614233    .0877609
+                6. f  |   .1188178   .0069307    17.14   0.000     .1052337    .1324019
+                7. g  |   .1240566   .0069544    17.84   0.000     .1104261    .1376872
+                8. h  |   .1488542   .0070782    21.03   0.000      .134981    .1627274
+                9. i  |   .1774195    .007297    24.31   0.000     .1631175    .1917215
+               10. j  |   .1907481   .0074207    25.70   0.000     .1762037    .2052925
+               11. k  |   .2191913   .0075993    28.84   0.000      .204297    .2340857
+               12. l  |   .2647421   .0079695    33.22   0.000      .249122    .2803622
+                      |
+                _cons |    2.55701    .004687   545.55   0.000     2.547824    2.566197
+---------------------------------------------------------------------------------------
+
+. est store RE2 
+
+. regress adj_logearningsxhours i.redcats i.wave
+
+      Source |       SS           df       MS      Number of obs   =   199,323
+-------------+----------------------------------   F(21, 199301)   =     50.90
+       Model |  466.201223        21  22.2000582   Prob > F        =    0.0000
+    Residual |  86931.4884   199,301  .436181898   R-squared       =    0.0053
+-------------+----------------------------------   Adj R-squared   =    0.0052
+       Total |  87397.6896   199,322  .438474878   Root MSE        =    .66044
+
+---------------------------------------------------------------------------------------
+adj_logearningsxhours | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+----------------------+----------------------------------------------------------------
+              redcats |
+  White Muslim Brit.  |  -.0613797   .0242143    -2.53   0.011    -.1088392   -.0139203
+     Muslim Indian 1  |  -.1833766   .0231517    -7.92   0.000    -.2287535   -.1379997
+  Muslim Pakistani 1  |     -.2845   .0124615   -22.83   0.000    -.3089243   -.2600757
+Muslim Bangladeshi 1  |  -.1499136    .014969   -10.01   0.000    -.1792525   -.1205747
+      Muslim Black 1  |  -.0022328   .0222145    -0.10   0.920    -.0457726     .041307
+      Muslim Other 1  |  -.0525885   .0280815    -1.87   0.061    -.1076276    .0024505
+     Muslim Indian 2  |  -.0094737   .0263834    -0.36   0.720    -.0611845    .0422371
+  Muslim Pakistani 2  |  -.1847457   .0132923   -13.90   0.000    -.2107983   -.1586931
+Muslim Bangladeshi 2  |  -.1694482   .0182015    -9.31   0.000    -.2051227   -.1337737
+      Muslim Other 2  |   .0379137   .0261334     1.45   0.147    -.0133072    .0891345
+                      |
+                 wave |
+                2. b  |   .0194452   .0064184     3.03   0.002     .0068653     .032025
+                3. c  |   .0264293   .0065504     4.03   0.000     .0135907    .0392679
+                4. d  |   .0162845   .0066405     2.45   0.014     .0032694    .0292997
+                5. e  |  -.0018926   .0067191    -0.28   0.778     -.015062    .0112767
+                6. f  |   .0233937    .006931     3.38   0.001      .009809    .0369783
+                7. g  |   .0108148   .0069547     1.56   0.120    -.0028163    .0244459
+                8. h  |   .0177189   .0070785     2.50   0.012     .0038451    .0315926
+                9. i  |   .0288639   .0072973     3.96   0.000     .0145614    .0431665
+               10. j  |   .0250934    .007421     3.38   0.001     .0105484    .0396384
+               11. k  |   .0368594   .0075996     4.85   0.000     .0219645    .0517544
+               12. l  |   .0662812   .0079701     8.32   0.000       .05066    .0819024
+                      |
+                _cons |   2.566884   .0046872   547.64   0.000     2.557697    2.576071
+---------------------------------------------------------------------------------------
+
+. est store ADJ2
+
+. 
+. est tab RE2 ADJ2, star stat(r2) 
+
+----------------------------------------------
+    Variable |      RE2            ADJ2       
+-------------+--------------------------------
+     redcats |
+White Mus..  | -.06089647*     -.06137975*    
+Muslim In..  | -.17882028***   -.18337662***  
+Muslim Pa..  | -.27851499***   -.28450002***  
+Muslim Ba..  | -.14614566***   -.14991364***  
+Muslim Bl..  |    .004313      -.00223279     
+Muslim Ot..  | -.04610751      -.05258854     
+Muslim In..  | -.00318399      -.00947373     
+Muslim Pa..  | -.17971591***   -.18474569***  
+Muslim Ba..  | -.16551765***   -.16944819***  
+Muslim Ot..  |  .04185243       .03791366     
+             |
+        wave |
+       2. b  |   .0376382***    .01944516**   
+       3. c  |  .06429321***    .02642929***  
+       4. d  |  .07380252***    .01628453*    
+       5. e  |  .07459208***   -.00189265     
+       6. f  |  .11881784***    .02339368***  
+       7. g  |  .12405662***    .01081484     
+       8. h  |  .14885419***    .01771889*    
+       9. i  |   .1774195***    .02886394***  
+      10. j  |  .19074812***    .02509342***  
+      11. k  |  .21919131***    .03685942***  
+      12. l  |  .26474209***    .06628118***  
+             |
+       _cons |  2.5570104***    2.5668837***  
+-------------+--------------------------------
+          r2 |  .01613373       .00533425     
+----------------------------------------------
+      Legend: * p<0.05; ** p<0.01; *** p<0.001
+
+. 
+. 
+. */ some difference in R2 between the unadjusted and adjusted versions, but sign and singificane for each Muslim category stays the same - slight variations
+>  in magnitude. Confirm its okay to progress with unadjusted version of the earnings variable. */ 
+. 
+end of do-file
+
+. log close
+      name:  <unnamed>
+       log:  /Users/scothunter/Library/CloudStorage/OneDrive-UniversityofStirling/thesis/directory/attachments/sa2_earnings_hunter24.log
+  log type:  text
+ closed on:  17 Sep 2024, 19:40:03
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
