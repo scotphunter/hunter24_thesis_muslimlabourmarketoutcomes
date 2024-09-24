@@ -1,5 +1,5 @@
 ** ************************************************************************** **
-	* CHAPTER 6 ANALYSIS 3 - Job quality indicators 
+	* Chapter 3 - Job quality indicators 
 	* 
 	* Deriving job quality variable using latent class analysis. 
 	
