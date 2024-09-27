@@ -1,0 +1,112 @@
+--------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/scothunter/Library/CloudStorage/OneDrive-UniversityofStirling/thesis/directory/syntax/prep/attachments/sup_ch5_reg_1B.log
+  log type:  text
+ opened on:  27 Sep 2024, 17:47:38
+
+. do "/var/folders/cj/8dv18brd2sd49mkfxtpn8j1w0000gn/T//SD04849.000000"
+
+. 
+. *-------------------------------------------------------------------------------
+. **## Model 1B
+. *-------------------------------------------------------------------------------
+. 
+. * Load the estimation results and make them the current (active) results
+. estimates use "m1B_v2.ster"
+
+. 
+. * Replay the estimation results
+. estimates replay, baselevels
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+active results
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+Mixed-effects ML regression                          Number of obs    = 40,149
+Group variable: stratum                              Number of groups =    115
+                                                     Obs per group:
+                                                                  min =      1
+                                                                  avg =  349.1
+                                                                  max =  9,829
+                                                     Wald chi2(12)    =  70.84
+Log likelihood = -42870.205                          Prob > chi2      = 0.0000
+
+-------------------------------------------------------------------------------------
+           ln_hrpay | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+--------------------+----------------------------------------------------------------
+                fem |
+              Male  |          0  (empty)
+            Female  |   .0477815   .0198633     2.41   0.016     .0088502    .0867127
+                    |
+               eth2 |
+     White British  |          0  (empty)
+            Indian  |  -.0004581   .0331355    -0.01   0.989    -.0654025    .0644864
+         Pakistani  |  -.1852541   .0464605    -3.99   0.000    -.2763149   -.0941932
+       Bangladeshi  |  -.1563075   .0519975    -3.01   0.003    -.2582208   -.0543942
+             Black  |  -.0055148    .032922    -0.17   0.867    -.0700408    .0590112
+       Other eth.   |  -.0365355   .0314674    -1.16   0.246    -.0982104    .0251393
+       White Other  |   .0503846   .0370182     1.36   0.173    -.0221698     .122939
+                    |
+               reli |
+       No religion  |          0  (empty)
+         Christian  |  -.0005735    .027693    -0.02   0.983    -.0548507    .0537038
+            Muslim  |  -.0279457   .0339879    -0.82   0.411    -.0945607    .0386693
+             Hindu  |   .0114772   .0370057     0.31   0.756    -.0610527    .0840071
+     Oth. religion  |  -.0196508   .0335324    -0.59   0.558    -.0853731    .0460715
+                    |
+             ukborn |
+    Born in the UK  |          0  (empty)
+Not born in the UK  |  -.0799726   .0205225    -3.90   0.000    -.1201959   -.0397492
+                    |
+              _cons |   4.995796   .0282994   176.53   0.000      4.94033    5.051262
+-------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+  Random-effects parameters  |   Estimate   Std. err.     [95% conf. interval]
+-----------------------------+------------------------------------------------
+stratum: Identity            |
+                  var(_cons) |   .0041886    .001232      .0023535    .0074546
+-----------------------------+------------------------------------------------
+               var(Residual) |   .4945332   .0034938      .4877326    .5014286
+------------------------------------------------------------------------------
+LR test vs. linear model: chibar2(01) = 61.12         Prob >= chibar2 = 0.0000
+
+. est store m1b
+
+. 
+. * Calculate the variance partition coefficient (VPC)
+. estat icc
+
+Residual intraclass correlation
+
+------------------------------------------------------------------------------
+                       Level |        ICC   Std. err.     [95% conf. interval]
+-----------------------------+------------------------------------------------
+                     stratum |   .0083987   .0024514      .0047344    .0148568
+------------------------------------------------------------------------------
+
+. estadd scalar icc_ = r(icc2) 
+
+added scalar:
+               e(icc_) =  .00839872
+
+. 
+. 
+. 
+. 
+. * Calculate the Proportional Change in Variance (PCV) (as a percentage)
+. display %3.1f 100*(m1Asigma2 - m1Bsigma2) / m1Asigma2
+60.3
+
+. 
+. scalar m1Bpcv = 100 * (m1Asigma2 - m1Bsigma2) / m1Asigma2
+
+. 
+end of do-file
+
+. log close
+      name:  <unnamed>
+       log:  /Users/scothunter/Library/CloudStorage/OneDrive-UniversityofStirling/thesis/directory/syntax/prep/attachments/sup_ch5_reg_1B.log
+  log type:  text
+ closed on:  27 Sep 2024, 17:47:48
+--------------------------------------------------------------------------------------------------------------------------------------------------
