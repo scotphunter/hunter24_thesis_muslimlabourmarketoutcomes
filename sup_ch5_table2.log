@@ -1,0 +1,161 @@
+--------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/scothunter/Library/CloudStorage/OneDrive-UniversityofStirling/thesis/directory/syntax/prep/attachments/log_2.log
+  log type:  text
+ opened on:  27 Sep 2024, 17:32:25
+
+. do "/var/folders/cj/8dv18brd2sd49mkfxtpn8j1w0000gn/T//SD04849.000000"
+
+. list stratum fem eth2 reli ukborn N m1Cmrank m1Cm m1Cmlo m1Cmhi  
+
+     +----------------------------------------------------------------------------------------------------------------------+
+     | stratum      fem            eth2            reli               ukborn      N   m1Cmrank   m1Cm     m1Cmlo     m1Cmhi |
+     |----------------------------------------------------------------------------------------------------------------------|
+  1. |    2432   Female     Bangladeshi          Muslim   Not born in the UK     75          1   4.12   3.987187   4.251107 |
+  2. |    2712   Female     White Other     No religion   Not born in the UK    302          2   4.14   4.043372   4.234033 |
+  3. |    2722   Female     White Other       Christian   Not born in the UK    334          3   4.14   4.047147   4.235307 |
+  4. |    2522   Female           Black       Christian   Not born in the UK    453          4   4.17   4.084145   4.252385 |
+  5. |    2341   Female       Pakistani           Hindu       Born in the UK     45          5   4.21   4.066063   4.346738 |
+     |----------------------------------------------------------------------------------------------------------------------|
+  6. |    1632     Male      Other eth.          Muslim   Not born in the UK    112          6   4.21   4.097759   4.326392 |
+  7. |    2111   Female   White British     No religion       Born in the UK   6844          7   4.22   4.166214   4.280761 |
+  8. |    2252   Female          Indian   Oth. religion   Not born in the UK    131          8   4.24   4.129035   4.351383 |
+  9. |    2752   Female     White Other   Oth. religion   Not born in the UK     21          9   4.25   4.104129   4.390287 |
+ 10. |    2121   Female   White British       Christian       Born in the UK   5381         10   4.26   4.197605   4.315568 |
+     |----------------------------------------------------------------------------------------------------------------------|
+ 11. |    2332   Female       Pakistani          Muslim   Not born in the UK     93         11   4.27   4.144568    4.38979 |
+ 12. |    1642     Male      Other eth.           Hindu   Not born in the UK     78         12   4.28   4.160627   4.408477 |
+ 13. |    1331     Male       Pakistani          Muslim       Born in the UK    210         13   4.29     4.1808   4.395389 |
+ 14. |    2212   Female          Indian     No religion   Not born in the UK     56         14   4.29   4.164695   4.413746 |
+ 15. |    1152     Male   White British   Oth. religion   Not born in the UK     25         15   4.30   4.159781   4.430455 |
+     |----------------------------------------------------------------------------------------------------------------------|
+ 16. |    1522     Male           Black       Christian   Not born in the UK    331         16   4.30   4.210599   4.388737 |
+ 17. |    1111     Male   White British     No religion       Born in the UK   6087         17   4.30   4.244997   4.359322 |
+ 18. |    2251   Female          Indian   Oth. religion       Born in the UK    123         18   4.32   4.202999    4.42818 |
+ 19. |    2542   Female           Black           Hindu   Not born in the UK     19         19   4.32   4.176665   4.463517 |
+ 20. |    2612   Female      Other eth.     No religion   Not born in the UK    199         20   4.32   4.222095   4.419316 |
+     |----------------------------------------------------------------------------------------------------------------------|
+ 21. |    2132   Female   White British          Muslim   Not born in the UK     11         21   4.32   4.180668   4.464807 |
+ 22. |    2621   Female      Other eth.       Christian       Born in the UK    131         22   4.33   4.217255    4.43409 |
+ 23. |    1212     Male          Indian     No religion   Not born in the UK     91         23   4.33   4.212373   4.444046 |
+ 24. |    1622     Male      Other eth.       Christian   Not born in the UK    152         24   4.34   4.232259   4.440404 |
+ 25. |    1442     Male     Bangladeshi           Hindu   Not born in the UK     23         25   4.34   4.183603   4.492573 |
+     |----------------------------------------------------------------------------------------------------------------------|
+ 26. |    1722     Male     White Other       Christian   Not born in the UK    275         26   4.34   4.245095   4.439636 |
+ 27. |    1441     Male     Bangladeshi           Hindu       Born in the UK     13         27   4.35   4.191825   4.509504 |
+ 28. |    2242   Female          Indian           Hindu   Not born in the UK    168         28   4.35   4.244582   4.458256 |
+ 29. |    2241   Female          Indian           Hindu       Born in the UK     91         29   4.35   4.234902   4.473608 |
+ 30. |    1121     Male   White British       Christian       Born in the UK   3650         30   4.36   4.297873   4.419179 |
+     |----------------------------------------------------------------------------------------------------------------------|
+ 31. |    1712     Male     White Other     No religion   Not born in the UK    251         31   4.37   4.269425   4.465926 |
+ 32. |    2652   Female      Other eth.   Oth. religion   Not born in the UK     77         32   4.38   4.254492   4.499377 |
+ 33. |    2331   Female       Pakistani          Muslim       Born in the UK    152         33   4.38   4.266332   4.494672 |
+ 34. |    2642   Female      Other eth.           Hindu   Not born in the UK     51         34   4.38    4.25344   4.514699 |
+ 35. |    2622   Female      Other eth.       Christian   Not born in the UK    213         35   4.39   4.289771    4.48494 |
+     |----------------------------------------------------------------------------------------------------------------------|
+ 36. |    1612     Male      Other eth.     No religion   Not born in the UK    186         36   4.39   4.289545   4.487945 |
+ 37. |    1252     Male          Indian   Oth. religion   Not born in the UK    164         37   4.39    4.28286   4.495644 |
+ 38. |    1342     Male       Pakistani           Hindu   Not born in the UK     55         38   4.39   4.254136   4.528381 |
+ 39. |    1652     Male      Other eth.   Oth. religion   Not born in the UK     63         39   4.40    4.27201   4.521891 |
+ 40. |    1332     Male       Pakistani          Muslim   Not born in the UK    413         40   4.40   4.304823    4.49595 |
+     |----------------------------------------------------------------------------------------------------------------------|
+ 41. |    1611     Male      Other eth.     No religion       Born in the UK    169         41   4.40   4.299018   4.504526 |
+ 42. |    2521   Female           Black       Christian       Born in the UK    268         42   4.40   4.307387   4.496611 |
+ 43. |    2141   Female   White British           Hindu       Born in the UK     36         43   4.41   4.273751   4.543985 |
+ 44. |    2122   Female   White British       Christian   Not born in the UK    264         44   4.41   4.317021   4.502358 |
+ 45. |    1431     Male     Bangladeshi          Muslim       Born in the UK    101         45   4.42   4.289753   4.543769 |
+     |----------------------------------------------------------------------------------------------------------------------|
+ 46. |    2151   Female   White British   Oth. religion       Born in the UK    294         46   4.42   4.325389   4.515389 |
+ 47. |    2611   Female      Other eth.     No religion       Born in the UK    208         47   4.42   4.321955   4.518857 |
+ 48. |    2342   Female       Pakistani           Hindu   Not born in the UK     21         48   4.42   4.272771   4.568091 |
+ 49. |    2112   Female   White British     No religion   Not born in the UK    380         49   4.42   4.338099   4.509382 |
+ 50. |    2232   Female          Indian          Muslim   Not born in the UK     36         50   4.43   4.293038   4.557255 |
+     |----------------------------------------------------------------------------------------------------------------------|
+ 51. |    2442   Female     Bangladeshi           Hindu   Not born in the UK     15         51   4.43   4.274807   4.591227 |
+ 52. |    1211     Male          Indian     No religion       Born in the UK     51         52   4.44   4.316642   4.568599 |
+ 53. |    1621     Male      Other eth.       Christian       Born in the UK     94         53   4.45    4.33677   4.566866 |
+ 54. |    1241     Male          Indian           Hindu       Born in the UK     93         54   4.48    4.36257   4.598994 |
+ 55. |    1251     Male          Indian   Oth. religion       Born in the UK    126         55   4.50   4.386973   4.611284 |
+     |----------------------------------------------------------------------------------------------------------------------|
+ 56. |    1511     Male           Black     No religion       Born in the UK    111         56   4.50   4.388542    4.61457 |
+ 57. |    1231     Male          Indian          Muslim       Born in the UK     43         57   4.50    4.37188   4.633719 |
+ 58. |    1122     Male   White British       Christian   Not born in the UK    210         58   4.51   4.409707    4.60308 |
+ 59. |    1631     Male      Other eth.          Muslim       Born in the UK     34         59   4.51      4.373   4.640565 |
+ 60. |    1651     Male      Other eth.   Oth. religion       Born in the UK     27         60   4.52   4.381379   4.653796 |
+     |----------------------------------------------------------------------------------------------------------------------|
+ 61. |    1232     Male          Indian          Muslim   Not born in the UK     89         61   4.52   4.402901   4.639216 |
+ 62. |    1641     Male      Other eth.           Hindu       Born in the UK     10         62   4.53   4.386869   4.677046 |
+ 63. |    1521     Male           Black       Christian       Born in the UK    149         63   4.53   4.427615   4.639937 |
+ 64. |    1112     Male   White British     No religion   Not born in the UK    431         64   4.54   4.461623   4.628051 |
+ 65. |    2651   Female      Other eth.   Oth. religion       Born in the UK     18         65   4.55   4.406826   4.684901 |
+     |----------------------------------------------------------------------------------------------------------------------|
+ 66. |    2511   Female           Black     No religion       Born in the UK    107         66   4.56   4.442477    4.66888 |
+ 67. |    2721   Female     White Other       Christian       Born in the UK     39         67   4.56   4.430718   4.695818 |
+ 68. |    2431   Female     Bangladeshi          Muslim       Born in the UK     88         68   4.56   4.434864    4.69457 |
+ 69. |    2732   Female     White Other          Muslim   Not born in the UK     25         69   4.57   4.424351   4.707968 |
+ 70. |    2532   Female           Black          Muslim   Not born in the UK     99         70   4.57   4.448856   4.687268 |
+     |----------------------------------------------------------------------------------------------------------------------|
+ 71. |    1151     Male   White British   Oth. religion       Born in the UK    255         71   4.57   4.471123   4.666613 |
+ 72. |    1341     Male       Pakistani           Hindu       Born in the UK     42         72   4.57   4.428568   4.709757 |
+ 73. |    1131     Male   White British          Muslim       Born in the UK     59         73   4.59    4.46078   4.711698 |
+ 74. |    1242     Male          Indian           Hindu   Not born in the UK    259         74   4.60    4.50354   4.697827 |
+ 75. |    2131   Female   White British          Muslim       Born in the UK     60         75   4.61   4.482267   4.732994 |
+     |----------------------------------------------------------------------------------------------------------------------|
+ 76. |    2541   Female           Black           Hindu       Born in the UK      4         76   4.61   4.461518   4.762282 |
+ 77. |    1432     Male     Bangladeshi          Muslim   Not born in the UK    300         77   4.62   4.508083   4.723763 |
+ 78. |    2632   Female      Other eth.          Muslim   Not born in the UK     46         78   4.63   4.505253   4.763337 |
+ 79. |    2152   Female   White British   Oth. religion   Not born in the UK     30         79   4.64   4.505154   4.772747 |
+ 80. |    2551   Female           Black   Oth. religion       Born in the UK     17         80   4.65    4.51055   4.793748 |
+     |----------------------------------------------------------------------------------------------------------------------|
+ 81. |    2142   Female   White British           Hindu   Not born in the UK      3         81   4.66   4.511065   4.807706 |
+ 82. |    1721     Male     White Other       Christian       Born in the UK     31         82   4.67   4.538772   4.809841 |
+ 83. |    2531   Female           Black          Muslim       Born in the UK     15         83   4.68   4.533391   4.816934 |
+ 84. |    2552   Female           Black   Oth. religion   Not born in the UK     34         84   4.69   4.552905   4.824289 |
+ 85. |    1532     Male           Black          Muslim   Not born in the UK     95         85   4.69    4.57476   4.813554 |
+     |----------------------------------------------------------------------------------------------------------------------|
+ 86. |    2231   Female          Indian          Muslim       Born in the UK     42         86   4.71   4.573914   4.837375 |
+ 87. |    1142     Male   White British           Hindu   Not born in the UK      5         87   4.72   4.576009   4.870087 |
+ 88. |    2441   Female     Bangladeshi           Hindu       Born in the UK      9         88   4.75   4.593942    4.91543 |
+ 89. |    2221   Female          Indian       Christian       Born in the UK     10         89   4.77   4.624332   4.906688 |
+ 90. |    2641   Female      Other eth.           Hindu       Born in the UK     13         90   4.77   4.631036   4.918878 |
+     |----------------------------------------------------------------------------------------------------------------------|
+ 91. |    1542     Male           Black           Hindu   Not born in the UK     15         91   4.79   4.641385   4.930864 |
+ 92. |    1752     Male     White Other   Oth. religion   Not born in the UK     18         92   4.79   4.650086   4.938413 |
+ 93. |    1222     Male          Indian       Christian   Not born in the UK     51         93   4.81   4.680946   4.933566 |
+ 94. |    2711   Female     White Other     No religion       Born in the UK     40         94   4.81   4.679237   4.942164 |
+ 95. |    2631   Female      Other eth.          Muslim       Born in the UK     27         95   4.82   4.680254   4.952895 |
+     |----------------------------------------------------------------------------------------------------------------------|
+ 96. |    1512     Male           Black     No religion   Not born in the UK     88         96   4.82   4.708741   4.941054 |
+ 97. |    2222   Female          Indian       Christian   Not born in the UK     60         97   4.83   4.702053   4.951024 |
+ 98. |    1221     Male          Indian       Christian       Born in the UK      5         98   4.85   4.702985   4.990022 |
+ 99. |    1552     Male           Black   Oth. religion   Not born in the UK     23         99   4.87   4.727555   5.006396 |
+100. |    1731     Male     White Other          Muslim       Born in the UK      2        100   4.88   4.721763   5.028429 |
+     |----------------------------------------------------------------------------------------------------------------------|
+101. |    2742   Female     White Other           Hindu   Not born in the UK      1        101   4.88   4.725576   5.034638 |
+102. |    1732     Male     White Other          Muslim   Not born in the UK     32        102   4.91   4.775084   5.053151 |
+103. |    1141     Male   White British           Hindu       Born in the UK     34        103   5.01   4.876014   5.147332 |
+104. |    1551     Male           Black   Oth. religion       Born in the UK     15        104   5.03   4.891875    5.17768 |
+105. |    1531     Male           Black          Muslim       Born in the UK     15        105   5.06   4.915565   5.199032 |
+     |----------------------------------------------------------------------------------------------------------------------|
+106. |    2512   Female           Black     No religion   Not born in the UK     82        106   5.06   4.941077   5.175794 |
+107. |    1711     Male     White Other     No religion       Born in the UK     54        107   5.07   4.940821   5.196784 |
+108. |    1132     Male   White British          Muslim   Not born in the UK     17        108   5.08   4.939745   5.217781 |
+109. |    2731   Female     White Other          Muslim       Born in the UK      3        109   5.09   4.931932   5.238083 |
+110. |    1742     Male     White Other           Hindu   Not born in the UK      6        110   5.12   4.967404   5.271756 |
+     |----------------------------------------------------------------------------------------------------------------------|
+111. |    1751     Male     White Other   Oth. religion       Born in the UK      6        111   5.14   4.991105   5.293445 |
+112. |    2211   Female          Indian     No religion       Born in the UK     50        112   5.14   5.016381   5.269587 |
+113. |    2741   Female     White Other           Hindu       Born in the UK      2        113   5.18   5.020572   5.334469 |
+114. |    1541     Male           Black           Hindu       Born in the UK      3        114   5.23   5.076406   5.378487 |
+115. |    2751   Female     White Other   Oth. religion       Born in the UK      8        115   5.43   5.281355   5.581296 |
+     +----------------------------------------------------------------------------------------------------------------------+
+
+. 
+end of do-file
+
+. log close
+      name:  <unnamed>
+       log:  /Users/scothunter/Library/CloudStorage/OneDrive-UniversityofStirling/thesis/directory/syntax/prep/attachments/log_2.log
+  log type:  text
+ closed on:  27 Sep 2024, 17:32:33
+--------------------------------------------------------------------------------------------------------------------------------------------------
