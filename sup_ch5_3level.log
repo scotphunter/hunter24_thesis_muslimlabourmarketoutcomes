@@ -1,0 +1,2771 @@
+-------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/scothunter/Library/CloudStorage/OneDrive-UniversityofStirling/thesis/directory/syntax/prep/attachments/sup_ch5_3level.l
+> og
+  log type:  text
+ opened on:  28 Sep 2024, 13:33:00
+
+. do "/Users/scothunter/Library/CloudStorage/OneDrive-UniversityofStirling/thesis/directory/syntax/prep/attachments/ch5a2_intersectionality
+> _hunter24.do"
+
+. ** ************************************************************************** **
+.         * CHAPTER 5 ANALYSIS 1.5 - EXPLORING INTERSECTIONAL CONTEXTS WITH 3 LEVELS 
+.         * Part of PhD research on assessing impact of contemporary migration 
+.         * patterns on the Muslim community in the UK. 
+.         * Last updated 28 August
+.         * Scot Hunter 
+. ** ************************************************************************** **
+. 
+. *** MAIHDA analysis with pooled data and using three level models to account for clustering of responses around individuals. 
+. 
+. *-------------------------------------------------------------------------------
+. **## Model 1D - Three Level Model 
+. *-------------------------------------------------------------------------------
+. 
+. 
+. * Load in UKHLS pooled data:  
+. 
+. use $ptemp/file8.dta, clear
+(Substantive data for responding adults (16+), incl. proxies)
+
+. 
+. use pidp fem ff_religion dvage_ind ethn_dv employment  ///
+> bornuk_dv gor_dv mar hiqual_dv educscore engprof pubsector parttime ///
+> jbstat fimngrs_dv jbhrs jshrs health cardum child ties liberal religiosity using $ptemp/file8.dta, clear
+(Substantive data for responding adults (16+), incl. proxies)
+
+. 
+. rename religiosity sity 
+
+. 
+. * Limit the sample to 65 and under
+. keep if dvage_ind < 65
+(110,088 observations deleted)
+
+. 
+. * Limit the sample to employees/self-employed 
+. 
+. keep if employment == 1
+(123,398 observations deleted)
+
+. tab liberal 
+
+    liberal |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |     22,616        9.53        9.53
+          1 |    214,634       90.47      100.00
+------------+-----------------------------------
+      Total |    237,250      100.00
+
+. recode liberal . = 0
+(29,837 changes made to liberal)
+
+. 
+. 
+. * Prepare dependent variable: average log hourly earnings 
+. 
+. * Combine employee and self-employed weekly work hours 
+. replace jbhrs = jshrs if jbhrs == .
+(32,109 real changes made)
+
+. * Generate hourly pay 
+. capture drop hrpay 
+
+. gen hrpay = fimngrs_dv / jbhrs 
+(10,838 missing values generated)
+
+. * Generate log version 
+. gen temp = 1 + hrpay
+(10,838 missing values generated)
+
+. gen temp2= log(temp)
+(11,122 missing values generated)
+
+. gen ln_hrpay  = temp2 + 1
+(11,122 missing values generated)
+
+. drop temp temp2 jshrs jbhrs  fimngrs_dv
+
+. lab var ln_hrpay "Average Log Hourly Earnings"
+
+. 
+. 
+. * Prepare strata variables 
+. tab ethn_dv
+
+    Ethnic group (derived from multiple |
+                               sources) |      Freq.     Percent        Cum.
+----------------------------------------+-----------------------------------
+1. british/english/scottish/welsh/north |    205,854       77.53       77.53
+                               2. irish |      4,585        1.73       79.25
+            3. gypsy or irish traveller |         61        0.02       79.28
+          4. any other white background |      8,860        3.34       82.61
+           5. white and black caribbean |      1,945        0.73       83.35
+             6. white and black african |        802        0.30       83.65
+                     7. white and asian |      1,181        0.44       84.09
+          8. any other mixed background |      1,267        0.48       84.57
+                              9. indian |     11,058        4.16       88.74
+                          10. pakistani |      7,170        2.70       91.44
+                        11. bangladeshi |      4,228        1.59       93.03
+                            12. chinese |      1,489        0.56       93.59
+         13. any other asian background |      3,163        1.19       94.78
+                          14. caribbean |      4,909        1.85       96.63
+                            15. african |      5,977        2.25       98.88
+         16. any other black background |        443        0.17       99.05
+                               17. arab |        667        0.25       99.30
+             97. any other ethnic group |      1,864        0.70      100.00
+----------------------------------------+-----------------------------------
+                                  Total |    265,523      100.00
+
+. clonevar eth2 = ethn_dv 
+(1,564 missing values generated)
+
+. recode eth2 1/3 = 1 4 = 7 9 = 2 10 = 3 11 = 4 14 15 16 = 5 5/8 12 13 17 97 = 6 
+(58,867 changes made to eth2)
+
+. label define a_ethn_dv  2 "Indian" 3 "Pakistani" 4 "Bangladeshi" 5 "Black" 6 "Other eth. " 1 "White British" 7 "White Other", modify
+
+. drop ethn_dv 
+
+. lab var eth2 "Ethnic Group"
+
+. 
+. tab ff_religion eth2 , m
+
+               |                                      Ethnic Group
+   ff_religion | White Bri     Indian  Pakistani  Banglades      Black  Other eth  White Oth          . |     Total
+---------------+----------------------------------------------------------------------------------------+----------
+0. No religion |   108,719      1,047          0          0      1,820      4,260      3,739         60 |   119,645 
+  2. Christian |    82,962        894        464        247      7,468      4,265      4,205         31 |   100,536 
+    12. Muslim |       783      1,651      6,170      3,732      1,107      1,348        288          2 |    15,081 
+     13. Hindu |       487      3,870        527        239        153        913         22          1 |     6,212 
+    14. Jewish |       459        456          0         10          1         85        113          0 |     1,124 
+      15. Sikh |        26      2,491          0          0          0        127          7          0 |     2,651 
+  16. Buddhist |     2,159        224          2          0         31        757         30         26 |     3,229 
+     97. Other |     1,899        190          7          0        490        213        251          0 |     3,050 
+             . |    13,006        235          0          0        259        410        205      1,444 |    15,559 
+---------------+----------------------------------------------------------------------------------------+----------
+         Total |   210,500     11,058      7,170      4,228     11,329     12,378      8,860      1,564 |   267,087 
+
+. replace ff_religion = 0 if ff_religion == . 
+(15,559 real changes made)
+
+. capture drop reli
+
+. gen reli = ff_religion 
+
+. recode reli 0=1 2=2 12=3 13=4 14 15 16=97 
+(163,501 changes made to reli)
+
+. recode reli 97 = 5
+(10,054 changes made to reli)
+
+. lab var reli "Religion"
+
+. label define reli 1 "No religion" 2 "Christian" 3 "Muslim" 4 "Hindu" 5 "Oth. religion"
+
+. label values reli reli 
+
+. drop ff_religion
+
+. 
+. tab reli eth2, m 
+
+              |                                      Ethnic Group
+     Religion | White Bri     Indian  Pakistani  Banglades      Black  Other eth  White Oth          . |     Total
+--------------+----------------------------------------------------------------------------------------+----------
+  No religion |   121,725      1,282          0          0      2,079      4,670      3,944      1,504 |   135,204 
+    Christian |    82,962        894        464        247      7,468      4,265      4,205         31 |   100,536 
+       Muslim |       783      1,651      6,170      3,732      1,107      1,348        288          2 |    15,081 
+        Hindu |       487      3,870        527        239        153        913         22          1 |     6,212 
+Oth. religion |     4,543      3,361          9         10        522      1,182        401         26 |    10,054 
+--------------+----------------------------------------------------------------------------------------+----------
+        Total |   210,500     11,058      7,170      4,228     11,329     12,378      8,860      1,564 |   267,087 
+
+. replace reli = 3 if eth2 == 3 & reli == 5
+(9 real changes made)
+
+. replace reli = 3 if eth2 == 3 & reli == 2 
+(464 real changes made)
+
+. replace reli = 3 if eth2 == 4 & reli == 2
+(247 real changes made)
+
+. 
+. 
+. tab bornuk_dv 
+
+       Born in UK |
+        (derived) |      Freq.     Percent        Cum.
+------------------+-----------------------------------
+      -9. missing |      4,563        1.71        1.71
+    1. born in uk |    221,386       82.89       84.60
+2. not born in uk |     41,138       15.40      100.00
+------------------+-----------------------------------
+            Total |    267,087      100.00
+
+. capture drop ukborn 
+
+. gen ukborn =(bornuk_dv == 1)
+
+. recode ukborn 0 = 2 
+(45,701 changes made to ukborn)
+
+. label define ukborn 1 "Born in the UK" 2 "Not born in the UK"
+
+. drop bornuk_dv 
+
+. lab var ukborn "Country of Birth"
+
+. label values ukborn ukborn 
+
+. 
+. capture drop agecats 
+
+. gen agecats = dvage_ind 
+
+. recode agecats 16/27 = 1 28/39 = 2 40/51 = 3 52/64 = 4
+(267,087 changes made to agecats)
+
+. label define age 1 "16 - 27" 2 "28 - 39" 3 "40 - 51" 4 "52 - 64"
+
+. label values agecats age
+
+. lab var agecats "Age categories"
+
+. 
+. * Education 
+. codebook hiqual_dv
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+hiqual_dv                                                                                                                     highest qual.
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+                  Type: Numeric (byte)
+                 Label: a_hiqual_dv, but 1 nonmissing value is not labeled
+
+                 Range: [1,6]                         Units: 1
+         Unique values: 6                         Missing .: 2,732/267,087
+
+            Tabulation: Freq.   Numeric  Label
+                       88,478         1  1. Degree
+                       34,791         2  2. Other higher
+                       59,344         3  3. A level etc
+                       53,004         4  4. GCSE etc
+                       17,968         5  5. Other qual
+                       10,770         6  
+                        2,732         .  
+
+. label define a_hiqual_dv 6 "no quals.", modify
+
+. tab hiqual_dv 
+
+   highest qual. |      Freq.     Percent        Cum.
+-----------------+-----------------------------------
+       1. Degree |     88,478       33.47       33.47
+ 2. Other higher |     34,791       13.16       46.63
+  3. A level etc |     59,344       22.45       69.08
+     4. GCSE etc |     53,004       20.05       89.13
+   5. Other qual |     17,968        6.80       95.93
+       no quals. |     10,770        4.07      100.00
+-----------------+-----------------------------------
+           Total |    264,355      100.00
+
+. capture drop quals 
+
+. gen quals = hiqual_dv 
+(2,732 missing values generated)
+
+. recode quals 1 2 = 1 3 4 = 2 5 = 3 6= 4 
+(175,877 changes made to quals)
+
+. label define quals 1 "Degree or other higher" 2 "A level/GCSE" 3 "Other quals" 4 "No quals"
+
+. label values quals quals
+
+. lab var quals "Highest qual held"
+
+. capture drop degree 
+
+. gen degree = hiqual_dv
+(2,732 missing values generated)
+
+. recode degree 1 2 = 1 3 4 5 6 = 2
+(175,877 changes made to degree)
+
+. tab degree hiqual_dv
+
+           |                           highest qual.
+    degree | 1. Degree  2. Other   3. A leve  4. GCSE e  5. Other   no quals. |     Total
+-----------+------------------------------------------------------------------+----------
+         1 |    88,478     34,791          0          0          0          0 |   123,269 
+         2 |         0          0     59,344     53,004     17,968     10,770 |   141,086 
+-----------+------------------------------------------------------------------+----------
+     Total |    88,478     34,791     59,344     53,004     17,968     10,770 |   264,355 
+
+. label define degree 1 "Degree" 2 "Below degree"
+
+. label values degree degree
+
+. 
+. * Prepare controls 
+. tab1 fem pubsector parttime gor_dv
+
+-> tabulation of fem  
+
+     female |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |    130,935       49.03       49.03
+          1 |    136,135       50.97      100.00
+------------+-----------------------------------
+      Total |    267,070      100.00
+
+-> tabulation of pubsector  
+
+  pubsector |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |    189,412       70.92       70.92
+          1 |     77,675       29.08      100.00
+------------+-----------------------------------
+      Total |    267,087      100.00
+
+-> tabulation of parttime  
+
+   parttime |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |    210,127       78.67       78.67
+          1 |     56,960       21.33      100.00
+------------+-----------------------------------
+      Total |    267,087      100.00
+
+-> tabulation of gor_dv  
+
+          Government Office Region |      Freq.     Percent        Cum.
+-----------------------------------+-----------------------------------
+                1. north east      |      9,365        3.51        3.51
+                2. north west      |     26,354        9.87       13.37
+3. yorkshire and the humber        |     21,756        8.15       21.52
+                4. east midlands   |     19,914        7.46       28.98
+                5. west midlands   |     21,510        8.05       37.03
+                6. east of england |     23,193        8.68       45.71
+                        7. london  |     35,926       13.45       59.16
+                8. south east      |     32,937       12.33       71.50
+                9. south west      |     21,316        7.98       79.48
+                       10. wales   |     16,791        6.29       85.76
+               11. scotland        |     22,589        8.46       94.22
+       12. northern ireland        |     15,436        5.78      100.00
+-----------------------------------+-----------------------------------
+                             Total |    267,087      100.00
+
+. gen lonse = (gor_dv == 7 | gor_dv == 8)
+
+. lab var lonse "Region" 
+
+. label define lo 1 "London/SE Eng." 0 "Rest of UK"
+
+. label values lonse lo
+
+. drop gor_dv
+
+. 
+. su dvage_ind educscore 
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+   dvage_ind |    267,087    41.91396    11.97286         16         64
+   educscore |    264,007    50.16143    7.773633   34.67812    61.7509
+
+. lab var dvage_ind "Age"
+
+. recode fem 1 = 2 0 =1
+(267,070 changes made to fem)
+
+. label define fem 2 "Female" 1 "Male"
+
+. label values fem fem
+
+. lab var fem "Sex"
+
+. 
+. lab var mar "Marital Status"
+
+. lab define mar 1 "Married or Cohabitating" 0 "Single"
+
+. label values mar mar 
+
+. 
+. lab var educscore "Education Score"
+
+. 
+. lab var pubsector "Occupation Sector"
+
+. label define pubsector 1 "Public" 0 "Private"
+
+. label val pubsector pubsector
+
+. 
+. lab var parttime "Work Orientation"
+
+. label define par 1 "Works part-time" 0 "Works Full-time"
+
+. label val parttime par 
+
+. 
+. * Generate missing values variable 
+. capture drop miss 
+
+. egen miss = rmiss(ln_hrpay eth2 reli ukborn fem dvage_ind educscore pubsector parttime lonse mar)
+
+. codebook ln_hrpay eth2 reli ukborn fem dvage_ind educscore pubsector parttime lonse mar if miss == 0, compact 
+
+Variable      Obs Unique      Mean        Min       Max  Label
+-------------------------------------------------------------------------------------------------------------------------------------------
+ln_hrpay   249766 161744  5.085192  -1.617296  11.79939  Average Log Hourly Earnings
+eth2       249766      7  1.703991          1         7  Ethnic Group
+reli       249766      5  1.703611          1         5  Religion
+ukborn     249766      2  1.160246          1         2  Country of Birth
+fem        249766      2  1.514025          1         2  Sex
+dvage_ind  249766     49  41.99003         16        64  Age
+educscore  249766     42  50.21039   34.67812   61.7509  Education Score
+pubsector  249766      2  .3074878          0         1  Occupation Sector
+parttime   249766      2  .2206946          0         1  Work Orientation
+lonse      249766      2  .2518437          0         1  Region
+mar        249766      2  .5629469          0         1  Marital Status
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+. 
+. * keep observations with valid information across all variables 
+. keep if miss == 0 
+(17,321 observations deleted)
+
+. drop if ln_hrpay < 0
+(10 observations deleted)
+
+. drop miss 
+
+. 
+. capture drop health2 
+
+. gen health2=(health==1)
+
+. capture drop health
+
+. rename health2  health 
+
+. 
+. 
+. 
+. ********************************************************************************
+. **# Generate Stratum 
+. ********************************************************************************
+. 
+. * Generate the stratum ID first just interacting ethnicity, religion and cob.
+. capture drop stratum
+
+. generate stratum = 1000*fem + 100*eth2 + 10*reli + 1*ukborn 
+
+. 
+. * Move stratum to the beginning of the dataset
+. order stratum
+
+. 
+. * Tabulate stratum
+. tab stratum
+
+    stratum |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       1111 |     57,652       23.08       23.08
+       1112 |      2,801        1.12       24.20
+       1121 |     32,460       13.00       37.20
+       1122 |      1,647        0.66       37.86
+       1131 |        296        0.12       37.98
+       1132 |        123        0.05       38.03
+       1141 |        205        0.08       38.11
+       1142 |         27        0.01       38.12
+       1151 |      1,697        0.68       38.80
+       1152 |        155        0.06       38.86
+       1211 |        230        0.09       38.96
+       1212 |        386        0.15       39.11
+       1221 |         54        0.02       39.13
+       1222 |        340        0.14       39.27
+       1231 |        377        0.15       39.42
+       1232 |        530        0.21       39.63
+       1241 |        525        0.21       39.84
+       1242 |      1,390        0.56       40.40
+       1251 |        770        0.31       40.71
+       1252 |        816        0.33       41.03
+       1331 |      1,534        0.61       41.65
+       1332 |      2,267        0.91       42.55
+       1341 |         81        0.03       42.59
+       1342 |        115        0.05       42.63
+       1431 |        720        0.29       42.92
+       1432 |      1,531        0.61       43.53
+       1441 |         26        0.01       43.54
+       1442 |         79        0.03       43.58
+       1451 |          2        0.00       43.58
+       1511 |        498        0.20       43.78
+       1512 |        391        0.16       43.93
+       1521 |        954        0.38       44.31
+       1522 |      1,627        0.65       44.97
+       1531 |         46        0.02       44.98
+       1532 |        403        0.16       45.15
+       1541 |          5        0.00       45.15
+       1542 |         35        0.01       45.16
+       1551 |         93        0.04       45.20
+       1552 |         85        0.03       45.23
+       1611 |        973        0.39       45.62
+       1612 |        946        0.38       46.00
+       1621 |        722        0.29       46.29
+       1622 |        829        0.33       46.62
+       1631 |        196        0.08       46.70
+       1632 |        509        0.20       46.90
+       1641 |         66        0.03       46.93
+       1642 |        374        0.15       47.08
+       1651 |        165        0.07       47.15
+       1652 |        352        0.14       47.29
+       1711 |        354        0.14       47.43
+       1712 |      1,174        0.47       47.90
+       1721 |        185        0.07       47.97
+       1722 |      1,333        0.53       48.51
+       1731 |          6        0.00       48.51
+       1732 |         98        0.04       48.55
+       1742 |          6        0.00       48.55
+       1751 |         40        0.02       48.57
+       1752 |         71        0.03       48.60
+       2111 |     52,601       21.06       69.66
+       2112 |      2,644        1.06       70.72
+       2121 |     43,599       17.46       88.17
+       2122 |      2,059        0.82       89.00
+       2131 |        285        0.11       89.11
+       2132 |         52        0.02       89.13
+       2141 |        219        0.09       89.22
+       2142 |         29        0.01       89.23
+       2151 |      2,218        0.89       90.12
+       2152 |        262        0.10       90.22
+       2211 |        268        0.11       90.33
+       2212 |        201        0.08       90.41
+       2221 |         89        0.04       90.45
+       2222 |        319        0.13       90.58
+       2231 |        278        0.11       90.69
+       2232 |        269        0.11       90.79
+       2241 |        573        0.23       91.02
+       2242 |      1,050        0.42       91.44
+       2251 |        720        0.29       91.73
+       2252 |        668        0.27       92.00
+       2331 |      1,200        0.48       92.48
+       2332 |        751        0.30       92.78
+       2341 |        110        0.04       92.82
+       2342 |         42        0.02       92.84
+       2431 |        746        0.30       93.14
+       2432 |        524        0.21       93.35
+       2441 |         17        0.01       93.36
+       2442 |         43        0.02       93.37
+       2451 |          5        0.00       93.38
+       2452 |          1        0.00       93.38
+       2511 |        582        0.23       93.61
+       2512 |        353        0.14       93.75
+       2521 |      1,738        0.70       94.45
+       2522 |      2,593        1.04       95.49
+       2531 |         67        0.03       95.51
+       2532 |        444        0.18       95.69
+       2541 |          5        0.00       95.69
+       2542 |         51        0.02       95.71
+       2551 |        108        0.04       95.76
+       2552 |        187        0.07       95.83
+       2611 |      1,298        0.52       96.35
+       2612 |      1,023        0.41       96.76
+       2621 |      1,118        0.45       97.21
+       2622 |      1,309        0.52       97.73
+       2631 |        188        0.08       97.81
+       2632 |        303        0.12       97.93
+       2641 |         53        0.02       97.95
+       2642 |        275        0.11       98.06
+       2651 |        118        0.05       98.11
+       2652 |        435        0.17       98.28
+       2711 |        268        0.11       98.39
+       2712 |      1,621        0.65       99.04
+       2721 |        264        0.11       99.14
+       2722 |      1,810        0.72       99.87
+       2731 |         12        0.00       99.87
+       2732 |         84        0.03       99.91
+       2741 |          3        0.00       99.91
+       2742 |          5        0.00       99.91
+       2751 |         52        0.02       99.93
+       2752 |        175        0.07      100.00
+------------+-----------------------------------
+      Total |    249,756      100.00
+
+. 
+. * Generate a new variabe which records stratum size
+. capture drop n
+
+. bysort stratum: generate n = _N
+
+. 
+. * Generate a new variabe which tags one record for each startum
+. capture drop s_tag
+
+. egen s_tag = tag(stratum)
+
+. 
+. * List stratums 
+. list fem eth2 reli ukborn stratum n if s_tag
+
+        +-------------------------------------------------------------------------------+
+        |    fem            eth2            reli               ukborn   stratum       n |
+        |-------------------------------------------------------------------------------|
+     1. |   Male   White British     No religion       Born in the UK      1111   57652 |
+ 57653. |   Male   White British     No religion   Not born in the UK      1112    2801 |
+ 60454. |   Male   White British       Christian       Born in the UK      1121   32460 |
+ 92914. |   Male   White British       Christian   Not born in the UK      1122    1647 |
+ 94561. |   Male   White British          Muslim       Born in the UK      1131     296 |
+        |-------------------------------------------------------------------------------|
+ 94857. |   Male   White British          Muslim   Not born in the UK      1132     123 |
+ 94980. |   Male   White British           Hindu       Born in the UK      1141     205 |
+ 95185. |   Male   White British           Hindu   Not born in the UK      1142      27 |
+ 95212. |   Male   White British   Oth. religion       Born in the UK      1151    1697 |
+ 96909. |   Male   White British   Oth. religion   Not born in the UK      1152     155 |
+        |-------------------------------------------------------------------------------|
+ 97064. |   Male          Indian     No religion       Born in the UK      1211     230 |
+ 97294. |   Male          Indian     No religion   Not born in the UK      1212     386 |
+ 97680. |   Male          Indian       Christian       Born in the UK      1221      54 |
+ 97734. |   Male          Indian       Christian   Not born in the UK      1222     340 |
+ 98074. |   Male          Indian          Muslim       Born in the UK      1231     377 |
+        |-------------------------------------------------------------------------------|
+ 98451. |   Male          Indian          Muslim   Not born in the UK      1232     530 |
+ 98981. |   Male          Indian           Hindu       Born in the UK      1241     525 |
+ 99506. |   Male          Indian           Hindu   Not born in the UK      1242    1390 |
+100896. |   Male          Indian   Oth. religion       Born in the UK      1251     770 |
+101666. |   Male          Indian   Oth. religion   Not born in the UK      1252     816 |
+        |-------------------------------------------------------------------------------|
+102482. |   Male       Pakistani          Muslim       Born in the UK      1331    1534 |
+104016. |   Male       Pakistani          Muslim   Not born in the UK      1332    2267 |
+106283. |   Male       Pakistani           Hindu       Born in the UK      1341      81 |
+106364. |   Male       Pakistani           Hindu   Not born in the UK      1342     115 |
+106479. |   Male     Bangladeshi          Muslim       Born in the UK      1431     720 |
+        |-------------------------------------------------------------------------------|
+107199. |   Male     Bangladeshi          Muslim   Not born in the UK      1432    1531 |
+108730. |   Male     Bangladeshi           Hindu       Born in the UK      1441      26 |
+108756. |   Male     Bangladeshi           Hindu   Not born in the UK      1442      79 |
+108835. |   Male     Bangladeshi   Oth. religion       Born in the UK      1451       2 |
+108837. |   Male           Black     No religion       Born in the UK      1511     498 |
+        |-------------------------------------------------------------------------------|
+109335. |   Male           Black     No religion   Not born in the UK      1512     391 |
+109726. |   Male           Black       Christian       Born in the UK      1521     954 |
+110680. |   Male           Black       Christian   Not born in the UK      1522    1627 |
+112307. |   Male           Black          Muslim       Born in the UK      1531      46 |
+112353. |   Male           Black          Muslim   Not born in the UK      1532     403 |
+        |-------------------------------------------------------------------------------|
+112756. |   Male           Black           Hindu       Born in the UK      1541       5 |
+112761. |   Male           Black           Hindu   Not born in the UK      1542      35 |
+112796. |   Male           Black   Oth. religion       Born in the UK      1551      93 |
+112889. |   Male           Black   Oth. religion   Not born in the UK      1552      85 |
+112974. |   Male      Other eth.     No religion       Born in the UK      1611     973 |
+        |-------------------------------------------------------------------------------|
+113947. |   Male      Other eth.     No religion   Not born in the UK      1612     946 |
+114893. |   Male      Other eth.       Christian       Born in the UK      1621     722 |
+115615. |   Male      Other eth.       Christian   Not born in the UK      1622     829 |
+116444. |   Male      Other eth.          Muslim       Born in the UK      1631     196 |
+116640. |   Male      Other eth.          Muslim   Not born in the UK      1632     509 |
+        |-------------------------------------------------------------------------------|
+117149. |   Male      Other eth.           Hindu       Born in the UK      1641      66 |
+117215. |   Male      Other eth.           Hindu   Not born in the UK      1642     374 |
+117589. |   Male      Other eth.   Oth. religion       Born in the UK      1651     165 |
+117754. |   Male      Other eth.   Oth. religion   Not born in the UK      1652     352 |
+118106. |   Male     White Other     No religion       Born in the UK      1711     354 |
+        |-------------------------------------------------------------------------------|
+118460. |   Male     White Other     No religion   Not born in the UK      1712    1174 |
+119634. |   Male     White Other       Christian       Born in the UK      1721     185 |
+119819. |   Male     White Other       Christian   Not born in the UK      1722    1333 |
+121152. |   Male     White Other          Muslim       Born in the UK      1731       6 |
+121158. |   Male     White Other          Muslim   Not born in the UK      1732      98 |
+        |-------------------------------------------------------------------------------|
+121256. |   Male     White Other           Hindu   Not born in the UK      1742       6 |
+121262. |   Male     White Other   Oth. religion       Born in the UK      1751      40 |
+121302. |   Male     White Other   Oth. religion   Not born in the UK      1752      71 |
+121373. | Female   White British     No religion       Born in the UK      2111   52601 |
+173974. | Female   White British     No religion   Not born in the UK      2112    2644 |
+        |-------------------------------------------------------------------------------|
+176618. | Female   White British       Christian       Born in the UK      2121   43599 |
+220217. | Female   White British       Christian   Not born in the UK      2122    2059 |
+222276. | Female   White British          Muslim       Born in the UK      2131     285 |
+222561. | Female   White British          Muslim   Not born in the UK      2132      52 |
+222613. | Female   White British           Hindu       Born in the UK      2141     219 |
+        |-------------------------------------------------------------------------------|
+222832. | Female   White British           Hindu   Not born in the UK      2142      29 |
+222861. | Female   White British   Oth. religion       Born in the UK      2151    2218 |
+225079. | Female   White British   Oth. religion   Not born in the UK      2152     262 |
+225341. | Female          Indian     No religion       Born in the UK      2211     268 |
+225609. | Female          Indian     No religion   Not born in the UK      2212     201 |
+        |-------------------------------------------------------------------------------|
+225810. | Female          Indian       Christian       Born in the UK      2221      89 |
+225899. | Female          Indian       Christian   Not born in the UK      2222     319 |
+226218. | Female          Indian          Muslim       Born in the UK      2231     278 |
+226496. | Female          Indian          Muslim   Not born in the UK      2232     269 |
+226765. | Female          Indian           Hindu       Born in the UK      2241     573 |
+        |-------------------------------------------------------------------------------|
+227338. | Female          Indian           Hindu   Not born in the UK      2242    1050 |
+228388. | Female          Indian   Oth. religion       Born in the UK      2251     720 |
+229108. | Female          Indian   Oth. religion   Not born in the UK      2252     668 |
+229776. | Female       Pakistani          Muslim       Born in the UK      2331    1200 |
+230976. | Female       Pakistani          Muslim   Not born in the UK      2332     751 |
+        |-------------------------------------------------------------------------------|
+231727. | Female       Pakistani           Hindu       Born in the UK      2341     110 |
+231837. | Female       Pakistani           Hindu   Not born in the UK      2342      42 |
+231879. | Female     Bangladeshi          Muslim       Born in the UK      2431     746 |
+232625. | Female     Bangladeshi          Muslim   Not born in the UK      2432     524 |
+233149. | Female     Bangladeshi           Hindu       Born in the UK      2441      17 |
+        |-------------------------------------------------------------------------------|
+233166. | Female     Bangladeshi           Hindu   Not born in the UK      2442      43 |
+233209. | Female     Bangladeshi   Oth. religion       Born in the UK      2451       5 |
+233214. | Female     Bangladeshi   Oth. religion   Not born in the UK      2452       1 |
+233215. | Female           Black     No religion       Born in the UK      2511     582 |
+233797. | Female           Black     No religion   Not born in the UK      2512     353 |
+        |-------------------------------------------------------------------------------|
+234150. | Female           Black       Christian       Born in the UK      2521    1738 |
+235888. | Female           Black       Christian   Not born in the UK      2522    2593 |
+238481. | Female           Black          Muslim       Born in the UK      2531      67 |
+238548. | Female           Black          Muslim   Not born in the UK      2532     444 |
+238992. | Female           Black           Hindu       Born in the UK      2541       5 |
+        |-------------------------------------------------------------------------------|
+238997. | Female           Black           Hindu   Not born in the UK      2542      51 |
+239048. | Female           Black   Oth. religion       Born in the UK      2551     108 |
+239156. | Female           Black   Oth. religion   Not born in the UK      2552     187 |
+239343. | Female      Other eth.     No religion       Born in the UK      2611    1298 |
+240641. | Female      Other eth.     No religion   Not born in the UK      2612    1023 |
+        |-------------------------------------------------------------------------------|
+241664. | Female      Other eth.       Christian       Born in the UK      2621    1118 |
+242782. | Female      Other eth.       Christian   Not born in the UK      2622    1309 |
+244091. | Female      Other eth.          Muslim       Born in the UK      2631     188 |
+244279. | Female      Other eth.          Muslim   Not born in the UK      2632     303 |
+244582. | Female      Other eth.           Hindu       Born in the UK      2641      53 |
+        |-------------------------------------------------------------------------------|
+244635. | Female      Other eth.           Hindu   Not born in the UK      2642     275 |
+244910. | Female      Other eth.   Oth. religion       Born in the UK      2651     118 |
+245028. | Female      Other eth.   Oth. religion   Not born in the UK      2652     435 |
+245463. | Female     White Other     No religion       Born in the UK      2711     268 |
+245731. | Female     White Other     No religion   Not born in the UK      2712    1621 |
+        |-------------------------------------------------------------------------------|
+247352. | Female     White Other       Christian       Born in the UK      2721     264 |
+247616. | Female     White Other       Christian   Not born in the UK      2722    1810 |
+249426. | Female     White Other          Muslim       Born in the UK      2731      12 |
+249438. | Female     White Other          Muslim   Not born in the UK      2732      84 |
+249522. | Female     White Other           Hindu       Born in the UK      2741       3 |
+        |-------------------------------------------------------------------------------|
+249525. | Female     White Other           Hindu   Not born in the UK      2742       5 |
+249530. | Female     White Other   Oth. religion       Born in the UK      2751      52 |
+249582. | Female     White Other   Oth. religion   Not born in the UK      2752     175 |
+        +-------------------------------------------------------------------------------+
+
+. 
+. sort n 
+
+. list fem eth2 reli ukborn stratum n if s_tag
+
+        +-------------------------------------------------------------------------------+
+        |    fem            eth2            reli               ukborn   stratum       n |
+        |-------------------------------------------------------------------------------|
+     1. | Female     Bangladeshi   Oth. religion   Not born in the UK      2452       1 |
+     2. |   Male     Bangladeshi   Oth. religion       Born in the UK      1451       2 |
+     6. | Female     White Other           Hindu       Born in the UK      2741       3 |
+     7. |   Male           Black           Hindu       Born in the UK      1541       5 |
+    13. | Female     Bangladeshi   Oth. religion       Born in the UK      2451       5 |
+        |-------------------------------------------------------------------------------|
+    14. | Female     White Other           Hindu   Not born in the UK      2742       5 |
+    24. | Female           Black           Hindu       Born in the UK      2541       5 |
+    31. |   Male     White Other           Hindu   Not born in the UK      1742       6 |
+    33. |   Male     White Other          Muslim       Born in the UK      1731       6 |
+    42. | Female     White Other          Muslim       Born in the UK      2731      12 |
+        |-------------------------------------------------------------------------------|
+    61. | Female     Bangladeshi           Hindu       Born in the UK      2441      17 |
+    85. |   Male     Bangladeshi           Hindu       Born in the UK      1441      26 |
+   102. |   Male   White British           Hindu   Not born in the UK      1142      27 |
+   141. | Female   White British           Hindu   Not born in the UK      2142      29 |
+   166. |   Male           Black           Hindu   Not born in the UK      1542      35 |
+        |-------------------------------------------------------------------------------|
+   189. |   Male     White Other   Oth. religion       Born in the UK      1751      40 |
+   260. | Female       Pakistani           Hindu   Not born in the UK      2342      42 |
+   295. | Female     Bangladeshi           Hindu   Not born in the UK      2442      43 |
+   348. |   Male           Black          Muslim       Born in the UK      1531      46 |
+   374. | Female           Black           Hindu   Not born in the UK      2542      51 |
+        |-------------------------------------------------------------------------------|
+   409. | Female   White British          Muslim   Not born in the UK      2132      52 |
+   425. | Female     White Other   Oth. religion       Born in the UK      2751      52 |
+   519. | Female      Other eth.           Hindu       Born in the UK      2641      53 |
+   600. |   Male          Indian       Christian       Born in the UK      1221      54 |
+   653. |   Male      Other eth.           Hindu       Born in the UK      1641      66 |
+        |-------------------------------------------------------------------------------|
+   686. | Female           Black          Muslim       Born in the UK      2531      67 |
+   795. |   Male     White Other   Oth. religion   Not born in the UK      1752      71 |
+   852. |   Male     Bangladeshi           Hindu   Not born in the UK      1442      79 |
+   940. |   Male       Pakistani           Hindu       Born in the UK      1341      81 |
+  1018. | Female     White Other          Muslim   Not born in the UK      2732      84 |
+        |-------------------------------------------------------------------------------|
+  1091. |   Male           Black   Oth. religion   Not born in the UK      1552      85 |
+  1210. | Female          Indian       Christian       Born in the UK      2221      89 |
+  1308. |   Male           Black   Oth. religion       Born in the UK      1551      93 |
+  1375. |   Male     White Other          Muslim   Not born in the UK      1732      98 |
+  1482. | Female           Black   Oth. religion       Born in the UK      2551     108 |
+        |-------------------------------------------------------------------------------|
+  1595. | Female       Pakistani           Hindu       Born in the UK      2341     110 |
+  1692. |   Male       Pakistani           Hindu   Not born in the UK      1342     115 |
+  1792. | Female      Other eth.   Oth. religion       Born in the UK      2651     118 |
+  1982. |   Male   White British          Muslim   Not born in the UK      1132     123 |
+  2025. |   Male   White British   Oth. religion   Not born in the UK      1152     155 |
+        |-------------------------------------------------------------------------------|
+  2191. |   Male      Other eth.   Oth. religion       Born in the UK      1651     165 |
+  2374. | Female     White Other   Oth. religion   Not born in the UK      2752     175 |
+  2664. |   Male     White Other       Christian       Born in the UK      1721     185 |
+  2752. | Female           Black   Oth. religion   Not born in the UK      2552     187 |
+  3050. | Female      Other eth.          Muslim       Born in the UK      2631     188 |
+        |-------------------------------------------------------------------------------|
+  3249. |   Male      Other eth.          Muslim       Born in the UK      1631     196 |
+  3387. | Female          Indian     No religion   Not born in the UK      2212     201 |
+  3632. |   Male   White British           Hindu       Born in the UK      1141     205 |
+  3820. | Female   White British           Hindu       Born in the UK      2141     219 |
+  3888. |   Male          Indian     No religion       Born in the UK      1211     230 |
+        |-------------------------------------------------------------------------------|
+  4211. | Female   White British   Oth. religion   Not born in the UK      2152     262 |
+  4499. | Female     White Other       Christian       Born in the UK      2721     264 |
+  4804. | Female          Indian     No religion       Born in the UK      2211     268 |
+  4933. | Female     White Other     No religion       Born in the UK      2711     268 |
+  5227. | Female          Indian          Muslim   Not born in the UK      2232     269 |
+        |-------------------------------------------------------------------------------|
+  5715. | Female      Other eth.           Hindu   Not born in the UK      2642     275 |
+  5850. | Female          Indian          Muslim       Born in the UK      2231     278 |
+  6103. | Female   White British          Muslim       Born in the UK      2131     285 |
+  6474. |   Male   White British          Muslim       Born in the UK      1131     296 |
+  6743. | Female      Other eth.          Muslim   Not born in the UK      2632     303 |
+        |-------------------------------------------------------------------------------|
+  7044. | Female          Indian       Christian   Not born in the UK      2222     319 |
+  7311. |   Male          Indian       Christian   Not born in the UK      1222     340 |
+  7584. |   Male      Other eth.   Oth. religion   Not born in the UK      1652     352 |
+  8060. | Female           Black     No religion   Not born in the UK      2512     353 |
+  8442. |   Male     White Other     No religion       Born in the UK      1711     354 |
+        |-------------------------------------------------------------------------------|
+  8737. |   Male      Other eth.           Hindu   Not born in the UK      1642     374 |
+  9089. |   Male          Indian          Muslim       Born in the UK      1231     377 |
+  9394. |   Male          Indian     No religion   Not born in the UK      1212     386 |
+ 10089. |   Male           Black     No religion   Not born in the UK      1512     391 |
+ 10415. |   Male           Black          Muslim   Not born in the UK      1532     403 |
+        |-------------------------------------------------------------------------------|
+ 10613. | Female      Other eth.   Oth. religion   Not born in the UK      2652     435 |
+ 11278. | Female           Black          Muslim   Not born in the UK      2532     444 |
+ 11662. |   Male           Black     No religion       Born in the UK      1511     498 |
+ 12223. |   Male      Other eth.          Muslim   Not born in the UK      1632     509 |
+ 12740. | Female     Bangladeshi          Muslim   Not born in the UK      2432     524 |
+        |-------------------------------------------------------------------------------|
+ 13370. |   Male          Indian           Hindu       Born in the UK      1241     525 |
+ 13785. |   Male          Indian          Muslim   Not born in the UK      1232     530 |
+ 14410. | Female          Indian           Hindu       Born in the UK      2241     573 |
+ 15122. | Female           Black     No religion       Born in the UK      2511     582 |
+ 15220. | Female          Indian   Oth. religion   Not born in the UK      2252     668 |
+        |-------------------------------------------------------------------------------|
+ 16120. | Female          Indian   Oth. religion       Born in the UK      2251     720 |
+ 17130. |   Male     Bangladeshi          Muslim       Born in the UK      1431     720 |
+ 17350. |   Male      Other eth.       Christian       Born in the UK      1621     722 |
+ 18638. | Female     Bangladeshi          Muslim       Born in the UK      2431     746 |
+ 19018. | Female       Pakistani          Muslim   Not born in the UK      2332     751 |
+        |-------------------------------------------------------------------------------|
+ 20034. |   Male          Indian   Oth. religion       Born in the UK      1251     770 |
+ 20737. |   Male          Indian   Oth. religion   Not born in the UK      1252     816 |
+ 21317. |   Male      Other eth.       Christian   Not born in the UK      1622     829 |
+ 22341. |   Male      Other eth.     No religion   Not born in the UK      1612     946 |
+ 23029. |   Male           Black       Christian       Born in the UK      1521     954 |
+        |-------------------------------------------------------------------------------|
+ 24112. |   Male      Other eth.     No religion       Born in the UK      1611     973 |
+ 25075. | Female      Other eth.     No religion   Not born in the UK      2612    1023 |
+ 26237. | Female          Indian           Hindu   Not born in the UK      2242    1050 |
+ 27766. | Female      Other eth.       Christian       Born in the UK      2621    1118 |
+ 28583. |   Male     White Other     No religion   Not born in the UK      1712    1174 |
+        |-------------------------------------------------------------------------------|
+ 29418. | Female       Pakistani          Muslim       Born in the UK      2331    1200 |
+ 31278. | Female      Other eth.     No religion       Born in the UK      2611    1298 |
+ 32688. | Female      Other eth.       Christian   Not born in the UK      2622    1309 |
+ 34192. |   Male     White Other       Christian   Not born in the UK      1722    1333 |
+ 35128. |   Male          Indian           Hindu   Not born in the UK      1242    1390 |
+        |-------------------------------------------------------------------------------|
+ 36811. |   Male     Bangladeshi          Muslim   Not born in the UK      1432    1531 |
+ 37714. |   Male       Pakistani          Muslim       Born in the UK      1331    1534 |
+ 39105. | Female     White Other     No religion   Not born in the UK      2712    1621 |
+ 41964. |   Male           Black       Christian   Not born in the UK      1522    1627 |
+ 42805. |   Male   White British       Christian   Not born in the UK      1122    1647 |
+        |-------------------------------------------------------------------------------|
+ 44616. |   Male   White British   Oth. religion       Born in the UK      1151    1697 |
+ 46134. | Female           Black       Christian       Born in the UK      2521    1738 |
+ 47441. | Female     White Other       Christian   Not born in the UK      2722    1810 |
+ 50140. | Female   White British       Christian   Not born in the UK      2122    2059 |
+ 53081. | Female   White British   Oth. religion       Born in the UK      2151    2218 |
+        |-------------------------------------------------------------------------------|
+ 53567. |   Male       Pakistani          Muslim   Not born in the UK      1332    2267 |
+ 56218. | Female           Black       Christian   Not born in the UK      2522    2593 |
+ 58072. | Female   White British     No religion   Not born in the UK      2112    2644 |
+ 63333. |   Male   White British     No religion   Not born in the UK      1112    2801 |
+ 88954. |   Male   White British       Christian       Born in the UK      1121   32460 |
+        |-------------------------------------------------------------------------------|
+122583. | Female   White British       Christian       Born in the UK      2121   43599 |
+158714. | Female   White British     No religion       Born in the UK      2111   52601 |
+248540. |   Male   White British     No religion       Born in the UK      1111   57652 |
+        +-------------------------------------------------------------------------------+
+
+. 
+. 
+. 
+. 
+. 
+. ********************************************************************************
+. **# Estimate Linear Model 1Av3 - Null 
+. ********************************************************************************
+. 
+. * Fit the two-level linear regression with no covariates
+. mixed ln_hrpay || stratum: || pidp:
+
+Performing EM optimization ...
+
+Performing gradient-based optimization: 
+Iteration 0:  Log likelihood = -226523.39  
+Iteration 1:  Log likelihood = -226523.39  
+
+Computing standard errors ...
+
+Mixed-effects ML regression                            Number of obs = 249,756
+
+        Grouping information
+        -------------------------------------------------------------
+                        |     No. of       Observations per group
+         Group variable |     groups    Minimum    Average    Maximum
+        ----------------+--------------------------------------------
+                stratum |        118          1    2,116.6     57,652
+                   pidp |     56,858          1        4.4         12
+        -------------------------------------------------------------
+
+                                                       Wald chi2(0)  =       .
+Log likelihood = -226523.39                            Prob > chi2   =       .
+
+------------------------------------------------------------------------------
+    ln_hrpay | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+       _cons |   5.021062   .0116946   429.35   0.000     4.998142    5.043983
+------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+  Random-effects parameters  |   Estimate   Std. err.     [95% conf. interval]
+-----------------------------+------------------------------------------------
+stratum: Identity            |
+                  var(_cons) |   .0103424   .0020911      .0069585    .0153718
+-----------------------------+------------------------------------------------
+pidp: Identity               |
+                  var(_cons) |   .2631581   .0021314      .2590136    .2673689
+-----------------------------+------------------------------------------------
+               var(Residual) |   .2541012   .0008169      .2525051    .2557074
+------------------------------------------------------------------------------
+LR test vs. linear model: chi2(2) = 86555.54              Prob > chi2 = 0.0000
+
+Note: LR test is conservative and provided only for reference.
+
+. 
+. * Save the model results
+. estimates save "m1A_v3.ster", replace
+file m1A_v3.ster saved
+
+. 
+. * Store the between-stratum variance
+. scalar m1Asigma2 = exp(_b[lns1_1_1:_cons])^2
+
+. // The mixed command estimates and returns the between-stratum variance as the 
+. // log of the SD of the stratum random effects. We must therefore exponentiate 
+. // and square this quantity to recover the between-stratum variance.
+. 
+. * Predict the mean outcome
+. predict m1Am, fitted
+
+. // Calculated as the fixed-portion linear prediction plus contributions based on 
+. // predicted random effects.
+. 
+. ********************************************************************************
+. **# Estimate Linear Model 8B - Just Strata 
+. ********************************************************************************
+. 
+. * Fit the two-level linear regression with covariates
+. mixed ln_hrpay  i.fem i.eth2 i.reli i.ukborn || stratum: || pidp: , baselevels
+
+Performing EM optimization ...
+
+Performing gradient-based optimization: 
+Iteration 0:  Log likelihood = -226489.14  
+Iteration 1:  Log likelihood = -226489.14  
+
+Computing standard errors ...
+
+Mixed-effects ML regression                            Number of obs = 249,756
+
+        Grouping information
+        -------------------------------------------------------------
+                        |     No. of       Observations per group
+         Group variable |     groups    Minimum    Average    Maximum
+        ----------------+--------------------------------------------
+                stratum |        118          1    2,116.6     57,652
+                   pidp |     56,858          1        4.4         12
+        -------------------------------------------------------------
+
+                                                       Wald chi2(12) =   91.58
+Log likelihood = -226489.14                            Prob > chi2   =  0.0000
+
+-------------------------------------------------------------------------------------
+           ln_hrpay | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+--------------------+----------------------------------------------------------------
+                fem |
+              Male  |          0  (base)
+            Female  |   .0772705   .0166805     4.63   0.000     .0445773    .1099637
+                    |
+               eth2 |
+     White British  |          0  (base)
+            Indian  |   .0149925   .0272613     0.55   0.582    -.0384387    .0684238
+         Pakistani  |  -.1952376   .0391861    -4.98   0.000     -.272041   -.1184341
+       Bangladeshi  |  -.1150807   .0424216    -2.71   0.007    -.1982255   -.0319359
+             Black  |  -.0126157   .0280453    -0.45   0.653    -.0675835    .0423521
+       Other eth.   |  -.0064926   .0266865    -0.24   0.808    -.0587971     .045812
+       White Other  |    .049155   .0317386     1.55   0.121    -.0130516    .1113616
+                    |
+               reli |
+       No religion  |          0  (base)
+         Christian  |  -.0010403     .02418    -0.04   0.966    -.0484322    .0463516
+            Muslim  |  -.0098575   .0278082    -0.35   0.723    -.0643605    .0446456
+             Hindu  |  -.0002303   .0308681    -0.01   0.994    -.0607306    .0602701
+     Oth. religion  |  -.0469869   .0274815    -1.71   0.087    -.1008497     .006876
+                    |
+             ukborn |
+    Born in the UK  |          0  (base)
+Not born in the UK  |  -.0617332   .0170137    -3.63   0.000    -.0950795   -.0283868
+                    |
+              _cons |   5.039638   .0252085   199.92   0.000     4.990231    5.089046
+-------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+  Random-effects parameters  |   Estimate   Std. err.     [95% conf. interval]
+-----------------------------+------------------------------------------------
+stratum: Identity            |
+                  var(_cons) |   .0039187    .000997        .00238     .006452
+-----------------------------+------------------------------------------------
+pidp: Identity               |
+                  var(_cons) |   .2631178   .0021309      .2589743    .2673276
+-----------------------------+------------------------------------------------
+               var(Residual) |   .2541038   .0008169      .2525077      .25571
+------------------------------------------------------------------------------
+LR test vs. linear model: chi2(2) = 85623.18              Prob > chi2 = 0.0000
+
+Note: LR test is conservative and provided only for reference.
+
+. 
+. * Save the model results
+. estimates save "m1B_v3.ster", replace
+file m1B_v3.ster saved
+
+. 
+. * Store the between-stratum variance
+. scalar m1Bsigma2 = exp(_b[lns1_1_1:_cons])^2
+
+. // The mixed command estimates and returns the between-stratum variance as the 
+. // log of the SD of the stratum random effects. We must therefore exponentiate 
+. // and square this quantity to recover the between-stratum variance.
+. 
+. * Predict the mean outcome
+. predict m1Bm, fitted
+
+. // Calculated as the fixed-portion linear prediction plus contributions based on 
+. // predicted random effects.
+. 
+. * Predict the stratum random effect and its SE
+. predict m1Bu*, reffect reses(m1Buse*) 
+
+. 
+. * Predict the standard error of the fixed-portion linear prediction
+. predict m1Bxbse, stdp
+
+. 
+. 
+. ********************************************************************************
+. **# Estimate Linear Model 8B - Just Strata & controls
+. ********************************************************************************
+. 
+. * Fit the two-level linear regression with covariates
+. mixed ln_hrpay  i.fem i.eth2 i.reli i.ukborn  ///
+> dvage_ind educscore engprof lonse mar child health cardum ///
+> ties liberal sity parttime pubsector || stratum: || pidp: , baselevels
+
+Performing EM optimization ...
+
+Performing gradient-based optimization: 
+Iteration 0:  Log likelihood = -214725.16  
+Iteration 1:  Log likelihood = -214725.16  
+
+Computing standard errors ...
+
+Mixed-effects ML regression                           Number of obs =  249,756
+
+        Grouping information
+        -------------------------------------------------------------
+                        |     No. of       Observations per group
+         Group variable |     groups    Minimum    Average    Maximum
+        ----------------+--------------------------------------------
+                stratum |        118          1    2,116.6     57,652
+                   pidp |     56,858          1        4.4         12
+        -------------------------------------------------------------
+
+                                                      Wald chi2(25) = 25873.48
+Log likelihood = -214725.16                           Prob > chi2   =   0.0000
+
+-------------------------------------------------------------------------------------
+           ln_hrpay | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+--------------------+----------------------------------------------------------------
+                fem |
+              Male  |          0  (base)
+            Female  |  -.0629429   .0144846    -4.35   0.000    -.0913321   -.0345537
+                    |
+               eth2 |
+     White British  |          0  (base)
+            Indian  |  -.0090054   .0237118    -0.38   0.704    -.0554797     .037469
+         Pakistani  |  -.0952512   .0339772    -2.80   0.005    -.1618454   -.0286571
+       Bangladeshi  |  -.0491367   .0368828    -1.33   0.183    -.1214256    .0231522
+             Black  |  -.0500606   .0244457    -2.05   0.041    -.0979732    -.002148
+       Other eth.   |  -.0228339   .0230957    -0.99   0.323    -.0681006    .0224328
+       White Other  |   .0093203   .0274124     0.34   0.734     -.044407    .0630476
+                    |
+               reli |
+       No religion  |          0  (base)
+         Christian  |   .0057171   .0208151     0.27   0.784    -.0350798     .046514
+            Muslim  |    .019384   .0242323     0.80   0.424    -.0281104    .0668784
+             Hindu  |  -.0069635   .0268097    -0.26   0.795    -.0595097    .0455826
+     Oth. religion  |  -.0433944   .0237833    -1.82   0.068    -.0900087      .00322
+                    |
+             ukborn |
+    Born in the UK  |          0  (base)
+Not born in the UK  |  -.0932313   .0147994    -6.30   0.000    -.1222377   -.0642249
+                    |
+          dvage_ind |   .0111659   .0001776    62.86   0.000     .0108177    .0115141
+          educscore |   .0260843   .0002868    90.95   0.000     .0255222    .0266464
+            engprof |   .0652702   .0153265     4.26   0.000     .0352309    .0953095
+              lonse |   .1266014   .0051236    24.71   0.000     .1165593    .1366436
+                mar |    .024352   .0039178     6.22   0.000     .0166734    .0320307
+              child |   .0851055   .0027115    31.39   0.000     .0797911    .0904199
+             health |  -.0066669   .0031909    -2.09   0.037    -.0129209   -.0004128
+             cardum |  -.0011161   .0036811    -0.30   0.762    -.0083309    .0060987
+               ties |   .0183076    .005319     3.44   0.001     .0078826    .0287327
+            liberal |   .0543148   .0046653    11.64   0.000      .045171    .0634585
+               sity |   .0360813   .0056686     6.37   0.000     .0249711    .0471915
+           parttime |   .2708995   .0036323    74.58   0.000     .2637803    .2780186
+          pubsector |   .1021643   .0036677    27.85   0.000     .0949757    .1093529
+              _cons |   3.061859   .0308522    99.24   0.000      3.00139    3.122328
+-------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+  Random-effects parameters  |   Estimate   Std. err.     [95% conf. interval]
+-----------------------------+------------------------------------------------
+stratum: Identity            |
+                  var(_cons) |   .0028146   .0006796      .0017534    .0045181
+-----------------------------+------------------------------------------------
+pidp: Identity               |
+                  var(_cons) |   .1880931   .0016458      .1848948    .1913467
+-----------------------------+------------------------------------------------
+               var(Residual) |   .2422921   .0007791      .2407699    .2438238
+------------------------------------------------------------------------------
+LR test vs. linear model: chi2(2) = 63819.87              Prob > chi2 = 0.0000
+
+Note: LR test is conservative and provided only for reference.
+
+. 
+. * Save the model results
+. estimates save "m1C_v3.ster", replace
+file m1C_v3.ster saved
+
+. 
+. * Store the between-stratum variance
+. scalar m1Csigma2 = exp(_b[lns1_1_1:_cons])^2
+
+. // The mixed command estimates and returns the between-stratum variance as the 
+. // log of the SD of the stratum random effects. We must therefore exponentiate 
+. // and square this quantity to recover the between-stratum variance.
+. 
+. * Predict the mean outcome
+. predict m1Cm, fitted
+
+. // Calculated as the fixed-portion linear prediction plus contributions based on 
+. // predicted random effects.
+. 
+. * Predict the stratum random effect and its SE
+. predict m1Cu*, reffect reses(m1Cuse*)
+
+. 
+. * Predict the standard error of the fixed-portion linear prediction
+. predict m1Cxbse, stdp
+
+. 
+. 
+. compress
+  variable stratum was float now int
+  variable dvage_ind was int now byte
+  variable employment was float now byte
+  variable ties was float now byte
+  variable child was float now byte
+  variable engprof was float now byte
+  variable fem was float now byte
+  variable mar was float now byte
+  variable liberal was float now byte
+  variable sity was float now byte
+  variable cardum was float now byte
+  variable parttime was float now byte
+  variable pubsector was float now byte
+  variable reli was float now byte
+  variable ukborn was float now byte
+  variable agecats was float now byte
+  variable quals was float now byte
+  variable degree was float now byte
+  variable lonse was float now byte
+  variable health was float now byte
+  variable pidp was double now long
+  (15,235,116 bytes saved)
+
+. 
+. * Save the data
+. save "individual_v3.dta", replace
+file individual_v3.dta saved
+
+. 
+. 
+. 
+. *-------------------------------------------------------------------------------
+. **## Save the data at the stratum-level
+. *-------------------------------------------------------------------------------
+. 
+. collapse (count) n = ln_hrpay (mean) ln_hrpay , ///
+> by(stratum fem eth2 reli ukborn lonse dvage_ind educscore engprof ///
+>   mar child health cardum parttime pubsector ties liberal sity ///
+>    m1Am m1Bm m1Cm m1Bxbse m1Cxbse m1Bu* m1Cu* m1Buse* m1Cuse*) 
+
+. 
+. capture drop N 
+
+. bysort stratum: generate N = _N
+
+. 
+. * Move the list of variables to the beginning of the dataset
+. order stratum N fem  eth2 reli ukborn lonse dvage_ind educscore ///
+>  mar parttime pubsector ln_hrpay
+
+.   
+.  capture drop s_tag 
+
+.  egen s_tag = tag(stratum)
+
+.  keep if s_tag 
+(246,060 observations deleted)
+
+. 
+. * Set the display format to 2dp
+. format %9.2f ln_hrpay m1Am m1Bm m1Cm m1Bxbse m1Cxbse m1Bu* m1Cu* m1Buse* m1Cuse*
+
+. 
+. * Compress the data 
+. compress 
+  variable n was long now byte
+  (354 bytes saved)
+
+. 
+. * Save the data
+. save "stratum_v3.dta", replace
+file stratum_v3.dta saved
+
+. 
+. 
+. * Load the individual-level data
+. use "individual_v3.dta", clear
+(Substantive data for responding adults (16+), incl. proxies)
+
+. 
+. * Total sample size
+. codebook stratum, compact
+
+Variable      Obs Unique      Mean   Min   Max  Label
+-------------------------------------------------------------------------------------------------------------------------------------------
+stratum    249756    118  1702.631  1111  2752  
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+. 
+. * Summarize the individual outcome
+. tabstat ln_hrpay, statistics( mean p50 sd min max ) format(%3.2f)
+
+    Variable |      Mean       p50        SD       Min       Max
+-------------+--------------------------------------------------
+    ln_hrpay |      5.09      5.08      0.71      0.14     11.80
+----------------------------------------------------------------
+
+. //[mean of the individual outcomes = "sample mean"]
+. 
+. 
+. * Table 1 - Descriptive stats. 
+. table (var), ///
+> stat(fvfrequency i.fem) stat(fvpercent i.fem) ///
+> stat(fvfrequency i.eth2) stat(fvpercent i.eth2) ///
+> stat(fvfrequency i.reli) stat(fvpercent i.reli) ///
+> stat(fvfrequency i.ukborn) stat(fvpercent i.ukborn) ///
+> stat(fvfrequency i.mar) stat(fvpercent i.mar) ///
+> stat(fvfrequency i.lonse) stat(fvpercent i.lonse) ///
+> stat(fvfrequency i.parttime) stat(fvpercent i.parttime) ///
+> stat(fvfrequency i.pubsector) stat(fvpercent i.pubsector) ///
+> stat(count dvage_ind) stat(mean dvage_ind) stat(median dvage_ind)  stat(sd dvage_ind) ///
+> stat(min dvage_ind) stat(max dvage_ind)  ///
+> stat(count educscore) stat(mean educscore) stat(median educscore) stat(sd educscore) ///
+> stat(min educscore) stat(max educscore) ///
+> stat(count ln_hrpay) stat(mean ln_hrpay) stat(median ln_hrpay) stat(sd ln_hrpay) stat(min ln_hrpay) stat(max ln_hrpay) nformat(%9.0fc fvf
+> requency) nformat(%3.1f fvpercent) nformat(%3.2f mean sd median min max) sformat("%s%%" fvpercent) sformat("(%s)" sd)
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                       |  Factor-variable frequency   Factor-variable percent   Number of nonmissing values    Mean   Median   Standard deviation   Minimum value   Maximum value
+---------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------
+Sex=Male                               |                    121,372                     48.6%                                                                                                    
+Sex=Female                             |                    128,384                     51.4%                                                                                                    
+Ethnic Group=White British             |                    201,031                     80.5%                                                                                                    
+Ethnic Group=Indian                    |                      9,853                      3.9%                                                                                                    
+Ethnic Group=Pakistani                 |                      6,100                      2.4%                                                                                                    
+Ethnic Group=Bangladeshi               |                      3,694                      1.5%                                                                                                    
+Ethnic Group=Black                     |                     10,265                      4.1%                                                                                                    
+Ethnic Group=Other eth.                |                     11,252                      4.5%                                                                                                    
+Ethnic Group=White Other               |                      7,561                      3.0%                                                                                                    
+Religion=No religion                   |                    126,264                     50.6%                                                                                                    
+Religion=Christian                     |                     95,049                     38.1%                                                                                                    
+Religion=Muslim                        |                     13,839                      5.5%                                                                                                    
+Religion=Hindu                         |                      5,409                      2.2%                                                                                                    
+Religion=Oth. religion                 |                      9,195                      3.7%                                                                                                    
+Country of Birth=Born in the UK        |                    209,734                     84.0%                                                                                                    
+Country of Birth=Not born in the UK    |                     40,022                     16.0%                                                                                                    
+Marital Status=Single                  |                    109,157                     43.7%                                                                                                    
+Marital Status=Married or Cohabitating |                    140,599                     56.3%                                                                                                    
+Region=Rest of UK                      |                    186,855                     74.8%                                                                                                    
+Region=London/SE Eng.                  |                     62,901                     25.2%                                                                                                    
+Work Orientation=Works Full-time       |                    194,635                     77.9%                                                                                                    
+Work Orientation=Works part-time       |                     55,121                     22.1%                                                                                                    
+Occupation Sector=Private              |                    172,956                     69.2%                                                                                                    
+Occupation Sector=Public               |                     76,800                     30.8%                                                                                                    
+Age                                    |                                                                            249,756   41.99    43.00              (11.92)           16.00           64.00
+Education Score                        |                                                                            249,756   50.21    48.35               (7.75)           34.68           61.75
+Average Log Hourly Earnings            |                                                                            249,756    5.09     5.08               (0.71)            0.14           11.80
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+. collect recode result fvfrequency = column1 fvpercent = column3 count = column1 mean = column2 median = column3 sd = column4 min = column
+> 5 max = column6
+(66 items recoded in collection Table)
+
+. collect layout (var) (result[column1 column2 column3 column4 column5 column6 column7])
+(level column7 of dimension result not found)
+
+Collection: Table
+      Rows: var
+   Columns: result[column1 column2 column3 column4 column5 column6 column7]
+   Table 1: 27 x 6
+
+--------------------------------------------------------------------------------------------------------
+                                       |  column1    column2    column3    column4    column5    column6
+---------------------------------------+----------------------------------------------------------------
+Sex=Male                               |   121372              48.59623                                 
+Sex=Female                             |   128384              51.40377                                 
+Ethnic Group=White British             |   201031              80.49096                                 
+Ethnic Group=Indian                    |     9853               3.94505                                 
+Ethnic Group=Pakistani                 |     6100              2.442384                                 
+Ethnic Group=Bangladeshi               |     3694              1.479044                                 
+Ethnic Group=Black                     |    10265              4.110011                                 
+Ethnic Group=Other eth.                |    11252              4.505197                                 
+Ethnic Group=White Other               |     7561              3.027355                                 
+Religion=No religion                   |   126264              50.55494                                 
+Religion=Christian                     |    95049              38.05674                                 
+Religion=Muslim                        |    13839              5.541008                                 
+Religion=Hindu                         |     5409              2.165714                                 
+Religion=Oth. religion                 |     9195              3.681593                                 
+Country of Birth=Born in the UK        |   209734              83.97556                                 
+Country of Birth=Not born in the UK    |    40022              16.02444                                 
+Marital Status=Single                  |   109157              43.70546                                 
+Marital Status=Married or Cohabitating |   140599              56.29454                                 
+Region=Rest of UK                      |   186855              74.81502                                 
+Region=London/SE Eng.                  |    62901              25.18498                                 
+Work Orientation=Works Full-time       |   194635              77.93006                                 
+Work Orientation=Works part-time       |    55121              22.06994                                 
+Occupation Sector=Private              |   172956              69.24999                                 
+Occupation Sector=Public               |    76800              30.75001                                 
+Age                                    |   249756   41.98977         43   11.91761         16         64
+Education Score                        |   249756    50.2105   48.35244   7.754058   34.67812    61.7509
+Average Log Hourly Earnings            |   249756   5.085427   5.080874   .7127122   .1435983   11.79939
+--------------------------------------------------------------------------------------------------------
+
+. collect style cell var#result[column3], nformat(%3.1f)
+
+. collect style cell var[ln_hrpay]#result[column2], nformat(%3.2f) 
+
+. collect style cell var[ln_hrpay]#result[column3], nformat(%3.2f)
+
+. collect style cell var[ln_hrpay]#result[column4], nformat(%3.2f)
+
+. collect style cell var[ln_hrpay]#result[column5], nformat(%3.2f)
+
+. collect style cell var[ln_hrpay]#result[column6], nformat(%3.2f)
+
+. collect style cell var[educscore]#result[column2], nformat(%3.2f) 
+
+. collect style cell var[educscore]#result[column3], nformat(%3.2f)
+
+. collect style cell var[educscore]#result[column4], nformat(%3.2f)
+
+. collect style cell var[educscore]#result[column5], nformat(%3.2f)
+
+. collect style cell var[educscore]#result[column6], nformat(%3.2f)
+
+. collect style cell var[dvage_ind]#result[column2], nformat(%3.2f) 
+
+. collect style cell var[dvage_ind]#result[column3], nformat(%9.0fc)
+
+. collect style cell var[dvage_ind]#result[column4], nformat(%9.0fc)
+
+. collect style cell var[dvage_ind]#result[column5], nformat(%9.0fc)
+
+. collect style cell var[dvage_ind]#result[column6], nformat(%9.0fc)
+
+. collect style header result, level(hide)
+
+. collect preview
+
+---------------------------------------------------------------------------------------
+Sex=Male                               |  121372            48.6                       
+Sex=Female                             |  128384            51.4                       
+Ethnic Group=White British             |  201031            80.5                       
+Ethnic Group=Indian                    |    9853             3.9                       
+Ethnic Group=Pakistani                 |    6100             2.4                       
+Ethnic Group=Bangladeshi               |    3694             1.5                       
+Ethnic Group=Black                     |   10265             4.1                       
+Ethnic Group=Other eth.                |   11252             4.5                       
+Ethnic Group=White Other               |    7561             3.0                       
+Religion=No religion                   |  126264            50.6                       
+Religion=Christian                     |   95049            38.1                       
+Religion=Muslim                        |   13839             5.5                       
+Religion=Hindu                         |    5409             2.2                       
+Religion=Oth. religion                 |    9195             3.7                       
+Country of Birth=Born in the UK        |  209734            84.0                       
+Country of Birth=Not born in the UK    |   40022            16.0                       
+Marital Status=Single                  |  109157            43.7                       
+Marital Status=Married or Cohabitating |  140599            56.3                       
+Region=Rest of UK                      |  186855            74.8                       
+Region=London/SE Eng.                  |   62901            25.2                       
+Work Orientation=Works Full-time       |  194635            77.9                       
+Work Orientation=Works part-time       |   55121            22.1                       
+Occupation Sector=Private              |  172956            69.2                       
+Occupation Sector=Public               |   76800            30.8                       
+Age                                    |  249756   41.99      43     12      16      64
+Education Score                        |  249756   50.21   48.35   7.75   34.68   61.75
+Average Log Hourly Earnings            |  249756    5.09    5.08   0.71    0.14   11.80
+---------------------------------------------------------------------------------------
+
+. collect style row stack, nobinder spacer
+
+. collect style cell border_block, border(right, pattern(nil))
+
+. collect preview
+
+--------------------------------------------------------------------------
+Sex                                                                       
+  Male                       121372            48.6                       
+  Female                     128384            51.4                       
+                                                                          
+Ethnic Group                                                              
+  White British              201031            80.5                       
+  Indian                       9853             3.9                       
+  Pakistani                    6100             2.4                       
+  Bangladeshi                  3694             1.5                       
+  Black                       10265             4.1                       
+  Other eth.                  11252             4.5                       
+  White Other                  7561             3.0                       
+                                                                          
+Religion                                                                  
+  No religion                126264            50.6                       
+  Christian                   95049            38.1                       
+  Muslim                      13839             5.5                       
+  Hindu                        5409             2.2                       
+  Oth. religion                9195             3.7                       
+                                                                          
+Country of Birth                                                          
+  Born in the UK             209734            84.0                       
+  Not born in the UK          40022            16.0                       
+                                                                          
+Marital Status                                                            
+  Single                     109157            43.7                       
+  Married or Cohabitating    140599            56.3                       
+                                                                          
+Region                                                                    
+  Rest of UK                 186855            74.8                       
+  London/SE Eng.              62901            25.2                       
+                                                                          
+Work Orientation                                                          
+  Works Full-time            194635            77.9                       
+  Works part-time             55121            22.1                       
+                                                                          
+Occupation Sector                                                         
+  Private                    172956            69.2                       
+  Public                      76800            30.8                       
+                                                                          
+Age                          249756   41.99      43     12      16      64
+Education Score              249756   50.21   48.35   7.75   34.68   61.75
+Average Log Hourly Earnings  249756    5.09    5.08   0.71    0.14   11.80
+--------------------------------------------------------------------------
+
+. collect export table1_v3.docx, replace 
+(collection Table exported to file table1_v3.docx)
+
+. 
+. sum engprof child health cardum
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+     engprof |    249,756    .9822707    .1319661          0          1
+       child |    249,756    .3033561    .6910404          0          3
+      health |    249,756    .2324429    .4223907          0          1
+      cardum |    249,756    .1501265    .3571961          0          1
+
+. 
+. *Load the stratum-level data
+. use "stratum_v3.dta", clear
+(Substantive data for responding adults (16+), incl. proxies)
+
+. 
+. su N, detail
+
+                              N
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%            2              1
+ 5%            5              2
+10%           24              3       Obs                 118
+25%           83              5       Sum of wgt.         118
+
+50%        293.5                      Mean           2086.254
+                        Largest       Std. dev.      8453.314
+75%          923          31976
+90%         1710          43067       Variance       7.15e+07
+95%         2605          51918       Skewness       5.427929
+99%        51918          56746       Kurtosis       31.58853
+
+. * Generate binary indicators for whether each stratum has more than X 
+. * individuals
+. gen n100plus =    (N >= 100)
+
+. gen n50plus  =    (N >= 50)
+
+. gen n30plus  =    (N >= 30)
+
+. gen n20plus  =    (N >= 20)
+
+. gen n10plus  =    (N >= 10)
+
+. gen nlessthan10  = (N < 10)
+
+. 
+. tabulate n100plus
+
+   n100plus |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |         34       28.81       28.81
+          1 |         84       71.19      100.00
+------------+-----------------------------------
+      Total |        118      100.00
+
+. tabulate n50plus
+
+    n50plus |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |         19       16.10       16.10
+          1 |         99       83.90      100.00
+------------+-----------------------------------
+      Total |        118      100.00
+
+. tabulate n30plus
+
+    n30plus |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |         14       11.86       11.86
+          1 |        104       88.14      100.00
+------------+-----------------------------------
+      Total |        118      100.00
+
+. tabulate n20plus
+
+    n20plus |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |         11        9.32        9.32
+          1 |        107       90.68      100.00
+------------+-----------------------------------
+      Total |        118      100.00
+
+. tabulate n10plus
+
+    n10plus |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |          9        7.63        7.63
+          1 |        109       92.37      100.00
+------------+-----------------------------------
+      Total |        118      100.00
+
+. tabulate nlessthan10
+
+nlessthan10 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        109       92.37       92.37
+          1 |          9        7.63      100.00
+------------+-----------------------------------
+      Total |        118      100.00
+
+. 
+. 
+. 
+. table var, ///
+> stat(fvfrequency i.n100plus) stat(fvpercent i.n100plus)  ///
+> stat(fvfrequency i.n50plus) stat(fvpercent i.n50plus)  ///
+> stat(fvfrequency i.n30plus) stat(fvpercent i.n30plus) ///
+> stat(fvfrequency i.n20plus) stat(fvpercent i.n20plus) ///
+> stat(fvfrequency i.n10plus) stat(fvpercent i.n10plus) ///
+> stat(fvfrequency i.nlessthan10) stat(fvpercent i.nlessthan10)  
+
+--------------------------------------------------------------------
+              |  Factor-variable frequency   Factor-variable percent
+--------------+-----------------------------------------------------
+n100plus=0    |                         34                     28.81
+n100plus=1    |                         84                     71.19
+n50plus=0     |                         19                     16.10
+n50plus=1     |                         99                     83.90
+n30plus=0     |                         14                     11.86
+n30plus=1     |                        104                     88.14
+n20plus=0     |                         11                      9.32
+n20plus=1     |                        107                     90.68
+n10plus=0     |                          9                      7.63
+n10plus=1     |                        109                     92.37
+nlessthan10=0 |                        109                     92.37
+nlessthan10=1 |                          9                      7.63
+--------------------------------------------------------------------
+
+. 
+. collect recode result fvfrequency = column1 fvpercent = column2 
+(24 items recoded in collection Table)
+
+. collect layout (var) (result[column1 column2])
+
+Collection: Table
+      Rows: var
+   Columns: result[column1 column2]
+   Table 1: 12 x 2
+
+-----------------------------------
+              |  column1    column2
+--------------+--------------------
+n100plus=0    |       34   28.81356
+n100plus=1    |       84   71.18644
+n50plus=0     |       19   16.10169
+n50plus=1     |       99   83.89831
+n30plus=0     |       14   11.86441
+n30plus=1     |      104   88.13559
+n20plus=0     |       11   9.322034
+n20plus=1     |      107   90.67797
+n10plus=0     |        9   7.627119
+n10plus=1     |      109   92.37288
+nlessthan10=0 |      109   92.37288
+nlessthan10=1 |        9   7.627119
+-----------------------------------
+
+. collect style cell var#result[column2], nformat(%3.1f)  sformat("%s%%")
+
+. collect style header result, level(hide)
+
+. collect preview
+
+----------------------------
+n100plus=0    |   34   28.8%
+n100plus=1    |   84   71.2%
+n50plus=0     |   19   16.1%
+n50plus=1     |   99   83.9%
+n30plus=0     |   14   11.9%
+n30plus=1     |  104   88.1%
+n20plus=0     |   11    9.3%
+n20plus=1     |  107   90.7%
+n10plus=0     |    9    7.6%
+n10plus=1     |  109   92.4%
+nlessthan10=0 |  109   92.4%
+nlessthan10=1 |    9    7.6%
+----------------------------
+
+. 
+. collect export table2_V3.docx, replace 
+(collection Table exported to file table2_V3.docx)
+
+. 
+. 
+. * Summarize the observed stratum means
+. tabstat ln_hrpay, statistics( mean p50 sd min max ) format(%3.2f)
+
+    Variable |      Mean       p50        SD       Min       Max
+-------------+--------------------------------------------------
+    ln_hrpay |      4.43      4.40      0.66      2.19      6.38
+----------------------------------------------------------------
+
+. //[mean of the observed stratum means = "grand mean"]
+. 
+. * Summarize the predicted stratum means
+. tabstat m1Am, statistics( mean p50 sd min max ) format(%3.2f)
+
+    Variable |      Mean       p50        SD       Min       Max
+-------------+--------------------------------------------------
+        m1Am |      4.70      4.69      0.38      3.54      6.16
+----------------------------------------------------------------
+
+. //[mean of the predicted stratum means = "precision weighted grand mean"]
+. 
+. 
+. ********************************************************************************
+. **# Model Results
+. ********************************************************************************
+. 
+. * Load the individual-level data
+. use "individual_v3.dta", clear
+(Substantive data for responding adults (16+), incl. proxies)
+
+. 
+. 
+. *-------------------------------------------------------------------------------
+. **## Model 1A
+. *-------------------------------------------------------------------------------
+. 
+. * Load the estimation results and make them the current (active) results
+. estimates use "m1A_v3.ster"
+
+. 
+. * Replay the estimation results
+. estimates replay, baselevels
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+active results
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+Mixed-effects ML regression                            Number of obs = 249,756
+
+        Grouping information
+        -------------------------------------------------------------
+                        |     No. of       Observations per group
+         Group variable |     groups    Minimum    Average    Maximum
+        ----------------+--------------------------------------------
+                stratum |        118          1    2,116.6     57,652
+                   pidp |     56,858          1        4.4         12
+        -------------------------------------------------------------
+
+                                                       Wald chi2(0)  =       .
+Log likelihood = -226523.39                            Prob > chi2   =       .
+
+------------------------------------------------------------------------------
+    ln_hrpay | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+       _cons |   5.021062   .0116946   429.35   0.000     4.998142    5.043983
+------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+  Random-effects parameters  |   Estimate   Std. err.     [95% conf. interval]
+-----------------------------+------------------------------------------------
+stratum: Identity            |
+                  var(_cons) |   .0103424   .0020911      .0069585    .0153718
+-----------------------------+------------------------------------------------
+pidp: Identity               |
+                  var(_cons) |   .2631581   .0021314      .2590136    .2673689
+-----------------------------+------------------------------------------------
+               var(Residual) |   .2541012   .0008169      .2525051    .2557074
+------------------------------------------------------------------------------
+LR test vs. linear model: chi2(2) = 86555.54              Prob > chi2 = 0.0000
+
+Note: LR test is conservative and provided only for reference.
+
+. est store m1a
+
+. 
+. * Calculate the variance partition coefficient (VPC)
+. estat icc
+
+Intraclass correlation
+
+------------------------------------------------------------------------------
+                       Level |        ICC   Std. err.     [95% conf. interval]
+-----------------------------+------------------------------------------------
+                     stratum |   .0196026   .0038877      .0132715    .0288656
+                pidp|stratum |   .5183844   .0028996      .5126992    .5240648
+------------------------------------------------------------------------------
+
+. estadd scalar icc_ = r(icc2) 
+
+added scalar:
+               e(icc_) =  .5183844
+
+. 
+. 
+. 
+. 
+. *-------------------------------------------------------------------------------
+. **## Model 1B
+. *-------------------------------------------------------------------------------
+. 
+. * Load the estimation results and make them the current (active) results
+. estimates use "m1B_v3.ster"
+
+. 
+. * Replay the estimation results
+. estimates replay, baselevels
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+active results
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+Mixed-effects ML regression                            Number of obs = 249,756
+
+        Grouping information
+        -------------------------------------------------------------
+                        |     No. of       Observations per group
+         Group variable |     groups    Minimum    Average    Maximum
+        ----------------+--------------------------------------------
+                stratum |        118          1    2,116.6     57,652
+                   pidp |     56,858          1        4.4         12
+        -------------------------------------------------------------
+
+                                                       Wald chi2(12) =   91.58
+Log likelihood = -226489.14                            Prob > chi2   =  0.0000
+
+-------------------------------------------------------------------------------------
+           ln_hrpay | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+--------------------+----------------------------------------------------------------
+                fem |
+              Male  |          0  (empty)
+            Female  |   .0772705   .0166805     4.63   0.000     .0445773    .1099637
+                    |
+               eth2 |
+     White British  |          0  (empty)
+            Indian  |   .0149925   .0272613     0.55   0.582    -.0384387    .0684238
+         Pakistani  |  -.1952376   .0391861    -4.98   0.000     -.272041   -.1184341
+       Bangladeshi  |  -.1150807   .0424216    -2.71   0.007    -.1982255   -.0319359
+             Black  |  -.0126157   .0280453    -0.45   0.653    -.0675835    .0423521
+       Other eth.   |  -.0064926   .0266865    -0.24   0.808    -.0587971     .045812
+       White Other  |    .049155   .0317386     1.55   0.121    -.0130516    .1113616
+                    |
+               reli |
+       No religion  |          0  (empty)
+         Christian  |  -.0010403     .02418    -0.04   0.966    -.0484322    .0463516
+            Muslim  |  -.0098575   .0278082    -0.35   0.723    -.0643605    .0446456
+             Hindu  |  -.0002303   .0308681    -0.01   0.994    -.0607306    .0602701
+     Oth. religion  |  -.0469869   .0274815    -1.71   0.087    -.1008497     .006876
+                    |
+             ukborn |
+    Born in the UK  |          0  (empty)
+Not born in the UK  |  -.0617332   .0170137    -3.63   0.000    -.0950795   -.0283868
+                    |
+              _cons |   5.039638   .0252085   199.92   0.000     4.990231    5.089046
+-------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+  Random-effects parameters  |   Estimate   Std. err.     [95% conf. interval]
+-----------------------------+------------------------------------------------
+stratum: Identity            |
+                  var(_cons) |   .0039187    .000997        .00238     .006452
+-----------------------------+------------------------------------------------
+pidp: Identity               |
+                  var(_cons) |   .2631178   .0021309      .2589743    .2673276
+-----------------------------+------------------------------------------------
+               var(Residual) |   .2541038   .0008169      .2525077      .25571
+------------------------------------------------------------------------------
+LR test vs. linear model: chi2(2) = 85623.18              Prob > chi2 = 0.0000
+
+Note: LR test is conservative and provided only for reference.
+
+. est store m1b
+
+. 
+. * Calculate the variance partition coefficient (VPC)
+. estat icc
+
+Residual intraclass correlation
+
+------------------------------------------------------------------------------
+                       Level |        ICC   Std. err.     [95% conf. interval]
+-----------------------------+------------------------------------------------
+                     stratum |   .0075194   .0018994      .0045796    .0123231
+                pidp|stratum |   .5124081   .0024238      .5076566    .5171573
+------------------------------------------------------------------------------
+
+. estadd scalar icc_ = r(icc2) 
+
+added scalar:
+               e(icc_) =  .51240808
+
+. 
+. 
+. 
+. 
+. * Calculate the Proportional Change in Variance (PCV) (as a percentage)
+. display %3.1f 100*(m1Asigma2 - m1Bsigma2) / m1Asigma2
+62.1
+
+. 
+. scalar m1Bpcv = 100 * (m1Asigma2 - m1Bsigma2) / m1Asigma2
+
+. 
+. *-------------------------------------------------------------------------------
+. **## Model 1C
+. *-------------------------------------------------------------------------------
+. 
+. * Load the estimation results and make them the current (active) results
+. estimates use "m1C_v3.ster"
+
+. 
+. * Replay the estimation results
+. estimates replay, baselevels
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+active results
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+Mixed-effects ML regression                           Number of obs =  249,756
+
+        Grouping information
+        -------------------------------------------------------------
+                        |     No. of       Observations per group
+         Group variable |     groups    Minimum    Average    Maximum
+        ----------------+--------------------------------------------
+                stratum |        118          1    2,116.6     57,652
+                   pidp |     56,858          1        4.4         12
+        -------------------------------------------------------------
+
+                                                      Wald chi2(25) = 25873.48
+Log likelihood = -214725.16                           Prob > chi2   =   0.0000
+
+-------------------------------------------------------------------------------------
+           ln_hrpay | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+--------------------+----------------------------------------------------------------
+                fem |
+              Male  |          0  (empty)
+            Female  |  -.0629429   .0144846    -4.35   0.000    -.0913321   -.0345537
+                    |
+               eth2 |
+     White British  |          0  (empty)
+            Indian  |  -.0090054   .0237118    -0.38   0.704    -.0554797     .037469
+         Pakistani  |  -.0952512   .0339772    -2.80   0.005    -.1618454   -.0286571
+       Bangladeshi  |  -.0491367   .0368828    -1.33   0.183    -.1214256    .0231522
+             Black  |  -.0500606   .0244457    -2.05   0.041    -.0979732    -.002148
+       Other eth.   |  -.0228339   .0230957    -0.99   0.323    -.0681006    .0224328
+       White Other  |   .0093203   .0274124     0.34   0.734     -.044407    .0630476
+                    |
+               reli |
+       No religion  |          0  (empty)
+         Christian  |   .0057171   .0208151     0.27   0.784    -.0350798     .046514
+            Muslim  |    .019384   .0242323     0.80   0.424    -.0281104    .0668784
+             Hindu  |  -.0069635   .0268097    -0.26   0.795    -.0595097    .0455826
+     Oth. religion  |  -.0433944   .0237833    -1.82   0.068    -.0900087      .00322
+                    |
+             ukborn |
+    Born in the UK  |          0  (empty)
+Not born in the UK  |  -.0932313   .0147994    -6.30   0.000    -.1222377   -.0642249
+                    |
+          dvage_ind |   .0111659   .0001776    62.86   0.000     .0108177    .0115141
+          educscore |   .0260843   .0002868    90.95   0.000     .0255222    .0266464
+            engprof |   .0652702   .0153265     4.26   0.000     .0352309    .0953095
+              lonse |   .1266014   .0051236    24.71   0.000     .1165593    .1366436
+                mar |    .024352   .0039178     6.22   0.000     .0166734    .0320307
+              child |   .0851055   .0027115    31.39   0.000     .0797911    .0904199
+             health |  -.0066669   .0031909    -2.09   0.037    -.0129209   -.0004128
+             cardum |  -.0011161   .0036811    -0.30   0.762    -.0083309    .0060987
+               ties |   .0183076    .005319     3.44   0.001     .0078826    .0287327
+            liberal |   .0543148   .0046653    11.64   0.000      .045171    .0634585
+               sity |   .0360813   .0056686     6.37   0.000     .0249711    .0471915
+           parttime |   .2708995   .0036323    74.58   0.000     .2637803    .2780186
+          pubsector |   .1021643   .0036677    27.85   0.000     .0949757    .1093529
+              _cons |   3.061859   .0308522    99.24   0.000      3.00139    3.122328
+-------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+  Random-effects parameters  |   Estimate   Std. err.     [95% conf. interval]
+-----------------------------+------------------------------------------------
+stratum: Identity            |
+                  var(_cons) |   .0028146   .0006796      .0017534    .0045181
+-----------------------------+------------------------------------------------
+pidp: Identity               |
+                  var(_cons) |   .1880931   .0016458      .1848948    .1913467
+-----------------------------+------------------------------------------------
+               var(Residual) |   .2422921   .0007791      .2407699    .2438238
+------------------------------------------------------------------------------
+LR test vs. linear model: chi2(2) = 63819.87              Prob > chi2 = 0.0000
+
+Note: LR test is conservative and provided only for reference.
+
+. est store m1c
+
+. 
+. * Calculate the variance partition coefficient (VPC)
+. estat icc
+
+Residual intraclass correlation
+
+------------------------------------------------------------------------------
+                       Level |        ICC   Std. err.     [95% conf. interval]
+-----------------------------+------------------------------------------------
+                     stratum |   .0064973   .0015591       .004057    .0103901
+                pidp|stratum |   .4406921   .0025404      .4357191    .4456769
+------------------------------------------------------------------------------
+
+. estadd scalar icc_ = r(icc2) 
+
+added scalar:
+               e(icc_) =  .44069206
+
+. 
+. * Calculate the Proportional Change in Variance (PCV) (as a percentage)
+. display %3.1f 100*(m1Asigma2 - m1Csigma2) / m1Asigma2
+72.8
+
+. 
+. scalar m1Bpcv = 100 * (m1Asigma2 - m1Csigma2) / m1Asigma2
+
+. 
+. 
+. 
+. * Estimates table 
+. 
+. esttab m1a m1b m1c using $poutputs/modelsm8.csv, ///
+> stat(N icc_, label("Obs." "VPC") fmt(%8.0f %8.2f)) ///
+>  collabels(Estimates [95%CI] )  b(%8.2f) ///
+>  baselevels ci(%8.2f) star(* 0.05) label wide replace 
+(output written to /Users/scothunter/Library/CloudStorage/OneDrive-UniversityofStirling/thesis/directory/outputs/modelsm8.csv)
+
+.  
+.  esttab m1a m1b m1c, refcat(1.fem {bf:Sex} 1.eth2 {bf:Ethnicity} ///
+>         1.ff_religion {bf:Religion} 1.ukborn {bf:Country} ///
+>         1.degree {bf:Education} 1.agecats {bf:Age} ///
+>         0.parttime {bf:Parttime}, nolabel ) ///
+> stat(N icc_, label("Obs." "VPC") fmt(%8.0f %8.2f)) ///
+>  collabels(Estimates [95%CI] )  b(%8.2f) ///
+>  baselevels ci(%8.2f) star(* 0.05) label wide replace 
+
+-----------------------------------------------------------------------------------------------------------------------------------
+                              (1)                                  (2)                                  (3)                        
+                     Average Lo~s                         Average Lo~s                         Average Lo~s                        
+                        Estimates                 [95%CI]    Estimates                 [95%CI]    Estimates                 [95%CI]
+-----------------------------------------------------------------------------------------------------------------------------------
+Average Log Hourly~s                                                                                                               
+Sex                                                                                                                           
+Male                                                              0.00             [0.00,0.00]         0.00             [0.00,0.00]
+Female                                                            0.08*            [0.04,0.11]        -0.06*          [-0.09,-0.03]
+Ethnicity                                                                                                                     
+White British                                                     0.00             [0.00,0.00]         0.00             [0.00,0.00]
+Indian                                                            0.01            [-0.04,0.07]        -0.01            [-0.06,0.04]
+Pakistani                                                        -0.20*          [-0.27,-0.12]        -0.10*          [-0.16,-0.03]
+Bangladeshi                                                      -0.12*          [-0.20,-0.03]        -0.05            [-0.12,0.02]
+Black                                                            -0.01            [-0.07,0.04]        -0.05*          [-0.10,-0.00]
+Other eth.                                                       -0.01            [-0.06,0.05]        -0.02            [-0.07,0.02]
+White Other                                                       0.05            [-0.01,0.11]         0.01            [-0.04,0.06]
+No religion                                                       0.00             [0.00,0.00]         0.00             [0.00,0.00]
+Christian                                                        -0.00            [-0.05,0.05]         0.01            [-0.04,0.05]
+Muslim                                                           -0.01            [-0.06,0.04]         0.02            [-0.03,0.07]
+Hindu                                                            -0.00            [-0.06,0.06]        -0.01            [-0.06,0.05]
+Oth. religion                                                    -0.05            [-0.10,0.01]        -0.04            [-0.09,0.00]
+Country                                                                                                                       
+Born in the UK                                                    0.00             [0.00,0.00]         0.00             [0.00,0.00]
+Not born in the UK                                               -0.06*          [-0.10,-0.03]        -0.09*          [-0.12,-0.06]
+Age                                                                                                    0.01*            [0.01,0.01]
+Education Score                                                                                        0.03*            [0.03,0.03]
+engprof                                                                                                0.07*            [0.04,0.10]
+Region                                                                                                 0.13*            [0.12,0.14]
+Marital Status                                                                                         0.02*            [0.02,0.03]
+child                                                                                                  0.09*            [0.08,0.09]
+health                                                                                                -0.01*          [-0.01,-0.00]
+cardum                                                                                                -0.00            [-0.01,0.01]
+close ties with ma~y                                                                                   0.02*            [0.01,0.03]
+liberal                                                                                                0.05*            [0.05,0.06]
+sity                                                                                                   0.04*            [0.02,0.05]
+Work Orientation                                                                                       0.27*            [0.26,0.28]
+Occupation Sector                                                                                      0.10*            [0.09,0.11]
+Constant                     5.02*            [5.00,5.04]         5.04*            [4.99,5.09]         3.06*            [3.00,3.12]
+-----------------------------------------------------------------------------------------------------------------------------------
+lns1_1_1                                                                                                                           
+Constant                    -2.29*          [-2.48,-2.09]        -2.77*          [-3.02,-2.52]        -2.94*          [-3.17,-2.70]
+-----------------------------------------------------------------------------------------------------------------------------------
+lns2_1_1                                                                                                                           
+Constant                    -0.67*          [-0.68,-0.66]        -0.67*          [-0.68,-0.66]        -0.84*          [-0.84,-0.83]
+-----------------------------------------------------------------------------------------------------------------------------------
+lnsig_e                                                                                                                            
+Constant                    -0.69*          [-0.69,-0.68]        -0.69*          [-0.69,-0.68]        -0.71*          [-0.71,-0.71]
+-----------------------------------------------------------------------------------------------------------------------------------
+Obs.                       249756                               249756                               249756                        
+VPC                          0.52                                 0.51                                 0.44                        
+-----------------------------------------------------------------------------------------------------------------------------------
+95% confidence intervals in brackets
+* p<0.05
+
+. 
+. ********************************************************************************
+. **# Figure 1 - Means 
+. ********************************************************************************        
+. 
+. * G1
+. 
+. * Load the individual-level data
+. use "individual_v3.dta", clear
+(Substantive data for responding adults (16+), incl. proxies)
+
+. 
+. * Plot the histogram of the individual outcome
+. histogram ln_hrpay
+(bin=53, start=.14359832, width=.21992063)
+
+. * Summarize HbA1c
+. summarize ln_hrpay
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+    ln_hrpay |    249,756    5.085427    .7127122   .1435983   11.79939
+
+. 
+. * Store the sample mean of HbA1c
+. scalar mean = round(r(mean), 0.01)
+
+. 
+. * Store the sample minimum
+. scalar min = round(r(min), 0.01)
+
+. 
+. * Store the sample maximum
+. scalar max = round(r(max), 0.01)
+
+. 
+. * Re-plot the histogram of the individual outcome with options
+. histogram ln_hrpay, ///
+>         width(0.2)  percent ///
+>         addplot((pci 0 `=mean' 17 `=mean', lcolor(lime) lwidth(thick))) ///
+>         text(18  `=mean'  "Sample Mean = `=mean'", ///
+>         placement(0) ) ///
+>         text(6 `=min' "Min =") ///
+>         text(4 `=min' "`=min'", ) ///
+>         text(6 `=max' "Max = " ) ///
+>         text(4 `=max' "`=max'", ) /// 
+>         ytitle("Percent of Individuals",) ///
+>         xtitle("Average Log Hourly Earnings") ///
+>         xlabel(0(1)12) ///
+>         ylabel(0(5)20) ///
+>         legend(off) ///
+>         scheme(s1mono) ///
+>         name(Figure1A, replace) ///
+>         xsize(5) title("{bf: (a) Sample Distribution (Individual Observations of Average Log Hourly Earnings)}" , size(3))
+(bin=59, start=.14359832, width=.2)
+
+.         
+. graph save $pgraphs/G1_v3.gph, replace 
+file /Users/scothunter/Library/CloudStorage/OneDrive-UniversityofStirling/thesis/directory/graphs/G1_v3.gph saved
+
+. 
+. * G2
+. 
+. * Load the stratum-level data
+. use "stratum_v3.dta", clear
+(Substantive data for responding adults (16+), incl. proxies)
+
+. 
+. * Plot the histogram of the observed stratum means
+. histogram ln_hrpay
+(bin=10, start=2.1912675, width=.41936402)
+
+. 
+. * Summarize the observed stratum means
+. summarize ln_hrpay
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+    ln_hrpay |        118    4.430408    .6571277   2.191267   6.384908
+
+. 
+. * Store the grand mean (the mean of the observed stratum means)
+. scalar mean = round(r(mean), 0.01)
+
+. 
+. * Store the minimum observed stratum mean
+. scalar min = round(r(min), 0.01)
+
+. 
+. * Store the maximum observed stratum mean
+. scalar max = round(r(max), 0.01)
+
+. 
+. * Re-plot the histogram of the observed stratum means with options
+. histogram ln_hrpay, ///
+>   percent ///
+>         addplot((pci 0 `=mean' 35 `=mean', lcolor(lime) lwidth(thick))) ///
+>         text(36  `=mean' "Grand Mean = `=mean'", ///
+>                 placement(0)) ///
+>         text(6 `=min' "Min =") ///
+>         text(3.5 `=min' "`=min'", ) ///
+>         text(6 `=max' "Max = " ) ///
+>         text(3.5 `=max' "`=max'", ) /// 
+>         ytitle("Percent of Strata", ) ///
+>         legend(off) xtitle("Log Average Hourly Earnings") ///
+>         scheme(s1mono) xlabel(2.50(1)6.50) ylabel(0(5)40) ///
+>         name(Figure1B, replace) ///
+>         xsize(5) title("{bf: (b) Distribution of Strata Mean Values (observed)}", size(3))
+(bin=10, start=2.1912675, width=.41936402)
+
+. 
+. * Export the graph as a portable network graphics (PNG) file
+. graph save $pgraphs/G2_v3.gph, replace 
+file /Users/scothunter/Library/CloudStorage/OneDrive-UniversityofStirling/thesis/directory/graphs/G2_v3.gph saved
+
+. 
+. * G3
+. 
+. * Load the stratum-level data
+. use "stratum_v3.dta", clear
+(Substantive data for responding adults (16+), incl. proxies)
+
+. 
+. * Plot the histogram of the predicted stratum means
+. histogram m1Am
+(bin=10, start=3.5373766, width=.26214802)
+
+. 
+. * Summarize the predicted stratum means
+. summarize m1Am
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+        m1Am |        118    4.703636    .3819496   3.537377   6.158857
+
+. 
+. * Store the precision weighted grand mean (the mean of the predicted stratum 
+. * means)
+. scalar mean = round(r(mean), 0.01)
+
+. 
+. * Store the minimum predicted stratum mean
+. scalar min = round(r(min), 0.01)
+
+. 
+. * Store the maximum predicted stratum mean
+. scalar max = round(r(max), 0.01)
+
+. 
+. * Re-plot the histogram of the predicted stratum means with options
+. histogram m1Am, ///
+>         percent ///
+>         addplot((pci 0 `=mean' 37 `=mean', lcolor(lime) lwidth(thick))) ///
+>         text(39 `=mean' "Percission Weighted Grand Mean = `=mean'", ///
+>                 placement(0)) ///
+>         text(10 `=min' " Min =") ///
+>         text(7  `=min' " `=min'") ///
+>         text(15 5.24 " Max = ") ///
+>         text(12  5.24 " 5.10") ///
+>         ytitle("Percent of Strata", ) xlabel(2.50(1)6.50) ylabel(0(5)40) ///
+>          legend(off) xtitle("Log Average Hourly Earnings") ///
+>         scheme(s1mono)  ///
+>         name(Figure1C, replace) ///
+>         xsize(5) title("{bf: (c) Distribution of Strata Mean Values (predicted from Model 1A)}", size(3))
+(bin=10, start=3.5373766, width=.26214802)
+
+.         
+. graph save $pgraphs/G3_v3.gph, replace 
+file /Users/scothunter/Library/CloudStorage/OneDrive-UniversityofStirling/thesis/directory/graphs/G3_v3.gph saved
+
+. 
+. graph combine $pgraphs/G1_v3.gph $pgraphs/G2_v3.gph $pgraphs/G3_v3.gph, row(3) iscale(*0.75) ysize(10)
+
+. graph save $pgraphs/distributions_v3.gph, replace 
+file /Users/scothunter/Library/CloudStorage/OneDrive-UniversityofStirling/thesis/directory/graphs/distributions_v3.gph saved
+
+. 
+. 
+. *-------------------------------------------------------------------------------
+. **## Figure 2 Panel A & Table 
+. *-------------------------------------------------------------------------------
+. 
+. * Load the stratum-level data
+. use "stratum_v3.dta", clear
+(Substantive data for responding adults (16+), incl. proxies)
+
+. 
+. * Rank the predicted stratum means
+. egen m1Bmrank = rank(m1Bm)
+
+. 
+. * Generate the lower and upper limits of the approximate 95% confidence 
+. * intervals for the predicted stratum means
+. generate m1Bmlo = m1Bm - 1.96 * sqrt(m1Cxbse^2 + m1Cuse1^2)
+
+. generate m1Bmhi = m1Bm + 1.96 * sqrt(m1Cxbse^2 + m1Cuse1^2)
+
+. // Approximate as the model assumes no sampling covariability between the 
+. // regression coefficients and the stratum random effect
+. 
+. * Plot the caterpillar plot of the predicted stratum means
+. 
+. capture drop h_mus
+
+. egen h_mus = max(reli == 3), by(stratum)
+
+. 
+. twoway ///
+>         (rspike m1Bmhi m1Bmlo m1Bmrank, lcolor(gs4)) /// 
+>         (rspike m1Bmhi m1Bmlo m1Bmrank if h_mus == 1, lcolor(lime) lwidth(thick) ) ///
+>         (scatter m1Bm m1Bmrank, mcolor(black) msymbol(smcircle) msize(tiny)) ///
+>         (scatter m1Bm m1Bmrank if h_mus == 1, mcolor(lime) msymbol(smcircle) msize(tiny)) ///
+>         , ///
+>         ytitle("{bf:(A) Predicted Average Log Hourly}" "{bf: Earnings Model 1B}", size(*1.2)) xtitle("Stratum rank") ///
+>         xlabel(0 50 100 115) ///
+>         legend(off) ylabel(4(0.5)6) ///
+>         scheme(s1mono) ///
+>         name(Figure2AZ, replace) ///
+>         xsize(5) 
+
+.         
+. * Export the graph as a portable network graphics (PNG) file
+. graph save "Figure 0B1_v3.gph", replace 
+file Figure 0B1_v3.gph saved
+
+.         
+. * Generate list of 10 highest/lowest predicted stratum means (for Table 4)
+. sort m1Bmrank
+
+. list stratum fem eth2 reli ukborn n N m1Bmrank m1Bm m1Bmlo m1Bmhi in f/10 
+
+     +---------------------------------------------------------------------------------------------------------------------------+
+     | stratum      fem            eth2            reli               ukborn   n       N   m1Bmrank   m1Bm     m1Bmlo     m1Bmhi |
+     |---------------------------------------------------------------------------------------------------------------------------|
+  1. |    1552     Male           Black   Oth. religion   Not born in the UK   1      84          1   3.52   3.415596   3.625831 |
+  2. |    1631     Male      Other eth.          Muslim       Born in the UK   1     194          2   3.57   3.470764   3.666221 |
+  3. |    1721     Male     White Other       Christian       Born in the UK   1     179          3   3.71   3.602847   3.810236 |
+  4. |    1112     Male   White British     No religion   Not born in the UK   1    2768          4   3.80    3.74361    3.86294 |
+  5. |    1111     Male   White British     No religion       Born in the UK   1   56746          5   4.04   3.988308   4.082004 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+  6. |    1332     Male       Pakistani          Muslim   Not born in the UK   1    2230          6   4.04   3.973605   4.113204 |
+  7. |    1252     Male          Indian   Oth. religion   Not born in the UK   1     805          7   4.06   3.979162   4.135536 |
+  8. |    1532     Male           Black          Muslim   Not born in the UK   1     398          8   4.12   4.030026    4.20499 |
+  9. |    2122   Female   White British       Christian   Not born in the UK   1    2016          9   4.13   4.066265   4.195647 |
+ 10. |    1521     Male           Black       Christian       Born in the UK   1     936         10   4.22   4.150165   4.296168 |
+     +---------------------------------------------------------------------------------------------------------------------------+
+
+. list stratum fem eth2 reli ukborn  n N m1Bmrank m1Bm m1Bmlo m1Bmhi in -10/-1  
+
+     +--------------------------------------------------------------------------------------------------------------------------+
+     | stratum      fem            eth2            reli               ukborn   n      N   m1Bmrank   m1Bm     m1Bmlo     m1Bmhi |
+     |--------------------------------------------------------------------------------------------------------------------------|
+109. |    2741   Female     White Other           Hindu       Born in the UK   1      3        109   5.29   5.161975   5.409708 |
+110. |    2451   Female     Bangladeshi   Oth. religion       Born in the UK   1      5        110   5.30   5.169458   5.427625 |
+111. |    1541     Male           Black           Hindu       Born in the UK   1      5        111   5.32   5.196096   5.436339 |
+112. |    1751     Male     White Other   Oth. religion       Born in the UK   1     38        112   5.36   5.240526   5.474946 |
+113. |    1132     Male   White British          Muslim   Not born in the UK   1    123        113   5.36   5.253776   5.469027 |
+     |--------------------------------------------------------------------------------------------------------------------------|
+114. |    2521   Female           Black       Christian       Born in the UK   1   1710        114   5.38   5.313158   5.446335 |
+115. |    1522     Male           Black       Christian   Not born in the UK   1   1601        115   5.40   5.335779   5.466587 |
+116. |    1221     Male          Indian       Christian       Born in the UK   1     54        116   5.42   5.310479   5.522163 |
+117. |    1742     Male     White Other           Hindu   Not born in the UK   1      6        117   5.47   5.349604   5.591985 |
+118. |    2751   Female     White Other   Oth. religion       Born in the UK   1     52        118   6.16   6.041185   6.273471 |
+     +--------------------------------------------------------------------------------------------------------------------------+
+
+. list stratum fem eth2 reli ukborn n  N m1Bmrank m1Bm m1Bmlo m1Bmhi   
+
+     +---------------------------------------------------------------------------------------------------------------------------+
+     | stratum      fem            eth2            reli               ukborn   n       N   m1Bmrank   m1Bm     m1Bmlo     m1Bmhi |
+     |---------------------------------------------------------------------------------------------------------------------------|
+  1. |    1552     Male           Black   Oth. religion   Not born in the UK   1      84          1   3.52   3.415596   3.625831 |
+  2. |    1631     Male      Other eth.          Muslim       Born in the UK   1     194          2   3.57   3.470764   3.666221 |
+  3. |    1721     Male     White Other       Christian       Born in the UK   1     179          3   3.71   3.602847   3.810236 |
+  4. |    1112     Male   White British     No religion   Not born in the UK   1    2768          4   3.80    3.74361    3.86294 |
+  5. |    1111     Male   White British     No religion       Born in the UK   1   56746          5   4.04   3.988308   4.082004 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+  6. |    1332     Male       Pakistani          Muslim   Not born in the UK   1    2230          6   4.04   3.973605   4.113204 |
+  7. |    1252     Male          Indian   Oth. religion   Not born in the UK   1     805          7   4.06   3.979162   4.135536 |
+  8. |    1532     Male           Black          Muslim   Not born in the UK   1     398          8   4.12   4.030026    4.20499 |
+  9. |    2122   Female   White British       Christian   Not born in the UK   1    2016          9   4.13   4.066265   4.195647 |
+ 10. |    1521     Male           Black       Christian       Born in the UK   1     936         10   4.22   4.150165   4.296168 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+ 11. |    1732     Male     White Other          Muslim   Not born in the UK   1      95         11   4.24   4.129002   4.346193 |
+ 12. |    2251   Female          Indian   Oth. religion       Born in the UK   1     709         12   4.26   4.175274   4.334742 |
+ 13. |    2522   Female           Black       Christian   Not born in the UK   1    2558         13   4.30   4.243944    4.36476 |
+ 14. |    2631   Female      Other eth.          Muslim       Born in the UK   1     187         14   4.31   4.210104   4.406989 |
+ 15. |    2111   Female   White British     No religion       Born in the UK   1   51918         15   4.32   4.271593   4.362273 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+ 16. |    1232     Male          Indian          Muslim   Not born in the UK   1     521         16   4.36   4.282943    4.44677 |
+ 17. |    2252   Female          Indian   Oth. religion   Not born in the UK   1     660         17   4.41   4.329819   4.491777 |
+ 18. |    1331     Male       Pakistani          Muslim       Born in the UK   1    1511         18   4.42   4.342825    4.49083 |
+ 19. |    1431     Male     Bangladeshi          Muslim       Born in the UK   1     708         19   4.42   4.333099   4.507935 |
+ 20. |    1621     Male      Other eth.       Christian       Born in the UK   1     709         20   4.43   4.352141    4.50825 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+ 21. |    2441   Female     Bangladeshi           Hindu       Born in the UK   1      17         21   4.46   4.336847   4.585527 |
+ 22. |    2121   Female   White British       Christian       Born in the UK   1   43067         22   4.47   4.422785   4.515517 |
+ 23. |    1612     Male      Other eth.     No religion   Not born in the UK   1     923         23   4.48   4.405894   4.551991 |
+ 24. |    2712   Female     White Other     No religion   Not born in the UK   1    1599         24   4.49   4.416927   4.565982 |
+ 25. |    2112   Female   White British     No religion   Not born in the UK   1    2605         25   4.50   4.436773    4.55881 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+ 26. |    2752   Female     White Other   Oth. religion   Not born in the UK   1     173         26   4.50   4.398232   4.607599 |
+ 27. |    1211     Male          Indian     No religion       Born in the UK   1     226         27   4.50   4.409543   4.598927 |
+ 28. |    2542   Female           Black           Hindu   Not born in the UK   1      50         28   4.51   4.400494   4.623454 |
+ 29. |    2611   Female      Other eth.     No religion       Born in the UK   1    1279         29   4.51   4.443498   4.582911 |
+ 30. |    2621   Female      Other eth.       Christian       Born in the UK   1    1100         30   4.52   4.444026   4.589196 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+ 31. |    1711     Male     White Other     No religion       Born in the UK   1     347         31   4.53   4.433208     4.6247 |
+ 32. |    1141     Male   White British           Hindu       Born in the UK   1     204         32   4.55   4.452794   4.655503 |
+ 33. |    1442     Male     Bangladeshi           Hindu   Not born in the UK   1      75         33   4.56   4.443798   4.685073 |
+ 34. |    2342   Female       Pakistani           Hindu   Not born in the UK   1      40         34   4.58   4.462444   4.695217 |
+ 35. |    1251     Male          Indian   Oth. religion       Born in the UK   1     749         35   4.58   4.500448   4.660505 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+ 36. |    1531     Male           Black          Muslim       Born in the UK   1      46         36   4.58   4.473793   4.694345 |
+ 37. |    2532   Female           Black          Muslim   Not born in the UK   2     436         37   4.59   4.502142   4.672613 |
+ 38. |    1722     Male     White Other       Christian   Not born in the UK   1    1298         38   4.59   4.516474   4.661566 |
+ 39. |    2132   Female   White British          Muslim   Not born in the UK   1      52         39   4.59   4.481799   4.706006 |
+ 40. |    1611     Male      Other eth.     No religion       Born in the UK   1     963         40   4.60   4.527533   4.674612 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+ 41. |    1342     Male       Pakistani           Hindu   Not born in the UK   1     111         41   4.60   4.495958   4.709173 |
+ 42. |    1642     Male      Other eth.           Hindu   Not born in the UK   1     368         42   4.60   4.510288    4.69519 |
+ 43. |    2242   Female          Indian           Hindu   Not born in the UK   1    1030         43   4.61   4.536417   4.687737 |
+ 44. |    2651   Female      Other eth.   Oth. religion       Born in the UK   1     117         44   4.62    4.51091     4.7191 |
+ 45. |    2431   Female     Bangladeshi          Muslim       Born in the UK   1     737         45   4.62   4.530567   4.700861 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+ 46. |    1341     Male       Pakistani           Hindu       Born in the UK   1      78         46   4.62   4.511849   4.732153 |
+ 47. |    1641     Male      Other eth.           Hindu       Born in the UK   1      64         47   4.63   4.518686   4.742135 |
+ 48. |    1152     Male   White British   Oth. religion   Not born in the UK   1     155         48   4.64   4.535854   4.739028 |
+ 49. |    1511     Male           Black     No religion       Born in the UK   1     489         49   4.64   4.554057   4.721984 |
+ 50. |    2212   Female          Indian     No religion   Not born in the UK   1     200         50   4.65   4.556048   4.743458 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+ 51. |    1142     Male   White British           Hindu   Not born in the UK   1      27         51   4.65   4.535251   4.767562 |
+ 52. |    2222   Female          Indian       Christian   Not born in the UK   1     316         52   4.65   4.561917   4.747969 |
+ 53. |    2152   Female   White British   Oth. religion   Not born in the UK   1     260         53   4.66    4.56039   4.755023 |
+ 54. |    2722   Female     White Other       Christian   Not born in the UK   1    1789         54   4.66   4.591465   4.729075 |
+ 55. |    1121     Male   White British       Christian       Born in the UK   1   31976         55   4.67   4.618798   4.711569 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+ 56. |    1632     Male      Other eth.          Muslim   Not born in the UK   1     492         56   4.67   4.584026   4.748038 |
+ 57. |    2632   Female      Other eth.          Muslim   Not born in the UK   1     302         57   4.67   4.578235   4.760977 |
+ 58. |    2211   Female          Indian     No religion       Born in the UK   1     261         58   4.67    4.57706   4.763583 |
+ 59. |    2151   Female   White British   Oth. religion       Born in the UK   1    2193         59   4.68   4.614056   4.741718 |
+ 60. |    1122     Male   White British       Christian   Not born in the UK   1    1614         60   4.71   4.643351   4.776538 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+ 61. |    2652   Female      Other eth.   Oth. religion   Not born in the UK   1     425         61   4.71   4.623526   4.798573 |
+ 62. |    1441     Male     Bangladeshi           Hindu       Born in the UK   1      24         62   4.72   4.594306   4.840356 |
+ 63. |    2331   Female       Pakistani          Muslim       Born in the UK   1    1191         63   4.72   4.648918   4.800096 |
+ 64. |    2612   Female      Other eth.     No religion   Not born in the UK   1    1011         64   4.73   4.660467   4.803367 |
+ 65. |    2731   Female     White Other          Muslim       Born in the UK   1      12         65   4.74   4.614839   4.855221 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+ 66. |    1242     Male          Indian           Hindu   Not born in the UK   1    1363         66   4.74   4.663469   4.806654 |
+ 67. |    2452   Female     Bangladeshi   Oth. religion   Not born in the UK   1       1         67   4.74    4.60738   4.867472 |
+ 68. |    1451     Male     Bangladeshi   Oth. religion       Born in the UK   1       2         68   4.74   4.608322   4.866775 |
+ 69. |    1652     Male      Other eth.   Oth. religion   Not born in the UK   1     345         69   4.74   4.646766   4.829629 |
+ 70. |    2531   Female           Black          Muslim       Born in the UK   1      67         70   4.74   4.630062   4.848094 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+ 71. |    1651     Male      Other eth.   Oth. religion       Born in the UK   1     163         71   4.75   4.649158   4.850276 |
+ 72. |    2642   Female      Other eth.           Hindu   Not born in the UK   1     272         72   4.76   4.667354   4.859674 |
+ 73. |    1241     Male          Indian           Hindu       Born in the UK   1     514         73   4.77   4.681392   4.852218 |
+ 74. |    2622   Female      Other eth.       Christian   Not born in the UK   1    1290         74   4.77   4.703454   4.842324 |
+ 75. |    2241   Female          Indian           Hindu       Born in the UK   1     569         75   4.77   4.688636   4.858083 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+ 76. |    1131     Male   White British          Muslim       Born in the UK   1     285         76   4.78   4.684927   4.871542 |
+ 77. |    2341   Female       Pakistani           Hindu       Born in the UK   1     109         77   4.78   4.675473   4.889706 |
+ 78. |    2511   Female           Black     No religion       Born in the UK   1     574         78   4.79   4.706414   4.869981 |
+ 79. |    1231     Male          Indian          Muslim       Born in the UK   1     374         79   4.79   4.702951   4.880798 |
+ 80. |    2142   Female   White British           Hindu   Not born in the UK   1      29         80   4.81   4.689073   4.922732 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+ 81. |    1622     Male      Other eth.       Christian   Not born in the UK   1     815         81   4.81    4.73179   4.882707 |
+ 82. |    2442   Female     Bangladeshi           Hindu   Not born in the UK   1      41         82   4.82   4.696467   4.944939 |
+ 83. |    2512   Female           Black     No religion   Not born in the UK   1     348         83   4.83   4.748372   4.921491 |
+ 84. |    1151     Male   White British   Oth. religion       Born in the UK   1    1680         84   4.84    4.77165   4.905352 |
+ 85. |    1551     Male           Black   Oth. religion       Born in the UK   1      92         85   4.84   4.734187   4.945972 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+ 86. |    1222     Male          Indian       Christian   Not born in the UK   1     333         86   4.85   4.754397   4.938692 |
+ 87. |    2141   Female   White British           Hindu       Born in the UK   1     215         87   4.85    4.74402   4.949127 |
+ 88. |    1712     Male     White Other     No religion   Not born in the UK   1    1156         88   4.86   4.789052   4.934781 |
+ 89. |    1752     Male     White Other   Oth. religion   Not born in the UK   1      71         89   4.87   4.755419   4.976963 |
+ 90. |    1212     Male          Indian     No religion   Not born in the UK   1     382         90   4.90    4.81398   4.984038 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+ 91. |    1512     Male           Black     No religion   Not born in the UK   1     386         91   4.90   4.818761   4.990012 |
+ 92. |    2332   Female       Pakistani          Muslim   Not born in the UK   1     743         92   4.91   4.825816   4.999572 |
+ 93. |    2221   Female          Indian       Christian       Born in the UK   1      89         93   4.92   4.817787   5.022372 |
+ 94. |    2232   Female          Indian          Muslim   Not born in the UK   1     263         94   4.97   4.877116   5.059327 |
+ 95. |    2742   Female     White Other           Hindu   Not born in the UK   1       5         95   4.98   4.860139   5.103409 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+ 96. |    2131   Female   White British          Muslim       Born in the UK   1     283         96   4.99   4.893384   5.080801 |
+ 97. |    2721   Female     White Other       Christian       Born in the UK   1     262         97   5.01    4.90961   5.109854 |
+ 98. |    1542     Male           Black           Hindu   Not born in the UK   1      35         98   5.01   4.898578   5.124492 |
+ 99. |    2552   Female           Black   Oth. religion   Not born in the UK   1     185         99   5.03   4.937204   5.132519 |
+100. |    2231   Female          Indian          Muslim       Born in the UK   1     277        100   5.05   4.963603   5.145885 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+101. |    2432   Female     Bangladeshi          Muslim   Not born in the UK   1     517        101   5.06   4.966754   5.150465 |
+102. |    2551   Female           Black   Oth. religion       Born in the UK   1     107        102   5.06   4.956802   5.164491 |
+103. |    2711   Female     White Other     No religion       Born in the UK   1     265        103   5.07   4.969844   5.167915 |
+104. |    2732   Female     White Other          Muslim   Not born in the UK   1      83        104   5.07   4.959879   5.180304 |
+105. |    1731     Male     White Other          Muslim       Born in the UK   1       6        105   5.07   4.952742   5.194576 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+106. |    1432     Male     Bangladeshi          Muslim   Not born in the UK   1    1504        106   5.11   5.035563   5.192274 |
+107. |    2641   Female      Other eth.           Hindu       Born in the UK   1      53        107   5.19   5.076824   5.298626 |
+108. |    2541   Female           Black           Hindu       Born in the UK   1       5        108   5.26   5.136193   5.374735 |
+109. |    2741   Female     White Other           Hindu       Born in the UK   1       3        109   5.29   5.161975   5.409708 |
+110. |    2451   Female     Bangladeshi   Oth. religion       Born in the UK   1       5        110   5.30   5.169458   5.427625 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+111. |    1541     Male           Black           Hindu       Born in the UK   1       5        111   5.32   5.196096   5.436339 |
+112. |    1751     Male     White Other   Oth. religion       Born in the UK   1      38        112   5.36   5.240526   5.474946 |
+113. |    1132     Male   White British          Muslim   Not born in the UK   1     123        113   5.36   5.253776   5.469027 |
+114. |    2521   Female           Black       Christian       Born in the UK   1    1710        114   5.38   5.313158   5.446335 |
+115. |    1522     Male           Black       Christian   Not born in the UK   1    1601        115   5.40   5.335779   5.466587 |
+     |---------------------------------------------------------------------------------------------------------------------------|
+116. |    1221     Male          Indian       Christian       Born in the UK   1      54        116   5.42   5.310479   5.522163 |
+117. |    1742     Male     White Other           Hindu   Not born in the UK   1       6        117   5.47   5.349604   5.591985 |
+118. |    2751   Female     White Other   Oth. religion       Born in the UK   1      52        118   6.16   6.041185   6.273471 |
+     +---------------------------------------------------------------------------------------------------------------------------+
+
+. 
+. *-------------------------------------------------------------------------------
+. **##  
+. *-------------------------------------------------------------------------------
+. 
+. * Load the stratum-level data
+. use "stratum_v3.dta", clear
+(Substantive data for responding adults (16+), incl. proxies)
+
+. 
+. capture drop h_mus
+
+. egen h_mus = max(reli == 3), by(stratum)
+
+. * Rank the predicted stratum means
+. egen m1Cmrank = rank(m1Cm)
+
+. 
+. * Generate the lower and upper limits of the approximate 95% confidence 
+. * intervals for the predicted stratum means
+. generate m1Cmlo = m1Cm - 1.96 * sqrt(m1Bxbse^2 + m1Buse1^2)
+
+. generate m1Cmhi = m1Cm + 1.96 * sqrt(m1Bxbse^2 + m1Buse1^2)
+
+. // Approximate as the model assumes no sampling covariability between the 
+. // regression coefficients and the stratum random effect
+. 
+. * Plot the caterpillar plot of the predicted stratum means
+. 
+. twoway ///
+>         (rspike m1Cmhi m1Cmlo m1Cmrank, lcolor(gs4)) /// 
+>         (rspike m1Cmhi m1Cmlo m1Cmrank if h_mus == 1, lcolor(lime) lwidth(thick) ) ///
+>         (scatter m1Cm m1Cmrank, mcolor(black) msymbol(smcircle) msize(tiny)) ///
+>         (scatter m1Cm m1Cmrank if h_mus == 1, mcolor(lime) msymbol(smcircle) msize(tiny)) ///
+>         , ///
+>         ytitle("{bf:(B) Predicted Average Log Hourly}" "{bf:Earnings Model 1C}", size(*0.7)) ///
+>         xtitle("Stratum rank") ///
+>         xlabel(0 50 100 115) ///
+>         legend(off) ylabel(4(0.5)6) ///
+>         scheme(s1mono) ///
+>         name(Figure2A, replace) ///
+>         xsize(5)
+
+.         
+. * Export the graph as a portable network graphics (PNG) file
+. graph save "Figure 0C1_v3.gph", replace 
+file Figure 0C1_v3.gph saved
+
+.         
+. * Generate list of 10 highest/lowest predicted stratum means (for Table 4)
+. sort m1Cmrank
+
+. list stratum fem eth2 reli ukborn N m1Cmrank m1Cm m1Cmlo m1Cmhi in f/10 
+
+     +-----------------------------------------------------------------------------------------------------------------------+
+     | stratum      fem            eth2            reli               ukborn       N   m1Cmrank   m1Cm     m1Cmlo     m1Cmhi |
+     |-----------------------------------------------------------------------------------------------------------------------|
+  1. |    1721     Male     White Other       Christian       Born in the UK     179          1   3.47    3.35008   3.590263 |
+  2. |    1552     Male           Black   Oth. religion   Not born in the UK      84          2   3.59   3.470013    3.71257 |
+  3. |    1631     Male      Other eth.          Muslim       Born in the UK     194          3   3.67   3.562037   3.785903 |
+  4. |    1111     Male   White British     No religion       Born in the UK   56746          4   3.75   3.700019   3.801017 |
+  5. |    1112     Male   White British     No religion   Not born in the UK    2768          5   3.76   3.688473   3.824394 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+  6. |    1252     Male          Indian   Oth. religion   Not born in the UK     805          6   3.79   3.705253   3.882042 |
+  7. |    2522   Female           Black       Christian   Not born in the UK    2558          7   3.94   3.877308   4.012133 |
+  8. |    2251   Female          Indian   Oth. religion       Born in the UK     709          8   3.97   3.880519   4.061482 |
+  9. |    1732     Male     White Other          Muslim   Not born in the UK      95          9   3.98   3.852295   4.102353 |
+ 10. |    2122   Female   White British       Christian   Not born in the UK    2016         10   3.98   3.904613   4.050762 |
+     +-----------------------------------------------------------------------------------------------------------------------+
+
+. list stratum fem eth2 reli ukborn  N m1Cmrank m1Cm m1Cmlo m1Cmhi in -10/-1 
+
+     +----------------------------------------------------------------------------------------------------------------------+
+     | stratum      fem            eth2            reli               ukborn      N   m1Cmrank   m1Cm     m1Cmlo     m1Cmhi |
+     |----------------------------------------------------------------------------------------------------------------------|
+109. |    2521   Female           Black       Christian       Born in the UK   1710        109   5.16   5.089189    5.23903 |
+110. |    2641   Female      Other eth.           Hindu       Born in the UK     53        110   5.17    5.04458   5.301157 |
+111. |    1221     Male          Indian       Christian       Born in the UK     54        111   5.20   5.082021   5.326395 |
+112. |    2451   Female     Bangladeshi   Oth. religion       Born in the UK      5        112   5.23   5.080447   5.380485 |
+113. |    2741   Female     White Other           Hindu       Born in the UK      3        113   5.24   5.099443   5.387583 |
+     |----------------------------------------------------------------------------------------------------------------------|
+114. |    1541     Male           Black           Hindu       Born in the UK      5        114   5.34   5.195781   5.474844 |
+115. |    1751     Male     White Other   Oth. religion       Born in the UK     38        115   5.37   5.237753   5.510407 |
+116. |    1742     Male     White Other           Hindu   Not born in the UK      6        116   5.45   5.312519   5.594589 |
+117. |    1132     Male   White British          Muslim   Not born in the UK    123        117   5.46   5.330749   5.580544 |
+118. |    2751   Female     White Other   Oth. religion       Born in the UK     52        118   6.03   5.892437   6.162582 |
+     +----------------------------------------------------------------------------------------------------------------------+
+
+. sort m1Cmrank
+
+. list stratum fem eth2 reli ukborn N m1Cmrank m1Cm m1Cmlo m1Cmhi  
+
+     +-----------------------------------------------------------------------------------------------------------------------+
+     | stratum      fem            eth2            reli               ukborn       N   m1Cmrank   m1Cm     m1Cmlo     m1Cmhi |
+     |-----------------------------------------------------------------------------------------------------------------------|
+  1. |    1721     Male     White Other       Christian       Born in the UK     179          1   3.47    3.35008   3.590263 |
+  2. |    1552     Male           Black   Oth. religion   Not born in the UK      84          2   3.59   3.470013    3.71257 |
+  3. |    1631     Male      Other eth.          Muslim       Born in the UK     194          3   3.67   3.562037   3.785903 |
+  4. |    1111     Male   White British     No religion       Born in the UK   56746          4   3.75   3.700019   3.801017 |
+  5. |    1112     Male   White British     No religion   Not born in the UK    2768          5   3.76   3.688473   3.824394 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+  6. |    1252     Male          Indian   Oth. religion   Not born in the UK     805          6   3.79   3.705253   3.882042 |
+  7. |    2522   Female           Black       Christian   Not born in the UK    2558          7   3.94   3.877308   4.012133 |
+  8. |    2251   Female          Indian   Oth. religion       Born in the UK     709          8   3.97   3.880519   4.061482 |
+  9. |    1732     Male     White Other          Muslim   Not born in the UK      95          9   3.98   3.852295   4.102353 |
+ 10. |    2122   Female   White British       Christian   Not born in the UK    2016         10   3.98   3.904613   4.050762 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+ 11. |    2111   Female   White British     No religion       Born in the UK   51918         11   3.98   3.933821   4.034956 |
+ 12. |    1521     Male           Black       Christian       Born in the UK     936         12   4.01   3.929651   4.094558 |
+ 13. |    1532     Male           Black          Muslim   Not born in the UK     398         13   4.01   3.914623   4.112607 |
+ 14. |    1332     Male       Pakistani          Muslim   Not born in the UK    2230         14   4.04   3.959885   4.119481 |
+ 15. |    2441   Female     Bangladeshi           Hindu       Born in the UK      17         15   4.15   4.003479   4.291718 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+ 16. |    2121   Female   White British       Christian       Born in the UK   43067         16   4.16   4.106513   4.208885 |
+ 17. |    2652   Female      Other eth.   Oth. religion   Not born in the UK     425         17   4.19   4.091911   4.291544 |
+ 18. |    1621     Male      Other eth.       Christian       Born in the UK     709         18   4.20   4.108439   4.285559 |
+ 19. |    2542   Female           Black           Hindu   Not born in the UK      50         19   4.21   4.084547   4.342012 |
+ 20. |    2752   Female     White Other   Oth. religion   Not born in the UK     173         20   4.22   4.100417   4.340748 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+ 21. |    2611   Female      Other eth.     No religion       Born in the UK    1279         21   4.26   4.181098   4.338989 |
+ 22. |    1722     Male     White Other       Christian   Not born in the UK    1298         22   4.28   4.196099   4.359728 |
+ 23. |    2212   Female          Indian     No religion   Not born in the UK     200         23   4.28    4.17272   4.387596 |
+ 24. |    2722   Female     White Other       Christian   Not born in the UK    1789         24   4.29   4.210871   4.364885 |
+ 25. |    1141     Male   White British           Hindu       Born in the UK     204         25   4.29   4.172276   4.406223 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+ 26. |    1612     Male      Other eth.     No religion   Not born in the UK     923         26   4.29   4.210747   4.375843 |
+ 27. |    2712   Female     White Other     No religion   Not born in the UK    1599         27   4.29   4.215895   4.373191 |
+ 28. |    2621   Female      Other eth.       Christian       Born in the UK    1100         28   4.30   4.216367   4.381004 |
+ 29. |    2631   Female      Other eth.          Muslim       Born in the UK     187         29   4.30   4.186175   4.412087 |
+ 30. |    1331     Male       Pakistani          Muslim       Born in the UK    1511         30   4.30   4.215554   4.384218 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+ 31. |    1121     Male   White British       Christian       Born in the UK   31976         31   4.30   4.248554   4.352557 |
+ 32. |    1632     Male      Other eth.          Muslim   Not born in the UK     492         32   4.30   4.209024   4.394776 |
+ 33. |    2112   Female   White British     No religion   Not born in the UK    2605         33   4.30   4.233769   4.371878 |
+ 34. |    1711     Male     White Other     No religion       Born in the UK     347         34   4.30   4.192872   4.413587 |
+ 35. |    2252   Female          Indian   Oth. religion   Not born in the UK     660         35   4.31   4.221237   4.405336 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+ 36. |    2152   Female   White British   Oth. religion   Not born in the UK     260         36   4.33   4.215524   4.440027 |
+ 37. |    1431     Male     Bangladeshi          Muslim       Born in the UK     708         37   4.33   4.230994   4.431165 |
+ 38. |    2132   Female   White British          Muslim   Not born in the UK      52         38   4.33   4.201739   4.462406 |
+ 39. |    2632   Female      Other eth.          Muslim   Not born in the UK     302         39   4.35   4.250887   4.458936 |
+ 40. |    1142     Male   White British           Hindu   Not born in the UK      27         40   4.36   4.228921   4.499541 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+ 41. |    2242   Female          Indian           Hindu   Not born in the UK    1030         41   4.38   4.293928   4.465061 |
+ 42. |    1611     Male      Other eth.     No religion       Born in the UK     963         42   4.38   4.301028   4.467929 |
+ 43. |    1511     Male           Black     No religion       Born in the UK     489         43   4.38    4.28953    4.48029 |
+ 44. |    2341   Female       Pakistani           Hindu       Born in the UK     109         44   4.39   4.265234   4.511183 |
+ 45. |    2642   Female      Other eth.           Hindu   Not born in the UK     272         45   4.39     4.2788   4.498083 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+ 46. |    1251     Male          Indian   Oth. religion       Born in the UK     749         46   4.39   4.301599   4.483628 |
+ 47. |    2222   Female          Indian       Christian   Not born in the UK     316         47   4.40   4.289123   4.502391 |
+ 48. |    1242     Male          Indian           Hindu   Not born in the UK    1363         48   4.40   4.318228   4.478792 |
+ 49. |    1211     Male          Indian     No religion       Born in the UK     226         49   4.42   4.309298   4.527008 |
+ 50. |    1531     Male           Black          Muslim       Born in the UK      46         50   4.42    4.29337   4.547465 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+ 51. |    1152     Male   White British   Oth. religion   Not born in the UK     155         51   4.42   4.306441   4.540582 |
+ 52. |    2532   Female           Black          Muslim   Not born in the UK     436         52   4.43   4.332521   4.524771 |
+ 53. |    1232     Male          Indian          Muslim   Not born in the UK     521         53   4.43   4.340944   4.526986 |
+ 54. |    1441     Male     Bangladeshi           Hindu       Born in the UK      24         54   4.45   4.302762   4.588075 |
+ 55. |    1642     Male      Other eth.           Hindu   Not born in the UK     368         55   4.45    4.34325   4.553664 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+ 56. |    1641     Male      Other eth.           Hindu       Born in the UK      64         56   4.46   4.329333    4.58815 |
+ 57. |    2342   Female       Pakistani           Hindu   Not born in the UK      40         57   4.47   4.336221   4.605572 |
+ 58. |    2612   Female      Other eth.     No religion   Not born in the UK    1011         58   4.48   4.397988   4.559587 |
+ 59. |    2151   Female   White British   Oth. religion       Born in the UK    2193         59   4.49   4.414002   4.557752 |
+ 60. |    2241   Female          Indian           Hindu       Born in the UK     569         60   4.49    4.39179   4.584551 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+ 61. |    2651   Female      Other eth.   Oth. religion       Born in the UK     117         61   4.49   4.369362   4.609022 |
+ 62. |    2211   Female          Indian     No religion       Born in the UK     261         62   4.50    4.39199   4.604516 |
+ 63. |    2431   Female     Bangladeshi          Muslim       Born in the UK     737         63   4.51   4.413787   4.608141 |
+ 64. |    2442   Female     Bangladeshi           Hindu   Not born in the UK      41         64   4.52   4.378036   4.658845 |
+ 65. |    1551     Male           Black   Oth. religion       Born in the UK      92         65   4.53   4.409694   4.654314 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+ 66. |    1341     Male       Pakistani           Hindu       Born in the UK      78         66   4.53    4.40729   4.659988 |
+ 67. |    1622     Male      Other eth.       Christian   Not born in the UK     815         67   4.54   4.456426   4.627174 |
+ 68. |    1122     Male   White British       Christian   Not born in the UK    1614         68   4.56   4.482727   4.634699 |
+ 69. |    2141   Female   White British           Hindu       Born in the UK     215         69   4.58   4.457379   4.692824 |
+ 70. |    1442     Male     Bangladeshi           Hindu   Not born in the UK      75         70   4.58   4.443855   4.715929 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+ 71. |    1241     Male          Indian           Hindu       Born in the UK     514         71   4.59   4.491232   4.685701 |
+ 72. |    1651     Male      Other eth.   Oth. religion       Born in the UK     163         72   4.59   4.473307   4.705321 |
+ 73. |    1342     Male       Pakistani           Hindu   Not born in the UK     111         73   4.60   4.475214   4.719056 |
+ 74. |    1712     Male     White Other     No religion   Not born in the UK    1156         74   4.60   4.517555   4.682911 |
+ 75. |    1451     Male     Bangladeshi   Oth. religion       Born in the UK       2         75   4.60   4.449319   4.751163 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+ 76. |    2142   Female   White British           Hindu   Not born in the UK      29         76   4.60   4.464238   4.736768 |
+ 77. |    2531   Female           Black          Muslim       Born in the UK      67         77   4.60   4.474956    4.72721 |
+ 78. |    2331   Female       Pakistani          Muslim       Born in the UK    1191         78   4.60   4.518276   4.689446 |
+ 79. |    2622   Female      Other eth.       Christian   Not born in the UK    1290         79   4.61    4.53001   4.686588 |
+ 80. |    1212     Male          Indian     No religion   Not born in the UK     382         80   4.61   4.515996   4.710207 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+ 81. |    1652     Male      Other eth.   Oth. religion   Not born in the UK     345         81   4.63    4.52449   4.733219 |
+ 82. |    1231     Male          Indian          Muslim       Born in the UK     374         82   4.63   4.533016   4.735674 |
+ 83. |    1222     Male          Indian       Christian   Not born in the UK     333         83   4.65   4.543787   4.753247 |
+ 84. |    2221   Female          Indian       Christian       Born in the UK      89         84   4.66   4.540183   4.775398 |
+ 85. |    2512   Female           Black     No religion   Not born in the UK     348         85   4.67   4.573647   4.771427 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+ 86. |    2721   Female     White Other       Christian       Born in the UK     262         86   4.68   4.569663    4.80007 |
+ 87. |    2511   Female           Black     No religion       Born in the UK     574         87   4.71   4.614379   4.799845 |
+ 88. |    1512     Male           Black     No religion   Not born in the UK     386         88   4.71   4.612234   4.806789 |
+ 89. |    2232   Female          Indian          Muslim   Not born in the UK     263         89   4.72   4.614571   4.822952 |
+ 90. |    2131   Female   White British          Muslim       Born in the UK     283         90   4.72   4.614477   4.828432 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+ 91. |    2452   Female     Bangladeshi   Oth. religion   Not born in the UK       1         91   4.74   4.593412   4.895894 |
+ 92. |    2732   Female     White Other          Muslim   Not born in the UK      83         92   4.76   4.632975   4.887403 |
+ 93. |    1752     Male     White Other   Oth. religion   Not born in the UK      71         93   4.79    4.65774   4.913554 |
+ 94. |    2711   Female     White Other     No religion       Born in the UK     265         94   4.82   4.709492   4.938354 |
+ 95. |    2231   Female          Indian          Muslim       Born in the UK     277         95   4.82   4.720873   4.927821 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+ 96. |    2742   Female     White Other           Hindu   Not born in the UK       5         96   4.83   4.690098   4.973457 |
+ 97. |    2731   Female     White Other          Muslim       Born in the UK      12         97   4.83   4.694429   4.973908 |
+ 98. |    2552   Female           Black   Oth. religion   Not born in the UK     185         98   4.87   4.754918   4.978372 |
+ 99. |    2551   Female           Black   Oth. religion       Born in the UK     107         99   4.87   4.750706   4.990164 |
+100. |    1131     Male   White British          Muslim       Born in the UK     285        100   4.88    4.76874    4.98316 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+101. |    2332   Female       Pakistani          Muslim   Not born in the UK     743        101   4.88   4.788055   4.978386 |
+102. |    2432   Female     Bangladeshi          Muslim   Not born in the UK     517        102   4.89   4.786815   4.996546 |
+103. |    1151     Male   White British   Oth. religion       Born in the UK    1680        103   4.90   4.821429     4.9718 |
+104. |    1731     Male     White Other          Muslim       Born in the UK       6        104   4.91   4.766647   5.048341 |
+105. |    1432     Male     Bangladeshi          Muslim   Not born in the UK    1504        105   4.92    4.83242   5.008721 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+106. |    1542     Male           Black           Hindu   Not born in the UK      35        106   4.92    4.79355   5.054338 |
+107. |    2541   Female           Black           Hindu       Born in the UK       5        107   5.03   4.893699   5.171387 |
+108. |    1522     Male           Black       Christian   Not born in the UK    1601        108   5.06   4.988072   5.133482 |
+109. |    2521   Female           Black       Christian       Born in the UK    1710        109   5.16   5.089189    5.23903 |
+110. |    2641   Female      Other eth.           Hindu       Born in the UK      53        110   5.17    5.04458   5.301157 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+111. |    1221     Male          Indian       Christian       Born in the UK      54        111   5.20   5.082021   5.326395 |
+112. |    2451   Female     Bangladeshi   Oth. religion       Born in the UK       5        112   5.23   5.080447   5.380485 |
+113. |    2741   Female     White Other           Hindu       Born in the UK       3        113   5.24   5.099443   5.387583 |
+114. |    1541     Male           Black           Hindu       Born in the UK       5        114   5.34   5.195781   5.474844 |
+115. |    1751     Male     White Other   Oth. religion       Born in the UK      38        115   5.37   5.237753   5.510407 |
+     |-----------------------------------------------------------------------------------------------------------------------|
+116. |    1742     Male     White Other           Hindu   Not born in the UK       6        116   5.45   5.312519   5.594589 |
+117. |    1132     Male   White British          Muslim   Not born in the UK     123        117   5.46   5.330749   5.580544 |
+118. |    2751   Female     White Other   Oth. religion       Born in the UK      52        118   6.03   5.892437   6.162582 |
+     +-----------------------------------------------------------------------------------------------------------------------+
+
+. 
+. graph combine "Figure 0B1_v2.gph" "Figure 0C1_v2.gph", row(2) col(1) ysize(10) iscale(*0.95)
+
+. graph save "Combo0_v2.gph", replace 
+file Combo0_v2.gph saved
+
+. 
+end of do-file
+
+. log close
+      name:  <unnamed>
+       log:  /Users/scothunter/Library/CloudStorage/OneDrive-UniversityofStirling/thesis/directory/syntax/prep/attachments/sup_ch5_3level.l
+> og
+  log type:  text
+ closed on:  28 Sep 2024, 13:36:20
+-------------------------------------------------------------------------------------------------------------------------------------------
